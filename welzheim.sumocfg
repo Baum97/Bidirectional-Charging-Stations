@@ -18,4 +18,8 @@
         <no-step-log value="false"/>
     </report>
 
+    <output>
+        <edgedata-output value="welzheim_edges.xml"/>
+    </output>
+
 </configuration>
