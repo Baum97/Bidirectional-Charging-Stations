@@ -1,30 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on 2025-05-05 15:19:58 by Eclipse SUMO GUI Version 1.22.0
-<sumoConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
-
-    <input>
-        <net-file value="welzheim_network.net.xml"/>
-        <route-files value="welzheim_routes.rou.xml"/>
-    </input>
-
-    <output>
-        <edgedata-output value="welzheim_edges.xml"/>
-    </output>
-
-    <time>
-        <begin value="0"/>
-        <end value="40000"/>
-    </time>
-
-    <report>
-        <verbose value="true"/>
-        <no-step-log value="false"/>
-    </report>
-
-</sumoConfiguration>
--->
-
 <meandata xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/meandata_file.xsd">
     <interval begin="0.00" end="40000.00" id="DEFAULT_EDGEDATA">
         <edge id="1" sampledSeconds="64.62" traveltime="12.26" overlapTraveltime="12.98" density="0.02" laneDensity="0.02" occupancy="0.01" waitingTime="0.00" timeLoss="6.56" speed="7.81" speedRelative="0.94" departed="0" arrived="1" entered="5" left="4" laneChangedFrom="0" laneChangedTo="0"/>
