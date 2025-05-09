@@ -20,5 +20,4 @@
         <edgedata-output value="welzheim_edges.xml" />
     </output>
 
-    <additional value="welzheim.add.xml" />
-</configuration>
+<additional-files value="welzheim.add.xml" /></configuration>
