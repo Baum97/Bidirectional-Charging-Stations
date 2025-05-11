@@ -18,6 +18,7 @@
 
     <output>
         <edgedata-output value="welzheim_edges.xml" />
+        <lanedata-output value="welzheim_lanes.xml" />
     </output>
 
-<additional-files value="welzheim.add.xml" /></configuration>
+<additional-files value="welzheim_lanes.add.xml" /></configuration>
