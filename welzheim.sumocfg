@@ -1,25 +1,24 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-               xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
+<?xml version='1.0' encoding='utf-8'?>
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
 
     <input>
-        <net-file value="welzheim_network.net.xml"/>
-        <route-files value="welzheim_routes.rou.xml"/>
+        <net-file value="welzheim_network.net.xml" />
+        <route-files value="welzheim_routes.rou.xml" />
     </input>
 
     <time>
-        <begin value="0"/>
-        <end value="40000"/>
+        <begin value="0" />
+        <end value="40000" />
     </time>
 
     <report>
-        <verbose value="true"/>
-        <no-step-log value="false"/>
+        <verbose value="true" />
+        <no-step-log value="false" />
     </report>
 
     <output>
-        <edgedata-output value="welzheim_edges.xml"/>
+        <edgedata-output value="welzheim_edges.xml" />
+        <lanedata-output value="welzheim_lanes.xml" />
     </output>
 
-</configuration>
+<additional-files value="welzheim_lanes.add.xml" /></configuration>
