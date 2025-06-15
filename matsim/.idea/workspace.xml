@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="f3363b61-1ad2-41e4-b102-04db9b490a9c" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/matsimOsm/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/matsimOsm/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/matsimOsm/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/matsimOsm/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/matsimOsm/src/main/resources/META-INF/maven/archetype.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/matsimOsm/src/main/resources/archetype-resources/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/matsimOsm/src/main/resources/archetype-resources/src/main/java/App.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/matsimOsm/src/main/resources/archetype-resources/src/test/java/AppTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CSVReaderUtil.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Main.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/NearestLinkResult.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/NearestLinkUtil.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/NetworkBuilderUtil.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OSM2Network.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/POICentroid.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/POIs_commercial.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/POIs_residential.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/population.xml.gz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../welzheim.osm" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../welzheim.sumocfg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../welzheim_edges.add.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../welzheim_edges.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../welzheim_lanes.add.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../welzheim_lanes.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../welzheim_network.net.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../welzheim_routes.rou.xml" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
+  "associatedIndex": 2
+}]]></component>
+  <component name="ProjectId" id="2yOxvnZM8sr6myPDhUJAv1wH8Vu" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "feature/matsim-poi",
+    "junie.onboarding.icon.badge.shown": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.23774.435" />
+        <option value="bundled-js-predefined-d6986cc7102b-f27c65a3e318-JavaScript-IU-251.23774.435" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="f3363b61-1ad2-41e4-b102-04db9b490a9c" name="Changes" comment="" />
+      <created>1749719656305</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1749719656305</updated>
+      <workItem from="1749719660979" duration="827000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

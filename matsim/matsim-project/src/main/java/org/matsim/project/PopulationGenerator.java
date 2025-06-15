@@ -12,7 +12,7 @@ import java.util.Random;
 public class PopulationGenerator {
     public static void main(String[] args) {
 
-        File outputDirectory = new File("input-erik");
+        File outputDirectory = new File("C:\\Projekte\\Bidi-Data");
         if (!outputDirectory.exists()) {
             outputDirectory.mkdirs();
         }
@@ -46,8 +46,9 @@ public class PopulationGenerator {
             population.addPerson(person);
         }
 
-        new PopulationWriter(population).write("input-erik/plans.xml");
-        System.out.println("1000-agent population written to input-erik/plans.xml");
+        String fileDir = outputDirectory + "\\esslingen-plans.xml";
+        new PopulationWriter(population).write(fileDir);
+        System.out.println("1000-agent population written to " + fileDir);
 
 
     }
