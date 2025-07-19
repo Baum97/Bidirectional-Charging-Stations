@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<additional>
+    <vType id="EV" vClass="passenger" color="0,0,255" engineType="electric"></vType>
+    <chargingStation id="cs_0" lane="-E10_0" startPos="6.59" endPos="16.59"/>
+    <chargingStation id="cs_1" lane="-E11_0" startPos="6.98" endPos="16.98"/>
+    <chargingStation id="cs_2" lane="-E9_0" startPos="6.67" endPos="16.67"/>
+    <chargingStation id="cs_3" lane="-E8_0" startPos="6.04" endPos="16.04"/>
+    <chargingStation id="cs_4" lane="-E7_0" startPos="5.63" endPos="15.63"/>
+    <chargingStation id="cs_5" lane="-E6_0" startPos="7.96" endPos="17.96"/>
+</additional>
