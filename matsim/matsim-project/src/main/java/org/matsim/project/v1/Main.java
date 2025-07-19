@@ -21,21 +21,17 @@ import org.matsim.core.scenario.ScenarioUtils;
 
 public class Main {
 
-    static Integer POPULATION_SIZE = 10;
-    //static String outputPopulation = "C:\\Users\\erikw\\Desktop\\AIM\\biflex\\matsim-example-project\\src\\main\\java\\org\\matsim\\project\\v1\\esslingen-population.xml.gz";
-    static String outputPopulationAchim = "C:\\Projekte\\Bidirectional-Charging-Stations\\matsim\\matsim-project\\src\\main\\java\\org\\matsim\\project\\v1\\esslingen-population.xml.gz";
-    static String desktopPath = "C:\\Users\\Erik\\Desktop";
-    static String bidiData = "C:\\Projekte\\Bidi-Data";
+    static Integer POPULATION_SIZE = 50;
+    static String bidiData = "C:\\Projekte\\Bidirectional-Charging-Stations\\sumoconfigs\\reutlingen";
+    static String outputPopulationAchim = bidiData + "\\reutlingen.xml.gz";
 
     public static void main(String[] args) {
 
         // Before: // osmosis --read-pbf file="stuttgart-regbez.osm.pbf" --write-xml file="stuttgart-regbez.osm"
 
         // Build Network
-        //String osmPbfFile = desktopPath + "\\AIM\\biflex\\esslingen.osm";
-        String osmPbfFile = bidiData + "\\esslingen.osm";
-        //String networkFile = desktopPath + "\\AIM\\biflex\\esslingen-network.xml";
-        String networkFile = bidiData + "\\esslingen-network.xml";
+        String osmPbfFile = bidiData + "\\reutlingen.osm";
+        String networkFile = bidiData + "\\reutlingen.net.xml";
 
         // Check if network file already exists or built it
         java.io.File netFile = new java.io.File(networkFile);
@@ -53,11 +49,8 @@ public class Main {
         Network network = scenario.getNetwork();
 
 
-        //String ResidentialCsvFilePath = desktopPath + "\\AIM\\biflex\\matsim-example-project\\src\\main\\java\\org\\matsim\\project\\v1\\esslingen_poi_residential.csv";
-        String ResidentialCsvFilePath = "C:\\Projekte\\Bidirectional-Charging-Stations\\matsim\\matsim-project\\src\\main\\java\\org\\matsim\\project\\v1\\esslingen_poi_residential.csv";
-        //String CommercialCsvFilePath = desktopPath + "\\AIM\\biflex\\matsim-example-project\\src\\main\\java\\org\\matsim\\project\\v1\\esslingen_poi_commercial.csv";
-        String CommercialCsvFilePath = "C:\\Projekte\\Bidirectional-Charging-Stations\\matsim\\matsim-project\\src\\main\\java\\org\\matsim\\project\\v1\\esslingen_poi_commercial.csv";
-
+        String ResidentialCsvFilePath = bidiData + "\\csv\\commerical_zentroid.poi.csv";
+        String CommercialCsvFilePath = bidiData + "\\csv\\residential_zentroid.poi.csv";
 
         // Read x & y coordinates from csv file
         List<POICentroid> residential_coordinates = CSVReaderUtil.readCoordinates(ResidentialCsvFilePath);
@@ -178,8 +171,7 @@ public class Main {
         System.out.println("Population has been written to " + outputPopulationAchim);
 
         // Convert OSM2Network suitable for SUMO
-        //String output_file = desktopPath + "\\AIM\\biflex\\matsim-example-project\\src\\main\\java\\org\\matsim\\project\\v1\\esslingen-network.xml";
-        String output_file = "C:\\Projekte\\Bidirectional-Charging-Stations\\matsim\\matsim-project\\src\\main\\java\\org\\matsim\\project\\v1\\esslingen-network.xml";
+        String output_file = bidiData + "\\reutlingen-network.xml";
         OSM2Network.convertOSM2Network(osmPbfFile, output_file);
 
 

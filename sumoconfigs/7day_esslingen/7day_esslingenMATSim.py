@@ -189,6 +189,6 @@ def seconds_to_time(seconds):
 
 if __name__ == "__main__":
     # Wöchentliche Plan erstellen
-    create_weekly_plan_xml(num_persons=50, output_file="7day_plan.xml")
+    create_weekly_plan_xml(num_persons=40, output_file="7day_plan.xml")
     print("Führen Sie dann aus:")
     print('py "C:\\Program Files (x86)\\Eclipse\\Sumo\\tools\\import\\matsim\\matsim_importPlans.py" --plan-file 7day_esslingen.xml -o 7day_esslingen.rou.xml')

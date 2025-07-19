@@ -6,12 +6,7 @@
 
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
     <vType id="car"/>
-    <trip id="0_0" depart="triggered" fromXY="6641.704436389086,8731.72999061441" toXY="8999.292979178701,7313.161818066074" type="car"/>
-    <person id="0" depart="0:0:0">
-        <stop x="6641.704436389086" y="8731.72999061441" until="06:40:54" actType="home"/>
-        <ride lines="0_0" toXY="8999.292979178701,7313.161818066074"/>
-        <stop x="8999.292979178701" y="7313.161818066074" until="24:0:0" actType="work"/>
-    </person>
+
     <trip id="1_0" depart="triggered" fromXY="2691.9773411262427,5049.594425019227" toXY="4061.5120954748686,8229.648946432491" type="car"/>
     <person id="1" depart="0:0:0">
         <stop x="2691.9773411262427" y="5049.594425019227" until="06:02:53" actType="home"/>

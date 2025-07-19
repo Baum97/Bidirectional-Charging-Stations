@@ -3,8 +3,8 @@
     
     <!-- Input Dateien -->
     <input>
-        <net-file value="esslingen.net.xml"/>
-        <route-files value="esslingen-weekly-routes.rou.xml"/>
+        <net-file value="esslingen_new.net.xml"/>
+        <route-files value="esslingen.rou.xml"/>
     </input>
     
     <!-- Zeiteinstellungen -->
@@ -21,17 +21,5 @@
         <duration-log.statistics value="true"/>
         <no-warnings value="false"/>
     </report>
-    
-    <!-- GUI Einstellungen (optional) -->
-    <gui_only>
-        <gui-settings-file value="gui-settings.xml"/>
-        <start value="true"/>
-    </gui_only>
-    
-    <!-- Output Dateien (optional) -->
-    <output>
-        <summary-output value="summary.xml"/>
-        <tripinfo-output value="tripinfo.xml"/>
-    </output>
 
 </configuration>

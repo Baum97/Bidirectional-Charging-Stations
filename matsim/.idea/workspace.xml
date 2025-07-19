@@ -5,32 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f3363b61-1ad2-41e4-b102-04db9b490a9c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/matsimOsm/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/matsimOsm/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/matsimOsm/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/matsimOsm/pom.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/matsimOsm/src/main/resources/META-INF/maven/archetype.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/matsimOsm/src/main/resources/archetype-resources/pom.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/matsimOsm/src/main/resources/archetype-resources/src/main/java/App.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/matsimOsm/src/main/resources/archetype-resources/src/test/java/AppTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CSVReaderUtil.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Main.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/NearestLinkResult.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/NearestLinkUtil.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/NetworkBuilderUtil.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/OSM2Network.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/POICentroid.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/POIs_commercial.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/POIs_residential.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/population.xml.gz" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../welzheim.osm" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../welzheim.sumocfg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../welzheim_edges.add.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../welzheim_edges.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../welzheim_lanes.add.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../welzheim_lanes.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../welzheim_network.net.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../welzheim_routes.rou.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/matsim-project/src/main/java/org/matsim/project/OSM2Network.java" beforeDir="false" afterPath="$PROJECT_DIR$/matsim-project/src/main/java/org/matsim/project/OSM2Network.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../sumoconfigs/7day_esslingen/7day_esslingenMATSim.py" beforeDir="false" afterPath="$PROJECT_DIR$/../sumoconfigs/7day_esslingen/7day_esslingenMATSim.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../sumoconfigs/7day_esslingen/7day_plan.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../sumoconfigs/7day_esslingen/7day_plan.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../sumoconfigs/7day_esslingen/esslingen-sumo.net.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../sumoconfigs/7day_esslingen/esslingen.net.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../sumoconfigs/7day_esslingen/esslingen.net.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,10 +19,10 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "customColor": "",
-  "associatedIndex": 2
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 2
+}</component>
   <component name="ProjectId" id="2yOxvnZM8sr6myPDhUJAv1wH8Vu" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -53,8 +32,10 @@
   "keyToString": {
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "feature/matsim-poi",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "feature/weekly-plan",
     "junie.onboarding.icon.badge.shown": "true",
+    "last_opened_file_path": "C:/Projekte/Bidirectional-Charging-Stations/matsim",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -79,6 +60,7 @@
       <option name="presentableId" value="Default" />
       <updated>1749719656305</updated>
       <workItem from="1749719660979" duration="827000" />
+      <workItem from="1750177878188" duration="396000" />
     </task>
     <servers />
   </component>

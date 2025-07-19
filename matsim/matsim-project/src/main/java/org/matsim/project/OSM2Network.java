@@ -14,15 +14,18 @@ import java.io.File;
 
 public class OSM2Network {
     public static void main(String[] args) {
+        String drive = "C:\\Projekte\\Bidirectional-Charging-Stations\\sumoconfigs\\7day_esslingen\\test2";
         // String osmFile = "D:\\matsim-example-project\\Kernen.osm"; // Accepts .osm or
         // .osm.pbf
-        String osmFile = "D:\\matsim-example-project\\welzheim.osm";
+        //String osmFile = "D:\\matsim-example-project\\welzheim.osm";
+        String osmFile = drive + "\\esslingen.osm";
 
-        File outputDirectory = new File("input-erik");
+        File outputDirectory = new File(drive);
         if (!outputDirectory.exists()) {
             outputDirectory.mkdirs();
         }
-        String outputNetwork = "input-erik/network.xml.gz";
+        String locality = "esslingen";
+        String outputNetwork = locality + ".net.xml";
 
         // Create MATSim scenario and config
         Config config = ConfigUtils.createConfig();
