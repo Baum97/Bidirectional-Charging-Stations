@@ -26,6 +26,7 @@
     <output>
         <summary-output value="summary.xml"/>
         <tripinfo-output value="tripinfo.xml"/>
+	<vehroute-output value="vehroute.xml"/>
     </output>
 
 </configuration>

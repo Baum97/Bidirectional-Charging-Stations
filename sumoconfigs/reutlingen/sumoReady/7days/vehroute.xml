@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2025-07-20 00:20:05 by Eclipse SUMO GUI Version 1.22.0
+<sumoConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
+
+    <input>
+        <net-file value=".\reutlingenSumoNetwork.net.xml"/>
+        <route-files value=".\reutlingenSumoRoutes.rou.xml"/>
+    </input>
+
+    <output>
+        <summary-output value=".\summary.xml"/>
+        <tripinfo-output value=".\tripinfo.xml"/>
+        <vehroute-output value=".\vehroute.xml"/>
+    </output>
+
+    <time>
+        <begin value="0"/>
+        <end value="604800"/>
+        <step-length value="1"/>
+    </time>
+
+    <report>
+        <verbose value="true"/>
+        <no-warnings value="false"/>
+        <duration-log.statistics value="true"/>
+        <no-step-log value="false"/>
+    </report>
+
+</sumoConfiguration>
+-->
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+</routes>

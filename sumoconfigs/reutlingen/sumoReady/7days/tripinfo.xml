@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on 2025-07-19 17:35:32 by Eclipse SUMO GUI Version 1.22.0
+<!-- generated on 2025-07-20 00:20:05 by Eclipse SUMO GUI Version 1.22.0
 <sumoConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
 
     <input>
@@ -11,6 +11,7 @@
     <output>
         <summary-output value=".\summary.xml"/>
         <tripinfo-output value=".\tripinfo.xml"/>
+        <vehroute-output value=".\vehroute.xml"/>
     </output>
 
     <time>
