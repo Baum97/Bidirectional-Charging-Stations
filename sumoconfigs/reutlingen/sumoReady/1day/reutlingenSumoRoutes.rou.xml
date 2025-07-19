@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2025-07-19 14:46:14.505235 by matsim_importPlans.py UNKNOWN
+  options: <doubleminus>plan-file population.rou.xml -o reutligenSumoRoutes.rou.xml
+-->
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <vType id="car"/>
+    <trip id="0_0" depart="triggered" from="1437" to="1473" type="car"/>
+    <person id="0" depart="0:0:0">
+        <stop edge="1437" until="06:54:15" actType="home"/>
+        <ride lines="0_0" to="1473"/>
+        <stop edge="1473" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="1_0" depart="triggered" from="205" to="1437" type="car"/>
+    <person id="1" depart="0:0:0">
+        <stop edge="205" until="07:29:00" actType="home"/>
+        <ride lines="1_0" to="1437"/>
+        <stop edge="1437" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="10_0" depart="triggered" from="1437" to="1942" type="car"/>
+    <person id="10" depart="0:0:0">
+        <stop edge="1437" until="07:58:22" actType="home"/>
+        <ride lines="10_0" to="1942"/>
+        <stop edge="1942" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="11_0" depart="triggered" from="1437" to="1437" type="car"/>
+    <person id="11" depart="0:0:0">
+        <stop edge="1437" until="07:54:28" actType="home"/>
+        <ride lines="11_0" to="1437"/>
+        <stop edge="1437" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="12_0" depart="triggered" from="2095" to="1003" type="car"/>
+    <person id="12" depart="0:0:0">
+        <stop edge="2095" until="07:21:34" actType="home"/>
+        <ride lines="12_0" to="1003"/>
+        <stop edge="1003" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="13_0" depart="triggered" from="1821" to="1206" type="car"/>
+    <person id="13" depart="0:0:0">
+        <stop edge="1821" until="07:16:17" actType="home"/>
+        <ride lines="13_0" to="1206"/>
+        <stop edge="1206" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="14_0" depart="triggered" from="1437" to="748" type="car"/>
+    <person id="14" depart="0:0:0">
+        <stop edge="1437" until="06:39:13" actType="home"/>
+        <ride lines="14_0" to="748"/>
+        <stop edge="748" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="15_0" depart="triggered" from="1437" to="1437" type="car"/>
+    <person id="15" depart="0:0:0">
+        <stop edge="1437" until="06:16:26" actType="home"/>
+        <ride lines="15_0" to="1437"/>
+        <stop edge="1437" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="16_0" depart="triggered" from="1652" to="2180" type="car"/>
+    <person id="16" depart="0:0:0">
+        <stop edge="1652" until="07:47:16" actType="home"/>
+        <ride lines="16_0" to="2180"/>
+        <stop edge="2180" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="17_0" depart="triggered" from="1652" to="1437" type="car"/>
+    <person id="17" depart="0:0:0">
+        <stop edge="1652" until="07:44:50" actType="home"/>
+        <ride lines="17_0" to="1437"/>
+        <stop edge="1437" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="18_0" depart="triggered" from="1652" to="1664" type="car"/>
+    <person id="18" depart="0:0:0">
+        <stop edge="1652" until="06:22:32" actType="home"/>
+        <ride lines="18_0" to="1664"/>
+        <stop edge="1664" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="19_0" depart="triggered" from="1437" to="1003" type="car"/>
+    <person id="19" depart="0:0:0">
+        <stop edge="1437" until="06:30:10" actType="home"/>
+        <ride lines="19_0" to="1003"/>
+        <stop edge="1003" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="2_0" depart="triggered" from="1437" to="1432" type="car"/>
+    <person id="2" depart="0:0:0">
+        <stop edge="1437" until="06:54:30" actType="home"/>
+        <ride lines="2_0" to="1432"/>
+        <stop edge="1432" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="20_0" depart="triggered" from="1652" to="770" type="car"/>
+    <person id="20" depart="0:0:0">
+        <stop edge="1652" until="06:53:50" actType="home"/>
+        <ride lines="20_0" to="770"/>
+        <stop edge="770" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="21_0" depart="triggered" from="1652" to="770" type="car"/>
+    <person id="21" depart="0:0:0">
+        <stop edge="1652" until="06:59:55" actType="home"/>
+        <ride lines="21_0" to="770"/>
+        <stop edge="770" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="22_0" depart="triggered" from="1821" to="1432" type="car"/>
+    <person id="22" depart="0:0:0">
+        <stop edge="1821" until="07:50:49" actType="home"/>
+        <ride lines="22_0" to="1432"/>
+        <stop edge="1432" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="23_0" depart="triggered" from="1652" to="1473" type="car"/>
+    <person id="23" depart="0:0:0">
+        <stop edge="1652" until="07:11:07" actType="home"/>
+        <ride lines="23_0" to="1473"/>
+        <stop edge="1473" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="24_0" depart="triggered" from="1437" to="1206" type="car"/>
+    <person id="24" depart="0:0:0">
+        <stop edge="1437" until="07:00:17" actType="home"/>
+        <ride lines="24_0" to="1206"/>
+        <stop edge="1206" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="25_0" depart="triggered" from="205" to="2180" type="car"/>
+    <person id="25" depart="0:0:0">
+        <stop edge="205" until="06:16:14" actType="home"/>
+        <ride lines="25_0" to="2180"/>
+        <stop edge="2180" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="26_0" depart="triggered" from="2095" to="337" type="car"/>
+    <person id="26" depart="0:0:0">
+        <stop edge="2095" until="06:39:25" actType="home"/>
+        <ride lines="26_0" to="337"/>
+        <stop edge="337" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="27_0" depart="triggered" from="205" to="2178" type="car"/>
+    <person id="27" depart="0:0:0">
+        <stop edge="205" until="06:52:01" actType="home"/>
+        <ride lines="27_0" to="2178"/>
+        <stop edge="2178" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="28_0" depart="triggered" from="205" to="1206" type="car"/>
+    <person id="28" depart="0:0:0">
+        <stop edge="205" until="06:48:50" actType="home"/>
+        <ride lines="28_0" to="1206"/>
+        <stop edge="1206" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="29_0" depart="triggered" from="1437" to="123" type="car"/>
+    <person id="29" depart="0:0:0">
+        <stop edge="1437" until="07:31:08" actType="home"/>
+        <ride lines="29_0" to="123"/>
+        <stop edge="123" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="3_0" depart="triggered" from="1652" to="2178" type="car"/>
+    <person id="3" depart="0:0:0">
+        <stop edge="1652" until="06:08:34" actType="home"/>
+        <ride lines="3_0" to="2178"/>
+        <stop edge="2178" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="30_0" depart="triggered" from="1652" to="1000" type="car"/>
+    <person id="30" depart="0:0:0">
+        <stop edge="1652" until="07:54:53" actType="home"/>
+        <ride lines="30_0" to="1000"/>
+        <stop edge="1000" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="31_0" depart="triggered" from="205" to="1473" type="car"/>
+    <person id="31" depart="0:0:0">
+        <stop edge="205" until="06:41:36" actType="home"/>
+        <ride lines="31_0" to="1473"/>
+        <stop edge="1473" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="32_0" depart="triggered" from="1652" to="2178" type="car"/>
+    <person id="32" depart="0:0:0">
+        <stop edge="1652" until="07:28:47" actType="home"/>
+        <ride lines="32_0" to="2178"/>
+        <stop edge="2178" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="33_0" depart="triggered" from="1652" to="1437" type="car"/>
+    <person id="33" depart="0:0:0">
+        <stop edge="1652" until="07:49:22" actType="home"/>
+        <ride lines="33_0" to="1437"/>
+        <stop edge="1437" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="34_0" depart="triggered" from="2095" to="1942" type="car"/>
+    <person id="34" depart="0:0:0">
+        <stop edge="2095" until="06:56:02" actType="home"/>
+        <ride lines="34_0" to="1942"/>
+        <stop edge="1942" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="35_0" depart="triggered" from="1821" to="2178" type="car"/>
+    <person id="35" depart="0:0:0">
+        <stop edge="1821" until="06:47:55" actType="home"/>
+        <ride lines="35_0" to="2178"/>
+        <stop edge="2178" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="36_0" depart="triggered" from="1437" to="1664" type="car"/>
+    <person id="36" depart="0:0:0">
+        <stop edge="1437" until="06:12:17" actType="home"/>
+        <ride lines="36_0" to="1664"/>
+        <stop edge="1664" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="37_0" depart="triggered" from="2095" to="1942" type="car"/>
+    <person id="37" depart="0:0:0">
+        <stop edge="2095" until="07:00:40" actType="home"/>
+        <ride lines="37_0" to="1942"/>
+        <stop edge="1942" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="38_0" depart="triggered" from="2095" to="1925" type="car"/>
+    <person id="38" depart="0:0:0">
+        <stop edge="2095" until="07:16:30" actType="home"/>
+        <ride lines="38_0" to="1925"/>
+        <stop edge="1925" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="39_0" depart="triggered" from="1652" to="748" type="car"/>
+    <person id="39" depart="0:0:0">
+        <stop edge="1652" until="07:48:18" actType="home"/>
+        <ride lines="39_0" to="748"/>
+        <stop edge="748" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="4_0" depart="triggered" from="2095" to="1437" type="car"/>
+    <person id="4" depart="0:0:0">
+        <stop edge="2095" until="07:48:59" actType="home"/>
+        <ride lines="4_0" to="1437"/>
+        <stop edge="1437" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="40_0" depart="triggered" from="1821" to="1664" type="car"/>
+    <person id="40" depart="0:0:0">
+        <stop edge="1821" until="06:55:36" actType="home"/>
+        <ride lines="40_0" to="1664"/>
+        <stop edge="1664" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="41_0" depart="triggered" from="1821" to="337" type="car"/>
+    <person id="41" depart="0:0:0">
+        <stop edge="1821" until="07:44:42" actType="home"/>
+        <ride lines="41_0" to="337"/>
+        <stop edge="337" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="42_0" depart="triggered" from="1821" to="1003" type="car"/>
+    <person id="42" depart="0:0:0">
+        <stop edge="1821" until="06:17:07" actType="home"/>
+        <ride lines="42_0" to="1003"/>
+        <stop edge="1003" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="43_0" depart="triggered" from="2095" to="1000" type="car"/>
+    <person id="43" depart="0:0:0">
+        <stop edge="2095" until="07:10:34" actType="home"/>
+        <ride lines="43_0" to="1000"/>
+        <stop edge="1000" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="44_0" depart="triggered" from="1437" to="1942" type="car"/>
+    <person id="44" depart="0:0:0">
+        <stop edge="1437" until="06:40:09" actType="home"/>
+        <ride lines="44_0" to="1942"/>
+        <stop edge="1942" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="45_0" depart="triggered" from="2095" to="641" type="car"/>
+    <person id="45" depart="0:0:0">
+        <stop edge="2095" until="07:07:14" actType="home"/>
+        <ride lines="45_0" to="641"/>
+        <stop edge="641" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="46_0" depart="triggered" from="1821" to="1237" type="car"/>
+    <person id="46" depart="0:0:0">
+        <stop edge="1821" until="06:30:31" actType="home"/>
+        <ride lines="46_0" to="1237"/>
+        <stop edge="1237" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="47_0" depart="triggered" from="1652" to="337" type="car"/>
+    <person id="47" depart="0:0:0">
+        <stop edge="1652" until="06:22:38" actType="home"/>
+        <ride lines="47_0" to="337"/>
+        <stop edge="337" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="48_0" depart="triggered" from="2095" to="1237" type="car"/>
+    <person id="48" depart="0:0:0">
+        <stop edge="2095" until="07:10:22" actType="home"/>
+        <ride lines="48_0" to="1237"/>
+        <stop edge="1237" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="49_0" depart="triggered" from="1821" to="1942" type="car"/>
+    <person id="49" depart="0:0:0">
+        <stop edge="1821" until="07:04:06" actType="home"/>
+        <ride lines="49_0" to="1942"/>
+        <stop edge="1942" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="5_0" depart="triggered" from="1652" to="1354" type="car"/>
+    <person id="5" depart="0:0:0">
+        <stop edge="1652" until="07:33:16" actType="home"/>
+        <ride lines="5_0" to="1354"/>
+        <stop edge="1354" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="6_0" depart="triggered" from="1652" to="1000" type="car"/>
+    <person id="6" depart="0:0:0">
+        <stop edge="1652" until="06:33:34" actType="home"/>
+        <ride lines="6_0" to="1000"/>
+        <stop edge="1000" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="7_0" depart="triggered" from="1652" to="294" type="car"/>
+    <person id="7" depart="0:0:0">
+        <stop edge="1652" until="07:50:46" actType="home"/>
+        <ride lines="7_0" to="294"/>
+        <stop edge="294" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="8_0" depart="triggered" from="205" to="1003" type="car"/>
+    <person id="8" depart="0:0:0">
+        <stop edge="205" until="06:23:20" actType="home"/>
+        <ride lines="8_0" to="1003"/>
+        <stop edge="1003" until="24:0:0" actType="work"/>
+    </person>
+    <trip id="9_0" depart="triggered" from="205" to="641" type="car"/>
+    <person id="9" depart="0:0:0">
+        <stop edge="205" until="06:33:24" actType="home"/>
+        <ride lines="9_0" to="641"/>
+        <stop edge="641" until="24:0:0" actType="work"/>
+    </person>
+</routes>
