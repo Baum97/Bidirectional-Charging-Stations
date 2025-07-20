@@ -11,11 +11,11 @@ import os
 java_files = ["Main.java", "MatsimPlans2SumoTrips.java", "NearestLinkResult.java", "NearestLinkUtil.java", 
                 "NetworkBuilderUtil.java", "OSM2Network.java", "POICentroid.java"]
 
-    # input_args= 1: file.osm, 2: csv file(s)
+    # input_args= 1: city_name, 2: csv file(s)
 java_args = ["reutlingen.osm", "POIdata.csv"]
 
     # matsim= MATsim.net.xml, netxml= output file name (recommended: [city_name].net.xml)
-netc_matsim = "MATsReutlingenNet.xml"
+netc_matsim = "MATreutlingenNet.xml"
 netc_netxml = "Reutlingen.net.xml"
 
 #! custom input ####################################################!
@@ -226,7 +226,7 @@ def main(input_file, output_file):
     # compile all necessary java files to then call main.java to create MATsim files
     compile_java_file(java_files)
     execute_java_file(java_args)
-    execute_netconvert(netc_args)
+    execute_netconvert(netc_matsim, netc_netxml)
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
