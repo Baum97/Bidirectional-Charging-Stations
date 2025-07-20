@@ -21,7 +21,7 @@ import org.matsim.core.scenario.ScenarioUtils;
 
 public class Main {
 
-    static Integer POPULATION_SIZE = 1;
+    static Integer POPULATION_SIZE = 50;
     static String bidiData = "C:\\Users\\erikw\\Documents\\Uni\\Bidirectional-Charging-Stations\\sumoconfigs\\reutlingen";
     static String outputPopulationAchim = bidiData + "\\reutlingen-population.xml";
 
@@ -31,8 +31,8 @@ public class Main {
         // file="stuttgart-regbez.osm"
 
         // Build Network
-        String osmPbfFile = bidiData + "\\" + args[0] + ".osm";
-        String networkFile = bidiData + "\\" + args[1] + ".net.xml";
+        String osmPbfFile = bidiData + "\\reutlingen.osm";
+        String networkFile = bidiData + "\\reutlingen-network.net.xml";
 
         // Check if network file already exists or built it
         java.io.File netFile = new java.io.File(networkFile);
@@ -49,8 +49,8 @@ public class Main {
         Scenario scenario = ScenarioUtils.loadScenario(config);
         Network network = scenario.getNetwork();
 
-        String ResidentialCsvFilePath = bidiData + "\\csv\\commerical_" + args[0] + ".poi.csv";
-        String CommercialCsvFilePath = bidiData + "\\csv\\residential_" + args[0] + ".poi.csv";
+        String ResidentialCsvFilePath = bidiData + "\\csv\\commerical_zentroid.poi.csv";
+        String CommercialCsvFilePath = bidiData + "\\csv\\residential_zentroid.poi.csv";
 
         // Read x & y coordinates from csv file
         List<POICentroid> residential_coordinates = CSVReaderUtil.readCoordinates(ResidentialCsvFilePath);
@@ -135,48 +135,52 @@ public class Main {
         PopulationFactory factory = population.getFactory();
         Random rand = new Random();
 
+
+        int DAYS = 7;
+        double DAY_SEC = 24 * 3600;
+
         // Generate Population
         for (int i = 0; i < POPULATION_SIZE; i++) {
-
-            // Create person and plan
             Person person = factory.createPerson(Id.createPersonId(i));
             Plan plan = factory.createPlan();
 
-            // Home activity
-            Link home = homeLocations.get(rand.nextInt(residential_coordinates.size())); // select random homeLocation
-            // System.out.println(home);
+            // wähle einmalig ein Home und Work
+            Link homeLink = homeLocations.get(rand.nextInt(homeLocations.size()));
+            Link workLink = workLocations.get(rand.nextInt(workLocations.size()));
 
-            // Create home activity
-            Activity homeActivity = factory.createActivityFromLinkId("home", home.getId());
-            homeActivity.setEndTime(6 * 3600 + rand.nextInt(7200)); // 6am to 8am departure
-            plan.addActivity(homeActivity);
+            for (int day = 0; day < DAYS; day++) {
+                double dayOffset = day * DAY_SEC;
 
-            // Create travel leg
-            Leg leg = factory.createLeg("car");
-            plan.addLeg(leg);
+                // --- Abfahrt von Zuhause ---
+                Activity homeAct = factory.createActivityFromLinkId("home", homeLink.getId());
+                // Ende zwischen 6 uhr + Zufall 0 bis 2 h
+                double depart = dayOffset + 6*3600 + rand.nextInt(2*3600);
+                homeAct.setEndTime(depart);
+                plan.addActivity(homeAct);
 
-            // NOTE: (TODO) Can add offices!!!
+                // Fahrt
+                Leg legToWork = factory.createLeg("car");
+                plan.addLeg(legToWork);
 
-            // Work activity
-            Link work = workLocations.get(rand.nextInt(commercial_coordinates.size()));
-            // System.out.println(home);
-            Activity workActivity = factory.createActivityFromLinkId("work", work.getId());
-            plan.addActivity(workActivity);
+                // Arbeit (ohne Endzeit, unbegrenzt bis zur Rückfahrt)
+                Activity workAct = factory.createActivityFromLinkId("work", workLink.getId());
+                plan.addActivity(workAct);
 
-            // Rückfahrt
-            Leg legBack = factory.createLeg("car");
-            plan.addLeg(legBack);
+                // Rückfahrt
+                Leg legHome = factory.createLeg("car");
+                plan.addLeg(legHome);
 
-            // Wieder zuhause
-            Activity homeAgain = factory.createActivityFromLinkId("home", home.getId());
-            homeAgain.setEndTime(24 * 3600); // z.B. bis Mitternacht
-            plan.addActivity(homeAgain);
+                // Wieder Zuhause bis Mitternacht dieses Tages
+                Activity homeAgain = factory.createActivityFromLinkId("home", homeLink.getId());
+                homeAgain.setEndTime(dayOffset + DAY_SEC);
+                plan.addActivity(homeAgain);
+            }
 
             person.addPlan(plan);
             population.addPerson(person);
         }
 
-        new PopulationWriter(population).write(outputPopulationAchim);
+        // new PopulationWriter(population).write(outputPopulationAchim);
         System.out.println("Population has been written to " + outputPopulationAchim);
 
         for (Person p : population.getPersons().values()) {
@@ -191,7 +195,7 @@ public class Main {
         }
 
         // Convert OSM2Network suitable for SUMO
-        String output_file = bidiData + "\\MAT" + args[0] + ".xml";
+        String output_file = bidiData + "\\reutlingen-matsim-network.xml";
         OSM2Network.convertOSM2Network(osmPbfFile, output_file);
 
     }

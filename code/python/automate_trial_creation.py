@@ -64,12 +64,6 @@ def execute_matsim_importPlans(matsim_pop, route_xml):
 
 def main(input_file, output_file):
 
-
-
-
-
-
-
     residential_buildings = {
         "apartments", "house", "residential", "detached",
         "semidetached_house", "terrace", "dormitory"
@@ -224,9 +218,9 @@ def main(input_file, output_file):
 
     # java files dir- D:\Master\Forschungsprojekt\GitDir\Bidirectional-Charging-Stations\matsim\matsim-project\src\main\java\org\matsim\project\v1
     # compile all necessary java files to then call main.java to create MATsim files
-    compile_java_file(java_files)
-    execute_java_file(java_args)
-    execute_netconvert(netc_matsim, netc_netxml)
+    #compile_java_file(java_files)
+    #execute_java_file(java_args)
+    #execute_netconvert(netc_matsim, netc_netxml)
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
