@@ -19,7 +19,6 @@ import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.scenario.ScenarioUtils;
 
-
 public class Main {
 
     static Integer POPULATION_SIZE = 1;
@@ -28,11 +27,12 @@ public class Main {
 
     public static void main(String[] args) {
 
-        // Before: // osmosis --read-pbf file="stuttgart-regbez.osm.pbf" --write-xml file="stuttgart-regbez.osm"
+        // Before: // osmosis --read-pbf file="stuttgart-regbez.osm.pbf" --write-xml
+        // file="stuttgart-regbez.osm"
 
         // Build Network
-        String osmPbfFile = bidiData + "\\reutlingen.osm";
-        String networkFile = bidiData + "\\reutlingen-matsim.net.xml";
+        String osmPbfFile = bidiData + "\\" + args[0] + ".osm";
+        String networkFile = bidiData + "\\" + args[1] + ".net.xml";
 
         // Check if network file already exists or built it
         java.io.File netFile = new java.io.File(networkFile);
@@ -49,21 +49,20 @@ public class Main {
         Scenario scenario = ScenarioUtils.loadScenario(config);
         Network network = scenario.getNetwork();
 
-
-        String ResidentialCsvFilePath = bidiData + "\\csv\\commerical_zentroid.poi.csv";
-        String CommercialCsvFilePath = bidiData + "\\csv\\residential_zentroid.poi.csv";
+        String ResidentialCsvFilePath = bidiData + "\\csv\\commerical_" + args[0] + ".poi.csv";
+        String CommercialCsvFilePath = bidiData + "\\csv\\residential_" + args[0] + ".poi.csv";
 
         // Read x & y coordinates from csv file
         List<POICentroid> residential_coordinates = CSVReaderUtil.readCoordinates(ResidentialCsvFilePath);
         List<POICentroid> commercial_coordinates = CSVReaderUtil.readCoordinates(CommercialCsvFilePath);
 
         /*
-        // Print coordinates for testing
-        System.out.println("Residential coordinates: ");
-        for (POICentroid coordinate : commercial_coordinates) {
-            System.out.println(coordinate);
-        }
-        */
+         * // Print coordinates for testing
+         * System.out.println("Residential coordinates: ");
+         * for (POICentroid coordinate : commercial_coordinates) {
+         * System.out.println(coordinate);
+         * }
+         */
 
         // Convert to MATSim Coordinates
         // x => longitude, y => latitude
@@ -73,7 +72,7 @@ public class Main {
         for (POICentroid coordinate : residential_coordinates) {
             double lon = coordinate.getX_coord();
             double lat = coordinate.getY_coord();
-            Coord coords_transformed = ct.transform(new Coord(lon,lat));
+            Coord coords_transformed = ct.transform(new Coord(lon, lat));
             coordinate.setTranformedCoord(coords_transformed);
             System.out.println(coords_transformed);
         }
@@ -103,7 +102,7 @@ public class Main {
         for (POICentroid coordinate : commercial_coordinates) {
             double lon = coordinate.getX_coord();
             double lat = coordinate.getY_coord();
-            Coord coords_transformed = ct.transform(new Coord(lon,lat));
+            Coord coords_transformed = ct.transform(new Coord(lon, lat));
             coordinate.setTranformedCoord(coords_transformed);
             System.out.println(coords_transformed);
         }
@@ -126,10 +125,10 @@ public class Main {
         }
 
         /*
-        for (Link link : homeLocations) {
-            System.out.println(link);
-        }
-        */
+         * for (Link link : homeLocations) {
+         * System.out.println(link);
+         * }
+         */
 
         // Prepare to generate population
         Population population = scenario.getPopulation();
@@ -137,7 +136,7 @@ public class Main {
         Random rand = new Random();
 
         // Generate Population
-        for (int i = 0; i < POPULATION_SIZE; i++){
+        for (int i = 0; i < POPULATION_SIZE; i++) {
 
             // Create person and plan
             Person person = factory.createPerson(Id.createPersonId(i));
@@ -192,9 +191,8 @@ public class Main {
         }
 
         // Convert OSM2Network suitable for SUMO
-        String output_file = bidiData + "\\reutlingen-network.xml";
+        String output_file = bidiData + "\\MAT" + args[0] + ".xml";
         OSM2Network.convertOSM2Network(osmPbfFile, output_file);
-
 
     }
 }
