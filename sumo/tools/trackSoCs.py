@@ -14,7 +14,8 @@ EV_TYPES = ["veh_ev"]
 with open(output_csv, "w", newline="") as csvfile:
     writer = csv.writer(csvfile)
     writer.writerow(["time", "vehicle_id", "soc_percent", "is_charging", "station_id"])
-
+    charge_entries = {}
+    charge_counter = 0
     step_counter = 0
     
     while traci.simulation.getMinExpectedNumber() > 0:
@@ -47,7 +48,7 @@ with open(output_csv, "w", newline="") as csvfile:
                     charging_power = float(traci.vehicle.getParameter(veh_id, "device.battery.chargingStationPower"))
                     if charging_power > 0:
                         is_charging = True
-                        print(f"*** LADEN *** [t={time:.1f}s] {veh_id} lädt mit {charging_power}W")
+                        #print(f"*** LADEN *** [t={time:.1f}s] {veh_id} lädt mit {charging_power}W")
                 except:
                     charging_power = 0
                 
@@ -70,7 +71,13 @@ with open(output_csv, "w", newline="") as csvfile:
                                     if cs_start <= veh_pos <= cs_end and speed < 0.5:
                                         is_charging = True
                                         station_id = cs_id
-                                        print(f"*** POSITION LADEN *** [t={time:.1f}s] {veh_id} steht an Station {cs_id}")
+                                        #print(f"*** POSITION LADEN *** [t={time:.1f}s] {veh_id} steht an Station {cs_id}")
+                                        charge_counter = charge_entries["{cs_id}"]
+                                        if charge_counter == None:
+                                            charge_counter = 0
+                                        charge_counter += 1
+                                        charge_entries["{cs_id}"] = charge_counter
+
                                         break
                             except:
                                 continue
@@ -82,7 +89,7 @@ with open(output_csv, "w", newline="") as csvfile:
                     soc_diff = soc_percent - last_soc[veh_id]
                     if soc_diff > 0.1:  # SoC steigt um mehr als 0.1%
                         is_charging = True
-                        print(f"*** SOC STEIGT *** [t={time:.1f}s] {veh_id} lädt (SoC +{soc_diff:.2f}%)")
+                        #print(f"*** SOC STEIGT *** [t={time:.1f}s] {veh_id} lädt (SoC +{soc_diff:.2f}%)")
                 
                 # Methode 4: Vehicle Stops prüfen
                 if not is_charging:
@@ -94,7 +101,7 @@ with open(output_csv, "w", newline="") as csvfile:
                                 if traci.vehicle.getSpeed(veh_id) < 0.1:
                                     is_charging = True
                                     station_id = stop.chargingStation
-                                    print(f"*** STOP LADEN *** [t={time:.1f}s] {veh_id} lädt an Stop {station_id}")
+                                    #print(f"*** STOP LADEN *** [t={time:.1f}s] {veh_id} lädt an Stop {station_id}")
                                 break
                     except:
                         pass
@@ -132,7 +139,7 @@ with open(output_csv, "w", newline="") as csvfile:
                 # Periodische Ausgabe für alle EVs
                 if step_counter % 100 == 0:
                     status_text = "LÄDT" if is_charging else "fährt"
-                    print(f"[t={time:.1f}s] {veh_id}: {soc_percent:.1f}% - {status_text}")
+                    #print(f"[t={time:.1f}s] {veh_id}: {soc_percent:.1f}% - {status_text}")
                     
             except traci.TraCIException as e:
                 # print(f"TraCI Fehler für {veh_id}: {e}")
@@ -145,3 +152,9 @@ with open(output_csv, "w", newline="") as csvfile:
         if step_counter % 500 == 0:
             charging_count = sum(1 for status in charging_status.values() if status[0])
             total_evs = len([v for v in traci.vehicle.getIDList() if traci.vehicle.getTypeID(v) in EV_TYPES])
+
+        with open("logCharges.csv", mode="w", newline="") as file:
+            writer = csv.writer(file)
+            writer.writerow(["CS_id", "charges"])  # Kopfzeile
+            for key, value in charge_entries.items():
+                writer.writerow([key, value])
