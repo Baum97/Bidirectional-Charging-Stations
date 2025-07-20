@@ -2,233 +2,224 @@
 <routes>
   <vType id="veh_passenger" vClass="passenger" color="0,0,255" />
   <vType id="veh_ev" minGap="2.50" maxSpeed="29.06" color="white" accel="1.0" decel="1.0" sigma="0.0" emissionClass="Energy" mass="183000">
-    <!-- BATTERY CONFIGURATION -->
     <param key="has.battery.device" value="true" />
-    <param key="device.battery.capacity" value="80000" />           <!-- Größere Batterie! -->
-    <param key="device.battery.actualBatteryCapacity" value="70000"/> <!-- 87% Start -->
-    
-    <!-- REROUTING CONFIGURATION -->
+    <param key="device.battery.capacity" value="80000" />
+    <param key="device.battery.actualBatteryCapacity" value="70000" />
     <param key="has.rerouting.device" value="true" />
-    <param key="device.rerouting.probability" value="1"/>
-    
-    <!-- STATION FINDER CONFIGURATION -->
+    <param key="device.rerouting.probability" value="1" />
     <param key="has.stationfinder.device" value="true" />
-    <param key="device.stationfinder.rescueTime" value="1800" />    <!-- Suche Station 30min vorher -->
-    <param key="device.stationfinder.reserveFactor" value="1.2" />  <!-- 20% Sicherheitspuffer -->
-    <param key="device.stationfinder.radius" value="3000" />        <!-- 3km Suchradius -->
-    
-    <!-- ENERGY PARAMETERS -->
+    <param key="device.stationfinder.rescueTime" value="1800" />
+    <param key="device.stationfinder.reserveFactor" value="1.2" />
+    <param key="device.stationfinder.radius" value="3000" />
     <param key="maximumPower" value="150000" />
-    <param key="recuperationEfficiency" value="0.4" />              <!-- Rekuperation hinzufügen -->
+    <param key="recuperationEfficiency" value="0.4" />
     <param key="stoppingThreshold" value="0.1" />
-    
-    <!-- Physik-Parameter korrigiert -->
     <param key="airDragCoefficient" value="0.35" />
-    <param key="constantPowerIntake" value="500" />                 <!-- Realistischer -->
+    <param key="constantPowerIntake" value="500" />
     <param key="frontSurfaceArea" value="2.6" />
     <param key="rotatingMass" value="40" />
     <param key="propulsionEfficiency" value="0.95" />
     <param key="radialDragCoefficient" value="0.1" />
     <param key="rollDragCoefficient" value="0.01" />
-  </vType>
+    </vType>
   <vehicle id="person2" type="veh_ev" depart="23458.49">
-    <route edges="-51167934#4 705182548 -51167934#4" />
-    <stop edge="705182548" duration="28800" parking="true" />
+    <route edges="-131505631 31112516#2 -131505631" />
+    <stop edge="31112516#2" duration="28800" parking="true" />
     </vehicle>
   <vehicle id="person50" type="veh_ev" depart="23688.9">
-    <route edges="705182548 31112516#0 705182548" />
-    <stop edge="31112516#0" duration="28800" parking="true" />
+    <route edges="-51167934#4 122820534#0 -51167934#4" />
+    <stop edge="122820534#0" duration="28800" parking="true" />
     </vehicle>
   <vehicle id="person24" type="veh_passenger" depart="23812.42">
-    <route edges="-176043794#0 -1121008013#2 -176043794#0" />
-    <stop edge="-1121008013#2" duration="28800" parking="true" />
+    <route edges="-1121008013#1 -176043794#0 -1121008013#1" />
+    <stop edge="-176043794#0" duration="28800" parking="true" />
     </vehicle>
   <vehicle id="person27" type="veh_passenger" depart="24118.13">
-    <route edges="705182548 4610479#0 705182548" />
-    <stop edge="4610479#0" duration="28800" parking="true" />
+    <route edges="4610479#0 122820534#0 4610479#0" />
+    <stop edge="122820534#0" duration="28800" parking="true" />
     </vehicle>
   <vehicle id="person9" type="veh_ev" depart="24234.71">
-    <route edges="-51167934#4 705182548 -51167934#4" />
-    <stop edge="705182548" duration="28800" parking="true" />
+    <route edges="-176043794#0 -51167934#5 -176043794#0" />
+    <stop edge="-51167934#5" duration="28800" parking="true" />
     </vehicle>
   <vehicle id="person10" type="veh_passenger" depart="24270.45">
-    <route edges="31112516#3 31112516#5 31112516#3" />
+    <route edges="122820534#1 31112516#5 122820534#1" />
     <stop edge="31112516#5" duration="28800" parking="true" />
     </vehicle>
   <vehicle id="person29" type="veh_ev" depart="24309.01">
-    <route edges="-51167934#5 122820534#1 -51167934#5" />
-    <stop edge="122820534#1" duration="28800" parking="true" />
+    <route edges="31112516#3 -1121008013#2 31112516#3" />
+    <stop edge="-1121008013#2" duration="28800" parking="true" />
     </vehicle>
   <vehicle id="person6" type="veh_ev" depart="24799.32">
-    <route edges="-1121008013#2 -131505631 -1121008013#2" />
-    <stop edge="-131505631" duration="28800" parking="true" />
+    <route edges="122820534#1 -1121008013#1 122820534#1" />
+    <stop edge="-1121008013#1" duration="28800" parking="true" />
     </vehicle>
   <vehicle id="person41" type="veh_ev" depart="24870.62">
-    <route edges="-51167934#4 -131505631 -51167934#4" />
+    <route edges="31112516#3 -131505631 31112516#3" />
     <stop edge="-131505631" duration="28800" parking="true" />
     </vehicle>
   <vehicle id="person39" type="veh_passenger" depart="24940.25">
-    <route edges="-1121008013#1 31112516#0 -1121008013#1" />
-    <stop edge="31112516#0" duration="28800" parking="true" />
+    <route edges="31112516#2 -51167934#5 31112516#2" />
+    <stop edge="-51167934#5" duration="28800" parking="true" />
     </vehicle>
   <vehicle id="person34" type="veh_ev" depart="25285.56">
-    <route edges="31112516#5 31112516#3 31112516#5" />
-    <stop edge="31112516#3" duration="28800" parking="true" />
+    <route edges="31112516#0 4610479#0 31112516#0" />
+    <stop edge="4610479#0" duration="28800" parking="true" />
     </vehicle>
   <vehicle id="person25" type="veh_passenger" depart="25451.08">
-    <route edges="31112516#0 4403559#4 31112516#0" />
+    <route edges="-51167934#5 4403559#4 -51167934#5" />
     <stop edge="4403559#4" duration="28800" parking="true" />
     </vehicle>
   <vehicle id="person49" type="veh_ev" depart="25461.43">
-    <route edges="31112516#0 -131505631 31112516#0" />
-    <stop edge="-131505631" duration="28800" parking="true" />
-    </vehicle>
-  <vehicle id="person28" type="veh_ev" depart="25495.12">
-    <route edges="122820534#0 31112516#4 122820534#0" />
-    <stop edge="31112516#4" duration="28800" parking="true" />
-    </vehicle>
-  <vehicle id="person35" type="veh_ev" depart="25802.8">
-    <route edges="-1121008013#1 31112516#4 -1121008013#1" />
-    <stop edge="31112516#4" duration="28800" parking="true" />
-    </vehicle>
-  <vehicle id="person30" type="veh_passenger" depart="25901.76">
-    <route edges="-51167934#5 465398529#1 -51167934#5" />
-    <stop edge="465398529#1" duration="28800" parking="true" />
-    </vehicle>
-  <vehicle id="person26" type="veh_passenger" depart="26004.49">
-    <route edges="465398529#1 31112516#4 465398529#1" />
-    <stop edge="31112516#4" duration="28800" parking="true" />
-    </vehicle>
-  <vehicle id="person8" type="veh_ev" depart="26429.35">
-    <route edges="-1121008013#1 122820534#0 -1121008013#1" />
-    <stop edge="122820534#0" duration="28800" parking="true" />
-    </vehicle>
-  <vehicle id="person5" type="veh_passenger" depart="26462.25">
-    <route edges="-51167934#4 705182548 -51167934#4" />
+    <route edges="-176043794#0 705182548 -176043794#0" />
     <stop edge="705182548" duration="28800" parking="true" />
     </vehicle>
-  <vehicle id="person32" type="veh_passenger" depart="26683.49">
-    <route edges="31112516#2 -1121008013#1 31112516#2" />
-    <stop edge="-1121008013#1" duration="28800" parking="true" />
+  <vehicle id="person28" type="veh_ev" depart="25495.12">
+    <route edges="-1121008013#2 4403559#4 -1121008013#2" />
+    <stop edge="4403559#4" duration="28800" parking="true" />
     </vehicle>
-  <vehicle id="person33" type="veh_ev" depart="26731.63">
-    <route edges="705182548 31112516#3 705182548" />
-    <stop edge="31112516#3" duration="28800" parking="true" />
+  <vehicle id="person35" type="veh_ev" depart="25802.8">
+    <route edges="-131505631 -51167934#4 -131505631" />
+    <stop edge="-51167934#4" duration="28800" parking="true" />
     </vehicle>
-  <vehicle id="person17" type="veh_passenger" depart="26806.81">
+  <vehicle id="person30" type="veh_passenger" depart="25901.76">
     <route edges="31112516#0 31112516#5 31112516#0" />
     <stop edge="31112516#5" duration="28800" parking="true" />
     </vehicle>
-  <vehicle id="person42" type="veh_ev" depart="26815.1">
-    <route edges="31112516#5 4610479#0 31112516#5" />
-    <stop edge="4610479#0" duration="28800" parking="true" />
-    </vehicle>
-  <vehicle id="person15" type="veh_ev" depart="28226.05">
-    <route edges="31112516#0 -1121008013#1 31112516#0" />
-    <stop edge="-1121008013#1" duration="28800" parking="true" />
-    </vehicle>
-  <vehicle id="person18" type="veh_ev" depart="28368.37">
-    <route edges="465398529#1 4403559#4 465398529#1" />
-    <stop edge="4403559#4" duration="28800" parking="true" />
-    </vehicle>
-  <vehicle id="person45" type="veh_ev" depart="28412.55">
-    <route edges="705182548 -1121008013#2 705182548" />
-    <stop edge="-1121008013#2" duration="28800" parking="true" />
-    </vehicle>
-  <vehicle id="person22" type="veh_passenger" depart="28596.17">
-    <route edges="-51167934#5 705182548 -51167934#5" />
-    <stop edge="705182548" duration="28800" parking="true" />
-    </vehicle>
-  <vehicle id="person12" type="veh_passenger" depart="28833.53">
-    <route edges="31112516#5 4403559#4 31112516#5" />
-    <stop edge="4403559#4" duration="28800" parking="true" />
-    </vehicle>
-  <vehicle id="person38" type="veh_ev" depart="28882.18">
-    <route edges="705182548 31112516#5 705182548" />
-    <stop edge="31112516#5" duration="28800" parking="true" />
-    </vehicle>
-  <vehicle id="person20" type="veh_passenger" depart="28966.68">
-    <route edges="-51167934#4 31112516#3 -51167934#4" />
-    <stop edge="31112516#3" duration="28800" parking="true" />
-    </vehicle>
-  <vehicle id="person31" type="veh_ev" depart="29121.16">
-    <route edges="-1121008013#2 122820534#0 -1121008013#2" />
+  <vehicle id="person26" type="veh_passenger" depart="26004.49">
+    <route edges="-51167934#4 122820534#0 -51167934#4" />
     <stop edge="122820534#0" duration="28800" parking="true" />
     </vehicle>
+  <vehicle id="person8" type="veh_ev" depart="26429.35">
+    <route edges="31112516#4 31112516#5 31112516#4" />
+    <stop edge="31112516#5" duration="28800" parking="true" />
+    </vehicle>
+  <vehicle id="person5" type="veh_passenger" depart="26462.25">
+    <route edges="-1121008013#2 -1121008013#1 -1121008013#2" />
+    <stop edge="-1121008013#1" duration="28800" parking="true" />
+    </vehicle>
+  <vehicle id="person32" type="veh_passenger" depart="26683.49">
+    <route edges="-1121008013#2 122820534#1 -1121008013#2" />
+    <stop edge="122820534#1" duration="28800" parking="true" />
+    </vehicle>
+  <vehicle id="person33" type="veh_ev" depart="26731.63">
+    <route edges="-51167934#5 31112516#5 -51167934#5" />
+    <stop edge="31112516#5" duration="28800" parking="true" />
+    </vehicle>
+  <vehicle id="person17" type="veh_passenger" depart="26806.81">
+    <route edges="4610479#0 31112516#2 4610479#0" />
+    <stop edge="31112516#2" duration="28800" parking="true" />
+    </vehicle>
+  <vehicle id="person42" type="veh_ev" depart="26815.1">
+    <route edges="31112516#5 31112516#2 31112516#5" />
+    <stop edge="31112516#2" duration="28800" parking="true" />
+    </vehicle>
+  <vehicle id="person15" type="veh_ev" depart="28226.05">
+    <route edges="4610479#0 31112516#2 4610479#0" />
+    <stop edge="31112516#2" duration="28800" parking="true" />
+    </vehicle>
+  <vehicle id="person18" type="veh_ev" depart="28368.37">
+    <route edges="465398529#1 31112516#3 465398529#1" />
+    <stop edge="31112516#3" duration="28800" parking="true" />
+    </vehicle>
+  <vehicle id="person45" type="veh_ev" depart="28412.55">
+    <route edges="31112516#3 705182548 31112516#3" />
+    <stop edge="705182548" duration="28800" parking="true" />
+    </vehicle>
+  <vehicle id="person22" type="veh_passenger" depart="28596.17">
+    <route edges="4403559#4 -131505631 4403559#4" />
+    <stop edge="-131505631" duration="28800" parking="true" />
+    </vehicle>
+  <vehicle id="person12" type="veh_passenger" depart="28833.53">
+    <route edges="4403559#4 465398529#1 4403559#4" />
+    <stop edge="465398529#1" duration="28800" parking="true" />
+    </vehicle>
+  <vehicle id="person38" type="veh_ev" depart="28882.18">
+    <route edges="4403559#4 -51167934#4 4403559#4" />
+    <stop edge="-51167934#4" duration="28800" parking="true" />
+    </vehicle>
+  <vehicle id="person20" type="veh_passenger" depart="28966.68">
+    <route edges="-176043794#0 -1121008013#1 -176043794#0" />
+    <stop edge="-1121008013#1" duration="28800" parking="true" />
+    </vehicle>
+  <vehicle id="person31" type="veh_ev" depart="29121.16">
+    <route edges="122820534#0 -51167934#5 122820534#0" />
+    <stop edge="-51167934#5" duration="28800" parking="true" />
+    </vehicle>
   <vehicle id="person44" type="veh_ev" depart="29160.0">
-    <route edges="122820534#0 31112516#2 122820534#0" />
+    <route edges="465398529#1 31112516#2 465398529#1" />
     <stop edge="31112516#2" duration="28800" parking="true" />
     </vehicle>
   <vehicle id="person37" type="veh_ev" depart="29232.32">
-    <route edges="-131505631 -51167934#5 -131505631" />
-    <stop edge="-51167934#5" duration="28800" parking="true" />
+    <route edges="-1121008013#1 4403559#4 -1121008013#1" />
+    <stop edge="4403559#4" duration="28800" parking="true" />
     </vehicle>
   <vehicle id="person46" type="veh_passenger" depart="29561.53">
-    <route edges="31112516#3 -51167934#4 31112516#3" />
-    <stop edge="-51167934#4" duration="28800" parking="true" />
+    <route edges="465398529#1 4610479#0 465398529#1" />
+    <stop edge="4610479#0" duration="28800" parking="true" />
     </vehicle>
   <vehicle id="person4" type="veh_passenger" depart="29683.25">
-    <route edges="31112516#0 31112516#5 31112516#0" />
-    <stop edge="31112516#5" duration="28800" parking="true" />
+    <route edges="705182548 -51167934#5 705182548" />
+    <stop edge="-51167934#5" duration="28800" parking="true" />
     </vehicle>
   <vehicle id="person23" type="veh_ev" depart="29741.15">
     <route edges="705182548 -1121008013#1 705182548" />
     <stop edge="-1121008013#1" duration="28800" parking="true" />
     </vehicle>
   <vehicle id="person40" type="veh_passenger" depart="29962.14">
-    <route edges="-51167934#5 465398529#1 -51167934#5" />
-    <stop edge="465398529#1" duration="28800" parking="true" />
+    <route edges="31112516#0 -1121008013#1 31112516#0" />
+    <stop edge="-1121008013#1" duration="28800" parking="true" />
     </vehicle>
   <vehicle id="person14" type="veh_ev" depart="29967.59">
-    <route edges="-1121008013#1 -131505631 -1121008013#1" />
-    <stop edge="-131505631" duration="28800" parking="true" />
+    <route edges="-51167934#4 122820534#1 -51167934#4" />
+    <stop edge="122820534#1" duration="28800" parking="true" />
     </vehicle>
   <vehicle id="person48" type="veh_ev" depart="30384.0">
-    <route edges="122820534#0 4403559#4 122820534#0" />
-    <stop edge="4403559#4" duration="28800" parking="true" />
-    </vehicle>
-  <vehicle id="person3" type="veh_ev" depart="30652.37">
-    <route edges="-176043794#0 -1121008013#2 -176043794#0" />
+    <route edges="31112516#2 -1121008013#2 31112516#2" />
     <stop edge="-1121008013#2" duration="28800" parking="true" />
     </vehicle>
+  <vehicle id="person3" type="veh_ev" depart="30652.37">
+    <route edges="31112516#3 -1121008013#1 31112516#3" />
+    <stop edge="-1121008013#1" duration="28800" parking="true" />
+    </vehicle>
   <vehicle id="person13" type="veh_passenger" depart="30664.15">
-    <route edges="-1121008013#1 -51167934#4 -1121008013#1" />
-    <stop edge="-51167934#4" duration="28800" parking="true" />
+    <route edges="4610479#0 705182548 4610479#0" />
+    <stop edge="705182548" duration="28800" parking="true" />
     </vehicle>
   <vehicle id="person1" type="veh_passenger" depart="30684.87">
-    <route edges="31112516#5 -176043794#0 31112516#5" />
-    <stop edge="-176043794#0" duration="28800" parking="true" />
+    <route edges="-131505631 122820534#1 -131505631" />
+    <stop edge="122820534#1" duration="28800" parking="true" />
     </vehicle>
   <vehicle id="person19" type="veh_ev" depart="30864.64">
-    <route edges="4403559#4 31112516#3 4403559#4" />
-    <stop edge="31112516#3" duration="28800" parking="true" />
+    <route edges="4403559#4 31112516#0 4403559#4" />
+    <stop edge="31112516#0" duration="28800" parking="true" />
     </vehicle>
   <vehicle id="person47" type="veh_ev" depart="30985.67">
-    <route edges="-51167934#5 -176043794#0 -51167934#5" />
-    <stop edge="-176043794#0" duration="28800" parking="true" />
+    <route edges="31112516#0 705182548 31112516#0" />
+    <stop edge="705182548" duration="28800" parking="true" />
     </vehicle>
   <vehicle id="person11" type="veh_passenger" depart="31027.45">
-    <route edges="4403559#4 4610479#0 4403559#4" />
-    <stop edge="4610479#0" duration="28800" parking="true" />
+    <route edges="-1121008013#2 -51167934#5 -1121008013#2" />
+    <stop edge="-51167934#5" duration="28800" parking="true" />
     </vehicle>
   <vehicle id="person21" type="veh_ev" depart="31155.36">
-    <route edges="4403559#4 -176043794#0 4403559#4" />
-    <stop edge="-176043794#0" duration="28800" parking="true" />
+    <route edges="31112516#0 122820534#0 31112516#0" />
+    <stop edge="122820534#0" duration="28800" parking="true" />
     </vehicle>
   <vehicle id="person36" type="veh_passenger" depart="31829.89">
-    <route edges="122820534#1 -51167934#4 122820534#1" />
-    <stop edge="-51167934#4" duration="28800" parking="true" />
+    <route edges="122820534#0 -1121008013#1 122820534#0" />
+    <stop edge="-1121008013#1" duration="28800" parking="true" />
     </vehicle>
   <vehicle id="person7" type="veh_ev" depart="32014.92">
-    <route edges="31112516#3 -176043794#0 31112516#3" />
-    <stop edge="-176043794#0" duration="28800" parking="true" />
+    <route edges="465398529#1 4403559#4 465398529#1" />
+    <stop edge="4403559#4" duration="28800" parking="true" />
     </vehicle>
   <vehicle id="person16" type="veh_ev" depart="32158.04">
-    <route edges="4610479#0 -1121008013#1 4610479#0" />
+    <route edges="4403559#4 -1121008013#1 4403559#4" />
     <stop edge="-1121008013#1" duration="28800" parking="true" />
     </vehicle>
   <vehicle id="person43" type="veh_ev" depart="32305.71">
-    <route edges="122820534#1 -1121008013#2 122820534#1" />
-    <stop edge="-1121008013#2" duration="28800" parking="true" />
+    <route edges="31112516#3 -176043794#0 31112516#3" />
+    <stop edge="-176043794#0" duration="28800" parking="true" />
     </vehicle>
   </routes>
