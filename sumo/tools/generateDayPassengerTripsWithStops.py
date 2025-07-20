@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ET
 input_csv = "poi_edges.csv"
 output_xml = "generated_files/osm.passenger.trips.xml"
 netfile = "generated_files/osm.net.xml.gz"
-num_persons = 100
+num_persons = 50
 morning_depart_interval = (23400, 32400)  # 6:30 - 9:00
 work_duration = 8 * 3600  # 8 Stunden in Sekunden
 ev_share = 0.6  # Anteil der Elektrofahrzeuge (z.B. 0.2 = 20%)
@@ -72,20 +72,27 @@ ET.SubElement(routes, 'vType', id="veh_passenger", vClass="passenger", color="0,
 vtype_ev = ET.SubElement(
     routes, 'vType',
     id="veh_ev",
-    vClass="passenger",
-    emissionClass="Zero",
-    color="0,255,0",
-    accel="2.0",
-    decel="4.5",
-    maxSpeed="33.33",
-    length="4.5"
+    minGap="2.50",
+    maxSpeed="29.06",
+    color="white",
+    accel="1.0",
+    decel="1.0",
+    sigma="0.0",
+    emissionClass="Energy",
+    mass="1830000"
 )
 ET.SubElement(vtype_ev, 'param', key="has.battery.device", value="true")
-ET.SubElement(vtype_ev, 'param', key="device.battery.capacity", value="40000")
-ET.SubElement(vtype_ev, 'param', key="device.battery.actualBatteryCapacity", value="1")
-ET.SubElement(vtype_ev, 'param', key="device.battery.maximumPower", value="11000")
-ET.SubElement(vtype_ev, 'param', key="device.battery.vehicleConsumption", value="150")
-ET.SubElement(vtype_ev, 'param', key="device.battery.probability", value="1.0")
+ET.SubElement(vtype_ev, 'param', key="airDragCoefficient", value="0.80")       # https://www.evspecifications.com/en/model/e94fa0
+ET.SubElement(vtype_ev, 'param', key="constantPowerIntake", value="100")       # observed summer levels
+ET.SubElement(vtype_ev, 'param', key="frontSurfaceArea", value="2.6")          # computed (ht-clearance) * width
+ET.SubElement(vtype_ev, 'param', key="rotatingMass", value="40")               # guesstimate, inspired by PHEMlight5 PC_BEV
+ET.SubElement(vtype_ev, 'param', key="device.battery.capacity", value="64000")
+ET.SubElement(vtype_ev, 'param', key="maximumPower", value="150000")           # website as above
+ET.SubElement(vtype_ev, 'param', key="propulsionEfficiency", value=".98")      # guesstimate value providing closest match to observed
+ET.SubElement(vtype_ev, 'param', key="radialDragCoefficient", value="0.1")     # as above
+ET.SubElement(vtype_ev, 'param', key="recuperationEfficiency", value=".96")    # as above
+ET.SubElement(vtype_ev, 'param', key="rollDragCoefficient", value="0.01")      # as above
+ET.SubElement(vtype_ev, 'param', key="stoppingThreshold", value="0.1")         # as above
 
 for v in vehicles:
     veh_elem = ET.SubElement(
