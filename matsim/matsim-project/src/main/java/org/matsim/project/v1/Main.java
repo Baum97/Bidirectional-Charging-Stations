@@ -30,8 +30,8 @@ public class Main {
         // Before: // osmosis --read-pbf file="stuttgart-regbez.osm.pbf" --write-xml file="stuttgart-regbez.osm"
 
         // Build Network
-        String osmPbfFile = bidiData + "\\reutlingen.osm";
-        String networkFile = bidiData + "\\reutlingen.net.xml";
+        String osmPbfFile = bidiData + "\\" + args[0] + ".osm";
+        String networkFile = bidiData + "\\" + args[1] + ".net.xml";
 
         // Check if network file already exists or built it
         java.io.File netFile = new java.io.File(networkFile);
@@ -49,8 +49,8 @@ public class Main {
         Network network = scenario.getNetwork();
 
 
-        String ResidentialCsvFilePath = bidiData + "\\csv\\commerical_zentroid.poi.csv";
-        String CommercialCsvFilePath = bidiData + "\\csv\\residential_zentroid.poi.csv";
+        String ResidentialCsvFilePath = bidiData + "\\csv\\commerical_"+args[0]+".poi.csv";
+        String CommercialCsvFilePath = bidiData + "\\csv\\residential_"+args[0]+".poi.csv";
 
         // Read x & y coordinates from csv file
         List<POICentroid> residential_coordinates = CSVReaderUtil.readCoordinates(ResidentialCsvFilePath);
@@ -171,7 +171,7 @@ public class Main {
         System.out.println("Population has been written to " + outputPopulationAchim);
 
         // Convert OSM2Network suitable for SUMO
-        String output_file = bidiData + "\\reutlingen-network.xml";
+        String output_file = bidiData + "\\MAT" + args[0] + ".xml";
         OSM2Network.convertOSM2Network(osmPbfFile, output_file);
 
 
