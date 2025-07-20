@@ -4,7 +4,7 @@ import random
 import xml.etree.ElementTree as ET
 
 input_csv = "poi_edges.csv"
-output_xml = "osm.passenger.trips.xml"
+output_xml = "generated_files/osm.passenger.trips.xml"
 netfile = "generated_files/osm.net.xml.gz"
 num_persons = 100
 morning_depart_interval = (23400, 32400)  # 6:30 - 9:00
@@ -66,7 +66,7 @@ vehicles.sort(key=lambda v: v['depart'])
 
 # XML schreiben (mit Einrückung)
 routes = ET.Element('routes')
-ET.SubElement(routes, 'vType', id="veh_passenger", vClass="passenger")
+ET.SubElement(routes, 'vType', id="veh_passenger", vClass="passenger", color="0,0,255")
 
 # Korrigierte EV-Definition mit <param>-Tags
 vtype_ev = ET.SubElement(
