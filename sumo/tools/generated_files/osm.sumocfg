@@ -8,7 +8,7 @@
     <input>
         <net-file value="osm.net.xml.gz"/>
         <route-files value="osm.passenger.trips.xml"/>
-        <additional-files value="osm.poly.xml.gz"/>
+        <additional-files value="combined_additional.xml"/>
     </input>
 
     <time>
@@ -22,7 +22,7 @@
         <lateral-resolution value="0.8"/>
         <collision.action value="warn"/>
         <max-depart-delay value="900"/>
-</processing>
+    </processing>
 
     <routing>
         <device.rerouting.adaptation-steps value="18"/>
@@ -39,7 +39,7 @@
     </report>
 
     <gui_only>
-        <delay value="5"/>
+        <delay value="1"/>
         <gui-settings-file value="osm.view.xml"/>
     </gui_only>
 

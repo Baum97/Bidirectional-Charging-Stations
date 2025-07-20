@@ -6,11 +6,9 @@ import xml.etree.ElementTree as ET
 input_csv = "poi_edges.csv"
 output_xml = "osm.passenger.trips.xml"
 netfile = "generated_files/osm.net.xml.gz"
-num_persons = 100
+num_persons = 50
 morning_depart_interval = (23400, 32400)  # 6:30 - 9:00
 work_duration = 8 * 3600  # 8 Stunden in Sekunden
-ev_share = 0.6  # Anteil der Elektrofahrzeuge (z.B. 0.2 = 20%)
-num_evs = int(num_persons * ev_share)
 
 # Netz laden und befahrbare Edges bestimmen
 def edge_allows_passenger(edge):
@@ -42,19 +40,13 @@ for i in range(1, num_persons + 1):
     home, work = random.sample(edges, 2)
     persons.append({'id': f'person{i}', 'home': home, 'work': work})
 
-# IDs der EVs zufällig auswählen
-random.seed(42)  # Für Reproduzierbarkeit, kann entfernt werden
-all_ids = [p['id'] for p in persons]
-ev_ids = set(random.sample(all_ids, num_evs))
-
 # Fahrzeuge mit Route und Stop generieren
 vehicles = []
 for p in persons:
     depart_morning = round(random.uniform(*morning_depart_interval), 2)
-    veh_type = "veh_ev" if p['id'] in ev_ids else "veh_passenger"
     vehicles.append({
         'id': p['id'],
-        'type': veh_type,
+        'type': "veh_passenger",
         'depart': depart_morning,
         'route': [p['home'], p['work'], p['home']],
         'stop_edge': p['work'],
@@ -67,26 +59,6 @@ vehicles.sort(key=lambda v: v['depart'])
 # XML schreiben (mit Einrückung)
 routes = ET.Element('routes')
 ET.SubElement(routes, 'vType', id="veh_passenger", vClass="passenger")
-
-# Korrigierte EV-Definition mit <param>-Tags
-vtype_ev = ET.SubElement(
-    routes, 'vType',
-    id="veh_ev",
-    vClass="passenger",
-    emissionClass="Zero",
-    color="0,255,0",
-    accel="2.0",
-    decel="4.5",
-    maxSpeed="33.33",
-    length="4.5"
-)
-ET.SubElement(vtype_ev, 'param', key="has.battery.device", value="true")
-ET.SubElement(vtype_ev, 'param', key="device.battery.capacity", value="40000")
-ET.SubElement(vtype_ev, 'param', key="device.battery.actualBatteryCapacity", value="1")
-ET.SubElement(vtype_ev, 'param', key="device.battery.maximumPower", value="11000")
-ET.SubElement(vtype_ev, 'param', key="device.battery.vehicleConsumption", value="150")
-ET.SubElement(vtype_ev, 'param', key="device.battery.probability", value="1.0")
-
 for v in vehicles:
     veh_elem = ET.SubElement(
         routes, 'vehicle',
