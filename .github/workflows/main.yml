@@ -22,6 +22,7 @@ jobs:
 
       - name: Find all .sumocfg files and test them
         run: |
+          set -e  # fail fast on error
           for f in $(find . -name '*.sumocfg'); do
             echo "Testing $f"
             sumo -c "$f" --duration-log.statistics --no-warnings true
