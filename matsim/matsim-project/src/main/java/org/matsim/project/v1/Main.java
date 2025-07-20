@@ -1,3 +1,4 @@
+
 package org.matsim.project.v1;
 
 import java.util.ArrayList;
@@ -21,9 +22,9 @@ import org.matsim.core.scenario.ScenarioUtils;
 
 public class Main {
 
-    static Integer POPULATION_SIZE = 50;
-    static String bidiData = "C:\\Projekte\\Bidirectional-Charging-Stations\\sumoconfigs\\reutlingen";
-    static String outputPopulationAchim = bidiData + "\\reutlingen.xml.gz";
+    static Integer POPULATION_SIZE = 1;
+    static String bidiData = "C:\\Users\\erikw\\Documents\\Uni\\Bidirectional-Charging-Stations\\sumoconfigs\\reutlingen";
+    static String outputPopulationAchim = bidiData + "\\reutlingen-population.xml";
 
     public static void main(String[] args) {
 
@@ -31,7 +32,7 @@ public class Main {
 
         // Build Network
         String osmPbfFile = bidiData + "\\reutlingen.osm";
-        String networkFile = bidiData + "\\reutlingen.net.xml";
+        String networkFile = bidiData + "\\reutlingen-matsim.net.xml";
 
         // Check if network file already exists or built it
         java.io.File netFile = new java.io.File(networkFile);
@@ -163,12 +164,32 @@ public class Main {
             Activity workActivity = factory.createActivityFromLinkId("work", work.getId());
             plan.addActivity(workActivity);
 
+            // Rückfahrt
+            Leg legBack = factory.createLeg("car");
+            plan.addLeg(legBack);
+
+            // Wieder zuhause
+            Activity homeAgain = factory.createActivityFromLinkId("home", home.getId());
+            homeAgain.setEndTime(24 * 3600); // z.B. bis Mitternacht
+            plan.addActivity(homeAgain);
+
             person.addPlan(plan);
             population.addPerson(person);
         }
 
         new PopulationWriter(population).write(outputPopulationAchim);
         System.out.println("Population has been written to " + outputPopulationAchim);
+
+        for (Person p : population.getPersons().values()) {
+            for (PlanElement pe : p.getSelectedPlan().getPlanElements()) {
+                if (pe instanceof Activity) {
+                    Id<Link> linkId = ((Activity) pe).getLinkId();
+                    if (!network.getLinks().containsKey(linkId)) {
+                        System.err.println("Ungültige Link-ID in Aktivität: " + linkId);
+                    }
+                }
+            }
+        }
 
         // Convert OSM2Network suitable for SUMO
         String output_file = bidiData + "\\reutlingen-network.xml";
