@@ -1,8 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<!-- generated on 2025-07-20 18:58:18 by Eclipse SUMO sumo Version 1.22.0
--->
-
 <sumoConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
 
     <input>
@@ -18,18 +14,33 @@
     <processing>
         <ignore-route-errors value="true"/>
         <tls.actuated.jam-threshold value="30"/>
-        <!-- Zusätzliche Parameter: -->
         <lateral-resolution value="0.8"/>
         <collision.action value="warn"/>
         <max-depart-delay value="900"/>
+        
+        <!-- BATTERY DEVICES AKTIVIEREN -->
+        <device.battery.probability value="1"/>
+        <device.battery.explicit value="veh_ev"/>
+        
+        <!-- REROUTING DEVICES AKTIVIEREN -->
+        <device.rerouting.probability value="1"/>
+        <device.rerouting.explicit value="veh_ev"/>
+        
+        <!-- STATION FINDER AKTIVIEREN (Das ist der Schlüssel!) -->
+        <device.stationfinder.probability value="1"/>
+        <device.stationfinder.explicit value="veh_ev"/>
+        <device.stationfinder.rescueTime value="1800"/>
+        <device.stationfinder.reserveFactor value="1.2"/>
+        <device.stationfinder.radius value="5000"/>
     </processing>
 
     <routing>
         <device.rerouting.adaptation-steps value="18"/>
         <device.rerouting.adaptation-interval value="10"/>
-        <!-- Zusätzlich empfohlen: -->
-        <device.rerouting.probability value="1.0"/>
         <device.rerouting.pre-period value="60"/>
+        
+        <!-- WICHTIG: Rerouting auch bei niedrigem Batteriestand -->
+        <device.rerouting.with-taz value="true"/>
     </routing>
 
     <report>

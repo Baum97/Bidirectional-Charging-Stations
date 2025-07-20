@@ -36,7 +36,10 @@ for edge in net.getEdges():
                 lane=lane_id,
                 startPos=str(start_pos),
                 endPos=str(start_pos + 5),  # 1m lang, kann angepasst werden
-                power="22000"  # Beispielwert, anpassen nach Bedarf
+                power="200000",  # Beispielwert, anpassen nach Bedarf
+                chargeInTransit="0",
+                chargeDelay="200.0",
+                
             )
             count += 1
 
