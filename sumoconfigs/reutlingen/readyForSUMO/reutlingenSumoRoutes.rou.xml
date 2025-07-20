@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2025-07-20 14:01:27.554248 by matsim_importPlans.py UNKNOWN
+  options: <doubleminus>plan-file reutlingen-population.xml -o reutlingenSumoRoutes.rou.xml
+-->
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <vType id="car"/>
+    <trip id="0_0" depart="triggered" from="1652" to="1354" type="car"/>
+    <trip id="0_1" depart="triggered" from="1354" to="1652" type="car"/>
+    <trip id="0_2" depart="triggered" from="1652" to="1354" type="car"/>
+    <trip id="0_3" depart="triggered" from="1354" to="1652" type="car"/>
+    <trip id="0_4" depart="triggered" from="1652" to="1354" type="car"/>
+    <trip id="0_5" depart="triggered" from="1354" to="1652" type="car"/>
+    <trip id="0_6" depart="triggered" from="1652" to="1354" type="car"/>
+    <trip id="0_7" depart="triggered" from="1354" to="1652" type="car"/>
+    <trip id="0_8" depart="triggered" from="1652" to="1354" type="car"/>
+    <trip id="0_9" depart="triggered" from="1354" to="1652" type="car"/>
+    <trip id="0_10" depart="triggered" from="1652" to="1354" type="car"/>
+    <trip id="0_11" depart="triggered" from="1354" to="1652" type="car"/>
+    <trip id="0_12" depart="triggered" from="1652" to="1354" type="car"/>
+    <trip id="0_13" depart="triggered" from="1354" to="1652" type="car"/>
+    <person id="0" depart="0:0:0">
+        <stop edge="1652" until="06:29:10" actType="home"/>
+        <ride lines="0_0" to="1354"/>
+        <stop edge="1354" until="16:11:21" actType="work"/>
+        <ride lines="0_1" to="1652"/>
+        <stop edge="1652" until="30:46:40" actType="home"/>
+        <ride lines="0_2" to="1354"/>
+        <stop edge="1354" until="40:01:26" actType="work"/>
+        <ride lines="0_3" to="1652"/>
+        <stop edge="1652" until="54:21:36" actType="home"/>
+        <ride lines="0_4" to="1354"/>
+        <stop edge="1354" until="65:32:29" actType="work"/>
+        <ride lines="0_5" to="1652"/>
+        <stop edge="1652" until="79:02:30" actType="home"/>
+        <ride lines="0_6" to="1354"/>
+        <stop edge="1354" until="89:58:16" actType="work"/>
+        <ride lines="0_7" to="1652"/>
+        <stop edge="1652" until="103:52:55" actType="home"/>
+        <ride lines="0_8" to="1354"/>
+        <stop edge="1354" until="112:51:41" actType="work"/>
+        <ride lines="0_9" to="1652"/>
+        <stop edge="1652" until="126:20:38" actType="home"/>
+        <ride lines="0_10" to="1354"/>
+        <stop edge="1354" until="136:50:50" actType="work"/>
+        <ride lines="0_11" to="1652"/>
+        <stop edge="1652" until="150:54:30" actType="home"/>
+        <ride lines="0_12" to="1354"/>
+        <stop edge="1354" until="160:31:05" actType="work"/>
+        <ride lines="0_13" to="1652"/>
+        <stop edge="1652" until="24:0:0" actType="home"/>
+    </person>
+</routes>
