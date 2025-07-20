@@ -1,0 +1,8 @@
+Warning: At actuated tlLogic 'cluster_11283888161_11283888162_11283888164_151218695_#1more', linkIndex 3,4,5,6,7,8,9,10 has no controlling detector.
+Warning: At actuated tlLogic 'cluster_1737384114_2416647653_2416647657_2606782337_#4more', actuated phase 6 has no controlling detector.
+Warning: At actuated tlLogic 'cluster_1737384114_2416647653_2416647657_2606782337_#4more', linkIndex 5,6,7,21,22,23,24,25,26 has no controlling detector.
+Warning: At actuated tlLogic 'cluster_1864469914_1906052530_1906052532_1906052537_#4more', linkIndex 26,27,28,29 has no controlling detector.
+Warning: At actuated tlLogic 'cluster_1906052545_3589857673_3646632018_3648764675_#6more', linkIndex 38,39,40,41,42,55,56 has no controlling detector.
+Warning: busStop '-37883736' on lane '-34293113#1_1' is too short for vehicle '2_bus_720:0'.
+Warning: busStop '-393204662' on lane '-34293113#1_1' is too short for vehicle '33_bus_703:1'.
+Warning: busStop '6679843586' on lane '158651826#0_0' is too short for vehicle '58_bus_708:2'.

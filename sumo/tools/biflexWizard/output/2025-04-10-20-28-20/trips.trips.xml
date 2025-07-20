@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2025-04-10 20:28:30.890940 by $Id: ptlines2flows.py v1_3_1+0313-ccb31df3eb jakob.erdmann@dlr.de 2019-09-02 13:26:32 +0200 $ v1_22_0+0002-63e50f52594
+<configuration>
+    <net-file value="osm.net.xml"/>
+    <ptlines-file value="osm_ptlines.xml"/>
+    <ptstops-file value="osm_stops.add.xml"/>
+    <output-file value="osm_pt.rou.xml"/>
+    <begin value="14400.0"/>
+    <end value="86400.0"/>
+    <random-begin value="True"/>
+    <seed value="42"/>
+    <ignore-errors value="True"/>
+    <vtype-prefix value="pt_"/>
+    <verbose value="True"/>
+</configuration>
+-->
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <vType id="pt_bus" vClass="bus" speedFactor="0.95"/>
+    <vType id="pt_tram" vClass="tram" speedFactor="1.0"/>
+    <vType id="pt_train" vClass="rail"/>
+    <vType id="pt_subway" vClass="subway"/>
+    <vType id="pt_light_rail" vClass="rail_urban"/>
+    <vType id="pt_monorail" vClass="rail_urban"/>
+    <vType id="pt_trolleybus" vClass="bus" speedFactor="0.95"/>
+    <vType id="pt_minibus" vClass="bus" speedFactor="0.95"/>
+    <vType id="pt_share_taxi" vClass="taxi" speedFactor="0.95"/>
+    <vType id="pt_aerialway" vClass="cable_car" length="2.5" width="2" personCapacity="4"/>
+    <vType id="pt_ferry" vClass="ship"/>
+    <trip id="0_bus_908:0" type="pt_bus" depart="14415.0" departLane="best" from="-1228312596#0" to="286221089#13">
+        <stop busStop="-11390519089" duration="30"/>  <!-- Schafbrückweg -->
+        <stop busStop="11390529251" duration="30"/>  <!-- Tierpark -->
+        <stop busStop="5488695669" duration="30"/>  <!-- Ecke Liepgartner Str. -->
+        <stop busStop="11390471256" duration="30"/>  <!-- Chausseestraße -->
+        <stop busStop="11393710027" duration="30"/>  <!-- Goethestraße -->
+        <stop busStop="11393696014" duration="30"/>  <!-- Ecke Liepgartner Str. -->
+        <stop busStop="4187327476" duration="30"/>  <!-- Ueckermünde ZOB -->
+        <stop busStop="11394222978" duration="30"/>  <!-- Ärztehaus -->
+        <stop busStop="11390618034" duration="30"/>  <!-- Belliner Straße -->
+        <stop busStop="11394250291" duration="30"/>  <!-- Ost -->
+        <stop busStop="11394250290" duration="30"/>  <!-- Berndshof Abzweig -->
+        <stop busStop="11394292500" duration="30"/>  <!-- Bellin -->
+        <stop busStop="11394292499" duration="30"/>  <!-- Bellin Gaststätte -->
+    </trip>
+    <trip id="1_bus_912:0" type="pt_bus" depart="14415.0" departLane="best" from="1228296104#4" to="1228319606#1">
+        <stop busStop="11390357895" duration="30"/>  <!-- Haff-Grundschule -->
+        <stop busStop="-11390383234" duration="30"/>  <!-- Neuendorfer Str. -->
+        <stop busStop="-11390383232" duration="30"/>  <!-- Haffring -->
+        <stop busStop="11390415279" duration="30"/>  <!-- Ladenstraße -->
+        <stop busStop="-11393679891" duration="30"/>  <!-- Zur grünen Heide -->
+        <stop busStop="-11390431933" duration="30"/>  <!-- Oststraße -->
+        <stop busStop="5488695669" duration="30"/>  <!-- Ecke Liepgartner Str. -->
+        <stop busStop="11390471256" duration="30"/>  <!-- Chausseestraße -->
+        <stop busStop="11393710027" duration="30"/>  <!-- Goethestraße -->
+        <stop busStop="11390485506" duration="30"/>  <!-- Ecke Rosengarten -->
+        <stop busStop="-11390499029" duration="30"/>  <!-- Rosengarten -->
+        <stop busStop="1087795912" duration="30"/>  <!-- Ameos Klinikum -->
+        <stop busStop="-11390519089" duration="30"/>  <!-- Schafbrückweg -->
+        <stop busStop="-11451946826" duration="30"/>  <!-- Ahornweg -->
+        <stop busStop="11390529251" duration="30"/>  <!-- Tierpark -->
+        <stop busStop="11390520035" duration="30"/>  <!-- Rosenmühl -->
+        <stop busStop="11390522966" duration="30"/>  <!-- Wiesenstraße -->
+        <stop busStop="11390530664" duration="30"/>  <!-- Liepgarten Alte Mühle -->
+        <stop busStop="11390545841" duration="30"/>  <!-- Liepgarten Mühlenfeldstraße -->
+        <stop busStop="11390554765" duration="30"/>  <!-- Liepgarten Denkmal -->
+        <stop busStop="277014179" duration="30"/>  <!-- Liepgarten Feuerwehr -->
+        <stop busStop="11390509207" duration="30"/>  <!-- Liepgarten LPG -->
+        <stop busStop="11390564868" duration="30"/>  <!-- Liepgarten Friedhof -->
+        <stop busStop="11390541018" duration="30"/>  <!-- Liepgarten Försterei -->
+        <stop busStop="11390579662" duration="30"/>  <!-- Liepgarten Waldfrieden -->
+    </trip>
+    <trip id="2_bus_911:0" type="pt_bus" depart="14417.0" departLane="best" from="224795279#1" to="-1228594720#0">
+        <stop busStop="4187327478" duration="30"/>  <!-- Ueckermünde ZOB -->
+        <stop busStop="11393710027" duration="30"/>  <!-- Goethestraße -->
+        <stop busStop="-11393696014" duration="30"/>  <!-- Ecke Liepgartner Str. -->
+        <stop busStop="-11393741606" duration="30"/>  <!-- Tierpark -->
+        <stop busStop="-11393736791" duration="30"/>  <!-- Bornkamp -->
+    </trip>
+    <trip id="3_bus_909:0" type="pt_bus" depart="14452.0" departLane="best" from="224795279#1" to="-1228619927#0">
+        <stop busStop="4187327478" duration="30"/>  <!-- Ueckermünde ZOB -->
+        <stop busStop="11393710027" duration="30"/>  <!-- Goethestraße -->
+        <stop busStop="-11393696014" duration="30"/>  <!-- Ecke Liepgartner Str. -->
+        <stop busStop="-11393741606" duration="30"/>  <!-- Tierpark -->
+        <stop busStop="-11393736791" duration="30"/>  <!-- Bornkamp -->
+        <stop busStop="-11393941791" duration="30"/>  <!-- Millnitz Abzweig -->
+    </trip>
+    <trip id="4_bus_912:1" type="pt_bus" depart="14519.0" departLane="best" from="-1228320349#0" to="72208477">
+        <stop busStop="-11390579662" duration="30"/>  <!-- Liepgarten Waldfrieden -->
+        <stop busStop="-11394902235" duration="30"/>  <!-- Liepgarten Försterei -->
+        <stop busStop="-11394882053" duration="30"/>  <!-- Liepgarten Friedhof -->
+        <stop busStop="-11390509207" duration="30"/>  <!-- Liepgarten LPG -->
+        <stop busStop="-11394929768" duration="30"/>  <!-- Liepgarten Feuerwehr -->
+        <stop busStop="-11394936834" duration="30"/>  <!-- Liepgarten Denkmal -->
+        <stop busStop="-11394901025" duration="30"/>  <!-- Liepgarten Mühlenfeldstraße -->
+        <stop busStop="-11394934920" duration="30"/>  <!-- Liepgarten Alte Mühle -->
+        <stop busStop="-11390522966" duration="30"/>  <!-- Wiesenstraße -->
+        <stop busStop="-277014167" duration="30"/>  <!-- Rosenmühl -->
+        <stop busStop="5488695669" duration="30"/>  <!-- Ecke Liepgartner Str. -->
+        <stop busStop="11390471256" duration="30"/>  <!-- Chausseestraße -->
+        <stop busStop="11394931257" duration="30"/>  <!-- Apfelallee -->
+    </trip>
+    <trip id="5_bus_911:1" type="pt_bus" depart="14531.0" departLane="best" from="1228594720#1" to="1228821375">
+        <stop busStop="11395844346" duration="30"/>  <!-- Bornkamp -->
+        <stop busStop="11390529251" duration="30"/>  <!-- Tierpark -->
+        <stop busStop="5488695669" duration="30"/>  <!-- Ecke Liepgartner Str. -->
+        <stop busStop="11390471256" duration="30"/>  <!-- Chausseestraße -->
+        <stop busStop="11391714453" duration="30"/>  <!-- Ehm-Welk-Schule -->
+        <stop busStop="4187327476" duration="30"/>  <!-- Ueckermünde ZOB -->
+    </trip>
+    <trip id="6_bus_910:0" type="pt_bus" depart="14533.0" departLane="best" from="224795279#1" to="-37202830#0">
+        <stop busStop="4187327478" duration="30"/>  <!-- Ueckermünde ZOB -->
+        <stop busStop="5488695669" duration="30"/>  <!-- Ecke Liepgartner Str. -->
+        <stop busStop="11390471256" duration="30"/>  <!-- Chausseestraße -->
+        <stop busStop="11393710027" duration="30"/>  <!-- Goethestraße -->
+        <stop busStop="11390485506" duration="30"/>  <!-- Ecke Rosengarten -->
+        <stop busStop="-11390499029" duration="30"/>  <!-- Rosengarten -->
+        <stop busStop="-11395931648" duration="30"/>  <!-- Grambin Feuerwehr -->
+        <stop busStop="-11395952888" duration="30"/>  <!-- Grambin Zeltplatz -->
+    </trip>
+    <trip id="7_bus_909:1" type="pt_bus" depart="14565.0" departLane="best" from="286060098#1" to="-1304201336#0">
+        <stop busStop="11393941791" duration="30"/>  <!-- Millnitz Abzweig -->
+        <stop busStop="11395844346" duration="30"/>  <!-- Bornkamp -->
+        <stop busStop="11390529251" duration="30"/>  <!-- Tierpark -->
+        <stop busStop="5488695669" duration="30"/>  <!-- Ecke Liepgartner Str. -->
+        <stop busStop="11390471256" duration="30"/>  <!-- Chausseestraße -->
+        <stop busStop="11391714453" duration="30"/>  <!-- Ehm-Welk-Schule -->
+        <stop busStop="11393696014" duration="30"/>  <!-- Ecke Liepgartner Str. -->
+        <stop busStop="4187327476" duration="30"/>  <!-- Ueckermünde ZOB -->
+        <stop busStop="11394222978" duration="30"/>  <!-- Ärztehaus -->
+        <stop busStop="-11390357895" duration="30"/>  <!-- Haff-Grundschule -->
+    </trip>
+    <trip id="8_bus_908:1" type="pt_bus" depart="14653.0" departLane="best" from="-1228661030#0" to="-1228312596#0">
+        <stop busStop="-11403305577" duration="30"/>  <!-- Bellin Gaststätte -->
+        <stop busStop="-11403335803" duration="30"/>  <!-- Bellin -->
+        <stop busStop="-11403384527" duration="30"/>  <!-- Berndshof Abzweig -->
+        <stop busStop="11390415279" duration="30"/>  <!-- Ladenstraße -->
+        <stop busStop="-11390357897" duration="30"/>  <!-- Belliner Straße -->
+        <stop busStop="-11403411944" duration="30"/>  <!-- Ärztehaus -->
+        <stop busStop="4187327476" duration="30"/>  <!-- Ueckermünde ZOB -->
+        <stop busStop="5488695669" duration="30"/>  <!-- Ecke Liepgartner Str. -->
+        <stop busStop="11390471256" duration="30"/>  <!-- Chausseestraße -->
+        <stop busStop="11390485506" duration="30"/>  <!-- Ecke Rosengarten -->
+        <stop busStop="-11390499029" duration="30"/>  <!-- Rosengarten -->
+        <stop busStop="1087795912" duration="30"/>  <!-- Ameos Klinikum -->
+        <stop busStop="-11390519089" duration="30"/>  <!-- Schafbrückweg -->
+    </trip>
+    <trip id="9_bus_908:2" type="pt_bus" depart="14703.0" departLane="best" from="26335388" to="26335394#2">
+        <stop busStop="11394479860" duration="30"/>  <!-- Luckow -->
+        <stop busStop="11394479859" duration="30"/>  <!-- Luckow Neubau -->
+    </trip>
+    <trip id="10_bus_902:0" type="pt_bus" depart="14726.0" departLane="best" from="1228406811" to="-23061899#0">
+        <stop busStop="11391714453" duration="30"/>  <!-- Ehm-Welk-Schule -->
+        <stop busStop="-11393696014" duration="30"/>  <!-- Ecke Liepgartner Str. -->
+        <stop busStop="4187327476" duration="30"/>  <!-- Ueckermünde ZOB -->
+        <stop busStop="-11425562479" duration="30"/>  <!-- Gießerei -->
+        <stop busStop="-11397985648" duration="30"/>  <!-- Rochow Abzweig -->
+        <stop busStop="-11397967885" duration="30"/>  <!-- Hoppenwalde -->
+        <stop busStop="-248853677" duration="30"/>  <!-- F.-Reuter-Weg -->
+    </trip>
+    <trip id="11_bus_910:1" type="pt_bus" depart="14783.0" departLane="best" from="1228401845#1" to="-1304201336#0">
+        <stop busStop="11391686846" duration="30"/>  <!-- Grambin Zeltplatz -->
+        <stop busStop="1777221663" duration="30"/>  <!-- Grambin Feuerwehr -->
+        <stop busStop="11391733053" duration="30"/>  <!-- Rosengarten -->
+        <stop busStop="11391733054" duration="30"/>  <!-- Ecke Rosengarten -->
+        <stop busStop="11391714453" duration="30"/>  <!-- Ehm-Welk-Schule -->
+        <stop busStop="4187327476" duration="30"/>  <!-- Ueckermünde ZOB -->
+        <stop busStop="11391788187" duration="30"/>  <!-- Oststraße -->
+        <stop busStop="11391797263" duration="30"/>  <!-- Zur grünen Heide -->
+        <stop busStop="-11390357895" duration="30"/>  <!-- Haff-Grundschule -->
+    </trip>
+    <trip id="12_bus_902:1" type="pt_bus" depart="14789.0" departLane="best" from="1229067744#1" to="1228406812">
+        <stop busStop="11397977319" duration="30"/>  <!-- F.-Reuter-Weg -->
+        <stop busStop="11397967883" duration="30"/>  <!-- Hoppenwalde -->
+        <stop busStop="11397985647" duration="30"/>  <!-- Rochow Abzweig -->
+        <stop busStop="11397925642" duration="30"/>  <!-- Gießerei -->
+        <stop busStop="4187327476" duration="30"/>  <!-- Ueckermünde ZOB -->
+        <stop busStop="5488695669" duration="30"/>  <!-- Ecke Liepgartner Str. -->
+        <stop busStop="11390471256" duration="30"/>  <!-- Chausseestraße -->
+        <stop busStop="11391714453@2424774" duration="30"/>  <!-- Ehm-Welk-Schule -->
+    </trip>
+    <trip id="13_train_RE4:0" type="pt_train" depart="14806.0" departLane="best" from="-23066993#1" to="-23066993#0">
+        <stop busStop="-3144191776" duration="30"/>  <!-- Ueckermünde -->
+        <stop busStop="-2225516670" duration="30"/>  <!-- Ueckermünde Stadthafen -->
+    </trip>
+    <trip id="14_train_RE4:1" type="pt_train" depart="14841.0" departLane="best" from="23066993#0" to="23066993#1">
+        <stop busStop="2225516670" duration="30"/>  <!-- Ueckermünde Stadthafen -->
+        <stop busStop="3144191776" duration="30"/>  <!-- Ueckermünde -->
+    </trip>
+</routes>

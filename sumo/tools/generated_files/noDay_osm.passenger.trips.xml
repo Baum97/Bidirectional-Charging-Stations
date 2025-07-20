@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='utf-8'?>
+<routes>
+  <vType id="veh_passenger" vClass="passenger" />
+  <trip id="poiTrip32" type="veh_passenger" depart="21.86" departLane="best" to="4610479#0" from="31112516#2" />
+  <trip id="poiTrip49" type="veh_passenger" depart="47.93" departLane="best" to="122820534#1" from="122820534#0" />
+  <trip id="poiTrip38" type="veh_passenger" depart="175.18" departLane="best" to="-1121008013#1" from="4610479#0" />
+  <trip id="poiTrip36" type="veh_passenger" depart="233.47" departLane="best" to="705182548" from="122820534#0" />
+  <trip id="poiTrip3" type="veh_passenger" depart="243.85" departLane="best" to="31112516#0" from="122820534#1" />
+  <trip id="poiTrip43" type="veh_passenger" depart="351.52" departLane="best" to="-51167934#4" from="31112516#3" />
+  <trip id="poiTrip21" type="veh_passenger" depart="367.09" departLane="best" to="-131505631" from="122820534#0" />
+  <trip id="poiTrip44" type="veh_passenger" depart="548.72" departLane="best" to="-1121008013#1" from="-51167934#5" />
+  <trip id="poiTrip37" type="veh_passenger" depart="611.15" departLane="best" to="31112516#3" from="-51167934#5" />
+  <trip id="poiTrip30" type="veh_passenger" depart="656.19" departLane="best" to="31112516#2" from="-1121008013#2" />
+  <trip id="poiTrip41" type="veh_passenger" depart="792.72" departLane="best" to="31112516#2" from="465398529#1" />
+  <trip id="poiTrip26" type="veh_passenger" depart="915.57" departLane="best" to="31112516#4" from="-176043794#0" />
+  <trip id="poiTrip18" type="veh_passenger" depart="924.33" departLane="best" to="31112516#4" from="465398529#1" />
+  <trip id="poiTrip24" type="veh_passenger" depart="1037.31" departLane="best" to="-131505631" from="31112516#2" />
+  <trip id="poiTrip25" type="veh_passenger" depart="1041.21" departLane="best" to="122820534#1" from="31112516#2" />
+  <trip id="poiTrip23" type="veh_passenger" depart="1260.83" departLane="best" to="705182548" from="4403559#4" />
+  <trip id="poiTrip31" type="veh_passenger" depart="1365.0" departLane="best" to="31112516#5" from="-1121008013#2" />
+  <trip id="poiTrip48" type="veh_passenger" depart="1407.3" departLane="best" to="-51167934#4" from="-51167934#5" />
+  <trip id="poiTrip10" type="veh_passenger" depart="1510.11" departLane="best" to="31112516#3" from="4403559#4" />
+  <trip id="poiTrip15" type="veh_passenger" depart="1530.97" departLane="best" to="465398529#1" from="122820534#1" />
+  <trip id="poiTrip5" type="veh_passenger" depart="1591.39" departLane="best" to="31112516#0" from="-1121008013#2" />
+  <trip id="poiTrip6" type="veh_passenger" depart="1640.08" departLane="best" to="705182548" from="31112516#5" />
+  <trip id="poiTrip33" type="veh_passenger" depart="1666.54" departLane="best" to="-51167934#5" from="31112516#2" />
+  <trip id="poiTrip17" type="veh_passenger" depart="1754.54" departLane="best" to="705182548" from="31112516#2" />
+  <trip id="poiTrip47" type="veh_passenger" depart="1957.55" departLane="best" to="31112516#0" from="122820534#0" />
+  <trip id="poiTrip7" type="veh_passenger" depart="1962.04" departLane="best" to="705182548" from="122820534#0" />
+  <trip id="poiTrip35" type="veh_passenger" depart="2020.95" departLane="best" to="31112516#4" from="705182548" />
+  <trip id="poiTrip1" type="veh_passenger" depart="2089.67" departLane="best" to="31112516#2" from="122820534#1" />
+  <trip id="poiTrip16" type="veh_passenger" depart="2203.49" departLane="best" to="31112516#3" from="4403559#4" />
+  <trip id="poiTrip19" type="veh_passenger" depart="2390.52" departLane="best" to="31112516#0" from="-51167934#4" />
+  <trip id="poiTrip40" type="veh_passenger" depart="2469.33" departLane="best" to="4610479#0" from="-176043794#0" />
+  <trip id="poiTrip13" type="veh_passenger" depart="2528.99" departLane="best" to="-1121008013#2" from="-1121008013#1" />
+  <trip id="poiTrip2" type="veh_passenger" depart="2623.16" departLane="best" to="122820534#0" from="-1121008013#2" />
+  <trip id="poiTrip27" type="veh_passenger" depart="2718.03" departLane="best" to="31112516#5" from="31112516#4" />
+  <trip id="poiTrip8" type="veh_passenger" depart="2727.49" departLane="best" to="4403559#4" from="-51167934#4" />
+  <trip id="poiTrip12" type="veh_passenger" depart="2908.73" departLane="best" to="465398529#1" from="122820534#1" />
+  <trip id="poiTrip29" type="veh_passenger" depart="3015.16" departLane="best" to="122820534#1" from="31112516#5" />
+  <trip id="poiTrip45" type="veh_passenger" depart="3073.84" departLane="best" to="-1121008013#2" from="-176043794#0" />
+  <trip id="poiTrip4" type="veh_passenger" depart="3100.73" departLane="best" to="-176043794#0" from="122820534#0" />
+  <trip id="poiTrip39" type="veh_passenger" depart="3116.6" departLane="best" to="-51167934#4" from="4403559#4" />
+  <trip id="poiTrip50" type="veh_passenger" depart="3131.38" departLane="best" to="4403559#4" from="31112516#3" />
+  <trip id="poiTrip42" type="veh_passenger" depart="3151.77" departLane="best" to="31112516#2" from="31112516#5" />
+  <trip id="poiTrip46" type="veh_passenger" depart="3178.96" departLane="best" to="31112516#5" from="465398529#1" />
+  <trip id="poiTrip20" type="veh_passenger" depart="3229.66" departLane="best" to="-51167934#5" from="4403559#4" />
+  <trip id="poiTrip34" type="veh_passenger" depart="3321.7" departLane="best" to="-131505631" from="465398529#1" />
+  <trip id="poiTrip28" type="veh_passenger" depart="3397.94" departLane="best" to="122820534#0" from="4403559#4" />
+  <trip id="poiTrip14" type="veh_passenger" depart="3413.39" departLane="best" to="-51167934#5" from="31112516#5" />
+  <trip id="poiTrip9" type="veh_passenger" depart="3446.31" departLane="best" to="-51167934#5" from="-1121008013#1" />
+  <trip id="poiTrip22" type="veh_passenger" depart="3483.59" departLane="best" to="4403559#4" from="-1121008013#1" />
+  <trip id="poiTrip11" type="veh_passenger" depart="3560.7" departLane="best" to="31112516#4" from="-131505631" />
+  </routes>

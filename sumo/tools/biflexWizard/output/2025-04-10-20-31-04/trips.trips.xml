@@ -1,0 +1,1032 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2025-04-10 20:31:49.731960 by $Id: ptlines2flows.py v1_3_1+0313-ccb31df3eb jakob.erdmann@dlr.de 2019-09-02 13:26:32 +0200 $ v1_22_0+0002-63e50f52594
+<configuration>
+    <net-file value="osm.net.xml"/>
+    <ptlines-file value="osm_ptlines.xml"/>
+    <ptstops-file value="osm_stops.add.xml"/>
+    <output-file value="osm_pt.rou.xml"/>
+    <begin value="14400.0"/>
+    <end value="86400.0"/>
+    <random-begin value="True"/>
+    <seed value="42"/>
+    <ignore-errors value="True"/>
+    <vtype-prefix value="pt_"/>
+    <verbose value="True"/>
+</configuration>
+-->
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <vType id="pt_bus" vClass="bus" speedFactor="0.95"/>
+    <vType id="pt_tram" vClass="tram" speedFactor="1.0"/>
+    <vType id="pt_train" vClass="rail"/>
+    <vType id="pt_subway" vClass="subway"/>
+    <vType id="pt_light_rail" vClass="rail_urban"/>
+    <vType id="pt_monorail" vClass="rail_urban"/>
+    <vType id="pt_trolleybus" vClass="bus" speedFactor="0.95"/>
+    <vType id="pt_minibus" vClass="bus" speedFactor="0.95"/>
+    <vType id="pt_share_taxi" vClass="taxi" speedFactor="0.95"/>
+    <vType id="pt_aerialway" vClass="cable_car" length="2.5" width="2" personCapacity="4"/>
+    <vType id="pt_ferry" vClass="ship"/>
+    <trip id="10_train_RB26:0" type="pt_train" depart="14434.0" departLane="best" from="-1125072789" to="48923447#1">
+        <stop busStop="-1106283807" duration="30"/>  <!-- Berlin Ostkreuz -->
+        <stop busStop="2440453083" duration="30"/>  <!-- Berlin-Lichtenberg -->
+    </trip>
+    <trip id="11_train_RB26:1" type="pt_train" depart="14438.0" departLane="best" from="-1196812437#0" to="635807491#1">
+        <stop busStop="-2440453081" duration="30"/>  <!-- Berlin-Lichtenberg -->
+        <stop busStop="1106283807" duration="30"/>  <!-- Berlin Ostkreuz -->
+    </trip>
+    <trip id="12_bus_M43:0" type="pt_bus" depart="14441.0" departLane="best" from="-1056858943#1" to="-155605329#1">
+        <stop busStop="-1583269258" duration="30"/>  <!-- Alt-Stralau -->
+        <stop busStop="-1583269284" duration="30"/>  <!-- Friedrich-Junge-Straße -->
+        <stop busStop="-1583269285" duration="30"/>  <!-- Glasbläserallee -->
+        <stop busStop="5289023576" duration="30"/>  <!-- S Ostkreuz -->
+        <stop busStop="-4574766498" duration="30"/>  <!-- Markgrafendamm -->
+    </trip>
+    <trip id="13_bus_M43:1" type="pt_bus" depart="14447.0" departLane="best" from="838651755" to="1125943769#1">
+        <stop busStop="1369967395" duration="30"/>  <!-- S Treptower Park -->
+        <stop busStop="262652924" duration="30"/>  <!-- Markgrafendamm -->
+        <stop busStop="4370346533" duration="30"/>  <!-- S Ostkreuz -->
+        <stop busStop="3959807203" duration="30"/>  <!-- Glasbläserallee -->
+        <stop busStop="1583269282" duration="30"/>  <!-- Friedrich-Junge-Straße -->
+        <stop busStop="3959807196" duration="30"/>  <!-- Alt-Stralau -->
+    </trip>
+    <trip id="14_light_rail_S41:0" type="pt_light_rail" depart="14451.0" departLane="best" from="1155847958" to="136703825">
+        <stop busStop="316786620" duration="30"/>  <!-- Storkower Straße -->
+        <stop busStop="316787417" duration="30"/>  <!-- Frankfurter Allee -->
+        <stop busStop="1797163098" duration="30"/>  <!-- Ostkreuz -->
+        <stop busStop="1106283795" duration="30"/>  <!-- Treptower Park -->
+    </trip>
+    <trip id="15_light_rail_S42:0" type="pt_light_rail" depart="14452.0" departLane="best" from="136703834" to="375331614#0">
+        <stop busStop="261750068" duration="30"/>  <!-- Treptower Park -->
+        <stop busStop="1797163101" duration="30"/>  <!-- Ostkreuz -->
+        <stop busStop="21385742" duration="30"/>  <!-- Frankfurter Allee -->
+        <stop busStop="1127966990" duration="30"/>  <!-- Storkower Straße -->
+    </trip>
+    <trip id="19_bus_347:0" type="pt_bus" depart="14460.0" departLane="best" from="-1137944557" to="-35552254#1">
+        <stop busStop="-3959807203" duration="30"/>  <!-- Glasbläserallee -->
+        <stop busStop="9341697786" duration="30"/>  <!-- Friedrich-Junge-Straße -->
+        <stop busStop="1583269277" duration="30"/>  <!-- Bootsbauerstraße -->
+        <stop busStop="1583269306" duration="30"/>  <!-- Krachtstraße -->
+        <stop busStop="1583269285" duration="30"/>  <!-- Glasbläserallee -->
+        <stop busStop="5289023576" duration="30"/>  <!-- S Ostkreuz -->
+        <stop busStop="-3870914554" duration="30"/>  <!-- Markgrafendamm -->
+        <stop busStop="-3870914560" duration="30"/>  <!-- Persiusstraße -->
+    </trip>
+    <trip id="20_bus_347:1" type="pt_bus" depart="14465.0" departLane="best" from="35552254#1" to="27989836#2">
+        <stop busStop="3870914559" duration="30"/>  <!-- Persiusstraße -->
+        <stop busStop="3870914553" duration="30"/>  <!-- Markgrafendamm -->
+        <stop busStop="4370346533" duration="30"/>  <!-- S Ostkreuz -->
+        <stop busStop="3959807203" duration="30"/>  <!-- Glasbläserallee -->
+    </trip>
+    <trip id="24_train_D99:0" type="pt_train" depart="14493.0" departLane="best" from="417039023#1" to="136651806#1">
+        <stop busStop="1342275460" duration="30"/>  <!-- Berlin Ostkreuz -->
+        <stop busStop="2440453081" duration="30"/>  <!-- Berlin-Lichtenberg -->
+    </trip>
+    <trip id="25_train_D99:1" type="pt_train" depart="14498.0" departLane="best" from="536259492#1" to="119455526#1">
+        <stop busStop="-4737427770" duration="30"/>  <!-- Berlin-Lichtenberg -->
+        <stop busStop="3936632578" duration="30"/>  <!-- Berlin Ostkreuz -->
+    </trip>
+    <trip id="26_train_RB12:0" type="pt_train" depart="14502.0" departLane="best" from="417039023#1" to="136651806#1">
+        <stop busStop="1342275460" duration="30"/>  <!-- Berlin Ostkreuz -->
+        <stop busStop="2440453081" duration="30"/>  <!-- Berlin-Lichtenberg -->
+    </trip>
+    <trip id="30_bus_169:0" type="pt_bus" depart="14526.0" departLane="best" from="-440552880#0" to="-760410926">
+        <stop busStop="-3906256667" duration="30"/>  <!-- Lammersdorfer Weg -->
+        <stop busStop="-3906256657" duration="30"/>  <!-- Gleiwitzer Straße -->
+        <stop busStop="-3906256152" duration="30"/>  <!-- Dohlengrund -->
+        <stop busStop="3906256150" duration="30"/>  <!-- Aurorafalterweg -->
+        <stop busStop="343527012" duration="30"/>  <!-- U Elsterwerdaer Platz Bus Köpenicker Straße -->
+        <stop busStop="-3906256671" duration="30"/>  <!-- U Elsterwerdaer Platz -->
+    </trip>
+    <trip id="31_bus_169:1" type="pt_bus" depart="14527.0" departLane="best" from="387396999" to="24872855">
+        <stop busStop="3464846428" duration="30"/>  <!-- U Elsterwerdaer Platz -->
+        <stop busStop="343527006" duration="30"/>  <!-- U Elsterwerdaer Platz Bus Köpenicker Straße -->
+        <stop busStop="-3906256149" duration="30"/>  <!-- Aurorafalterweg -->
+        <stop busStop="3906256151" duration="30"/>  <!-- Dohlengrund -->
+        <stop busStop="3906256156" duration="30"/>  <!-- Gleiwitzer Straße -->
+        <stop busStop="344856174" duration="30"/>  <!-- Lammersdorfer Weg -->
+    </trip>
+    <trip id="32_bus_169:2" type="pt_bus" depart="14531.0" departLane="best" from="387396999" to="24872855">
+        <stop busStop="3464846428" duration="30"/>  <!-- U Elsterwerdaer Platz -->
+        <stop busStop="343527006" duration="30"/>  <!-- U Elsterwerdaer Platz Bus Köpenicker Straße -->
+        <stop busStop="-3906256149" duration="30"/>  <!-- Aurorafalterweg -->
+        <stop busStop="3906256151" duration="30"/>  <!-- Dohlengrund -->
+        <stop busStop="3906256156" duration="30"/>  <!-- Gleiwitzer Straße -->
+        <stop busStop="344856174" duration="30"/>  <!-- Lammersdorfer Weg -->
+    </trip>
+    <trip id="33_bus_169:3" type="pt_bus" depart="14531.0" departLane="best" from="-440552880#0" to="-760410926">
+        <stop busStop="-3906256667" duration="30"/>  <!-- Lammersdorfer Weg -->
+        <stop busStop="-3906256657" duration="30"/>  <!-- Gleiwitzer Straße -->
+        <stop busStop="-3906256152" duration="30"/>  <!-- Dohlengrund -->
+        <stop busStop="3906256150" duration="30"/>  <!-- Aurorafalterweg -->
+        <stop busStop="343527012" duration="30"/>  <!-- U Elsterwerdaer Platz Bus Köpenicker Straße -->
+        <stop busStop="-3906256671" duration="30"/>  <!-- U Elsterwerdaer Platz -->
+    </trip>
+    <trip id="37_bus_154:0" type="pt_bus" depart="14537.0" departLane="best" from="1101186017#1" to="-591650597#0">
+        <stop busStop="3918673350" duration="30"/>  <!-- Adersleber Weg -->
+        <stop busStop="2137622749" duration="30"/>  <!-- Heliosstraße -->
+        <stop busStop="360243247" duration="30"/>  <!-- Elisabethstraße/Oberfeldstraße -->
+        <stop busStop="29885006" duration="30"/>  <!-- Blumberger Damm/Elisabethstraße -->
+        <stop busStop="150677775" duration="30"/>  <!-- Cecilienstraße/Blumberger Damm -->
+        <stop busStop="360243302" duration="30"/>  <!-- Buckower Ring -->
+        <stop busStop="151012886" duration="30"/>  <!-- Rapsweg/Unfallkrankenhaus -->
+        <stop busStop="9910225812" duration="30"/>  <!-- Altentreptower Straße -->
+        <stop busStop="151012797" duration="30"/>  <!-- Schlosspark Biesdorf -->
+        <stop busStop="-286301041" duration="30"/>  <!-- U Elsterwerdaer Platz -->
+    </trip>
+    <trip id="38_bus_154:1" type="pt_bus" depart="14539.0" departLane="best" from="-461564558#0" to="1101186010#1">
+        <stop busStop="-3464846429" duration="30"/>  <!-- U Elsterwerdaer Platz -->
+        <stop busStop="151012783" duration="30"/>  <!-- Schlosspark Biesdorf -->
+        <stop busStop="9920127145" duration="30"/>  <!-- Altentreptower Straße -->
+        <stop busStop="151012874" duration="30"/>  <!-- Rapsweg/Unfallkrankenhaus -->
+        <stop busStop="29884993" duration="30"/>  <!-- Buckower Ring -->
+        <stop busStop="150677416" duration="30"/>  <!-- Cecilienstraße/Blumberger Damm -->
+        <stop busStop="-3906388124" duration="30"/>  <!-- Blumberger Damm/Elisabethstraße -->
+        <stop busStop="-4108069529" duration="30"/>  <!-- Elisabethstraße/Oberfeldstraße -->
+        <stop busStop="2137622748" duration="30"/>  <!-- Heliosstraße -->
+        <stop busStop="3918673351" duration="30"/>  <!-- Adersleber Weg -->
+    </trip>
+    <trip id="40_bus_398:0" type="pt_bus" depart="14557.0" departLane="best" from="31578381#0" to="-760410926">
+        <stop busStop="3815943387" duration="30"/>  <!-- Alt-Kaulsdorf/Chemnitzer Straße -->
+        <stop busStop="353332639" duration="30"/>  <!-- Grüne Aue -->
+        <stop busStop="353330593" duration="30"/>  <!-- Kohlweißlingstraße -->
+        <stop busStop="343527012" duration="30"/>  <!-- U Elsterwerdaer Platz Bus Köpenicker Straße -->
+        <stop busStop="-3464846428" duration="30"/>  <!-- U Elsterwerdaer Platz -->
+    </trip>
+    <trip id="41_bus_398:1" type="pt_bus" depart="14558.0" departLane="best" from="387396999" to="-31578381#5">
+        <stop busStop="3464846428" duration="30"/>  <!-- U Elsterwerdaer Platz -->
+        <stop busStop="343527006" duration="30"/>  <!-- U Elsterwerdaer Platz Bus Köpenicker Straße -->
+        <stop busStop="-3908980749" duration="30"/>  <!-- Kohlweißlingstraße -->
+        <stop busStop="353332643" duration="30"/>  <!-- Grüne Aue -->
+        <stop busStop="-3815943388" duration="30"/>  <!-- Alt-Kaulsdorf/Chemnitzer Straße -->
+    </trip>
+    <trip id="42_tram_M5:0" type="pt_tram" depart="14558.0" departLane="best" from="101699684#0" to="83014039#0">
+        <stop busStop="52776952" duration="30"/>  <!-- Simon-Bolivar-Straße -->
+        <stop busStop="146866102" duration="30"/>  <!-- Sandinostraße -->
+        <stop busStop="98871740" duration="30"/>  <!-- Hohenschönhauser Straße -->
+        <stop busStop="1828366917" duration="30"/>  <!-- Judith-Auer-Straße -->
+        <stop busStop="1828354198" duration="30"/>  <!-- Oderbruchstraße -->
+    </trip>
+    <trip id="43_tram_M5:1" type="pt_tram" depart="14559.0" departLane="best" from="1039993869#1" to="171931190#16">
+        <stop busStop="30693019" duration="30"/>  <!-- Oderbruchstraße -->
+        <stop busStop="1865279611" duration="30"/>  <!-- Judith-Auer-Straße -->
+        <stop busStop="1679204623" duration="30"/>  <!-- Hohenschönhauser Straße -->
+        <stop busStop="7076449612" duration="30"/>  <!-- Sandinostraße -->
+        <stop busStop="7076449611" duration="30"/>  <!-- Simon-Bolivar-Straße -->
+    </trip>
+    <trip id="44_tram_M8:0" type="pt_tram" depart="14560.0" departLane="best" from="172551635#1" to="39232656#4">
+        <stop busStop="1834446929" duration="30"/>  <!-- Adersleber Weg -->
+        <stop busStop="1797514517" duration="30"/>  <!-- Allee der Kosmonauten/Poelchaustraße -->
+        <stop busStop="1797506132" duration="30"/>  <!-- Boschpoler Straße -->
+        <stop busStop="1797361151" duration="30"/>  <!-- Helene-Weigel-Platz -->
+        <stop busStop="1797381754" duration="30"/>  <!-- S Springpfuhl -->
+        <stop busStop="1797381752" duration="30"/>  <!-- Beilsteiner Straße -->
+        <stop busStop="1797381789" duration="30"/>  <!-- Allee der Kosmonauten/Rhinstraße -->
+        <stop busStop="1864168423" duration="30"/>  <!-- Ev. Krankenhaus KEH -->
+        <stop busStop="3901927131" duration="30"/>  <!-- Herzbergstraße/Siegfriedstraße -->
+        <stop busStop="1830277393" duration="30"/>  <!-- Herzbergstraße/Industriegebiet -->
+        <stop busStop="276002421" duration="30"/>  <!-- Bernhard-Bästlein-Straße -->
+        <stop busStop="30695385" duration="30"/>  <!-- Roederplatz -->
+        <stop busStop="1829909910" duration="30"/>  <!-- Anton-Saefkow-Platz -->
+        <stop busStop="1867058882" duration="30"/>  <!-- Karl-Lade-Straße -->
+    </trip>
+    <trip id="45_tram_M8:1" type="pt_tram" depart="14560.0" departLane="best" from="171867099#1" to="93852620#7">
+        <stop busStop="30695390" duration="30"/>  <!-- Karl-Lade-Straße -->
+        <stop busStop="521821577" duration="30"/>  <!-- Anton-Saefkow-Platz -->
+        <stop busStop="1679204729" duration="30"/>  <!-- Roederplatz -->
+        <stop busStop="2480027318" duration="30"/>  <!-- Bernhard-Bästlein-Straße -->
+        <stop busStop="1895220895" duration="30"/>  <!-- Herzbergstraße/Industriegebiet -->
+        <stop busStop="3708887804" duration="30"/>  <!-- Herzbergstraße/Siegfriedstraße -->
+        <stop busStop="30695361" duration="30"/>  <!-- Ev. Krankenhaus KEH -->
+        <stop busStop="30694953" duration="30"/>  <!-- Allee der Kosmonauten/Rhinstraße -->
+        <stop busStop="30694949" duration="30"/>  <!-- Beilsteiner Straße -->
+        <stop busStop="96536154" duration="30"/>  <!-- S Springpfuhl -->
+        <stop busStop="1899067690" duration="30"/>  <!-- Helene-Weigel-Platz -->
+        <stop busStop="96535658" duration="30"/>  <!-- Boschpoler Straße -->
+        <stop busStop="96535655" duration="30"/>  <!-- Allee der Kosmonauten/Poelchaustraße -->
+        <stop busStop="85897703" duration="30"/>  <!-- Adersleber Weg -->
+    </trip>
+    <trip id="46_light_rail_S5:0" type="pt_light_rail" depart="14560.0" departLane="best" from="550965673" to="-653881643#0">
+        <stop busStop="29881347" duration="30"/>  <!-- Wuhletal -->
+        <stop busStop="1117011725" duration="30"/>  <!-- Biesdorf -->
+        <stop busStop="1117011829" duration="30"/>  <!-- Friedrichsfelde Ost -->
+        <stop busStop="320929401" duration="30"/>  <!-- Lichtenberg -->
+        <stop busStop="1117011896" duration="30"/>  <!-- Nöldnerplatz -->
+        <stop busStop="-5316085166" duration="30"/>  <!-- Ostkreuz -->
+    </trip>
+    <trip id="47_light_rail_S5:1" type="pt_light_rail" depart="14565.0" departLane="best" from="446682260#2" to="1240008438#2">
+        <stop busStop="4439191866" duration="30"/>  <!-- Ostkreuz -->
+        <stop busStop="1117011753" duration="30"/>  <!-- Nöldnerplatz -->
+        <stop busStop="1117011942" duration="30"/>  <!-- Lichtenberg -->
+        <stop busStop="7896839337" duration="30"/>  <!-- Friedrichsfelde Ost -->
+        <stop busStop="1117011619" duration="30"/>  <!-- Biesdorf -->
+        <stop busStop="1117011616" duration="30"/>  <!-- Wuhletal -->
+    </trip>
+    <trip id="48_light_rail_S7:0" type="pt_light_rail" depart="14566.0" departLane="best" from="404401917" to="-653881643#0">
+        <stop busStop="1117011733" duration="30"/>  <!-- Poelchaustraße -->
+        <stop busStop="1117011600" duration="30"/>  <!-- Springpfuhl -->
+        <stop busStop="1117011829" duration="30"/>  <!-- Friedrichsfelde Ost -->
+        <stop busStop="320929401" duration="30"/>  <!-- Lichtenberg -->
+        <stop busStop="1117011896" duration="30"/>  <!-- Nöldnerplatz -->
+        <stop busStop="-5316085166" duration="30"/>  <!-- Ostkreuz -->
+    </trip>
+    <trip id="49_light_rail_S7:1" type="pt_light_rail" depart="14573.0" departLane="best" from="446682260#2" to="404401915#2">
+        <stop busStop="4439191866" duration="30"/>  <!-- Ostkreuz -->
+        <stop busStop="1117011753" duration="30"/>  <!-- Nöldnerplatz -->
+        <stop busStop="1117011942" duration="30"/>  <!-- Lichtenberg -->
+        <stop busStop="7896839337" duration="30"/>  <!-- Friedrichsfelde Ost -->
+        <stop busStop="1117011608" duration="30"/>  <!-- Springpfuhl -->
+        <stop busStop="1117011864" duration="30"/>  <!-- Poelchaustraße -->
+    </trip>
+    <trip id="50_tram_18:0" type="pt_tram" depart="14579.0" departLane="best" from="172551635#1" to="39232656#4">
+        <stop busStop="1834446929" duration="30"/>  <!-- Adersleber Weg -->
+        <stop busStop="1797514517" duration="30"/>  <!-- Allee der Kosmonauten/Poelchaustraße -->
+        <stop busStop="1797506132" duration="30"/>  <!-- Boschpoler Straße -->
+        <stop busStop="1797361151" duration="30"/>  <!-- Helene-Weigel-Platz -->
+        <stop busStop="1797381754" duration="30"/>  <!-- S Springpfuhl -->
+        <stop busStop="1797381752" duration="30"/>  <!-- Beilsteiner Straße -->
+        <stop busStop="1797381789" duration="30"/>  <!-- Allee der Kosmonauten/Rhinstraße -->
+        <stop busStop="1864168423" duration="30"/>  <!-- Ev. Krankenhaus KEH -->
+        <stop busStop="3901927131" duration="30"/>  <!-- Herzbergstraße/Siegfriedstraße -->
+        <stop busStop="1830277393" duration="30"/>  <!-- Herzbergstraße/Industriegebiet -->
+        <stop busStop="276002421" duration="30"/>  <!-- Bernhard-Bästlein-Straße -->
+        <stop busStop="30695385" duration="30"/>  <!-- Roederplatz -->
+        <stop busStop="1829909910" duration="30"/>  <!-- Anton-Saefkow-Platz -->
+        <stop busStop="1867058882" duration="30"/>  <!-- Karl-Lade-Straße -->
+    </trip>
+    <trip id="51_tram_18:1" type="pt_tram" depart="14584.0" departLane="best" from="171867099#1" to="93852620#7">
+        <stop busStop="30695390" duration="30"/>  <!-- Karl-Lade-Straße -->
+        <stop busStop="521821577" duration="30"/>  <!-- Anton-Saefkow-Platz -->
+        <stop busStop="1679204729" duration="30"/>  <!-- Roederplatz -->
+        <stop busStop="2480027318" duration="30"/>  <!-- Bernhard-Bästlein-Straße -->
+        <stop busStop="1895220895" duration="30"/>  <!-- Herzbergstraße/Industriegebiet -->
+        <stop busStop="3708887804" duration="30"/>  <!-- Herzbergstraße/Siegfriedstraße -->
+        <stop busStop="30695361" duration="30"/>  <!-- Ev. Krankenhaus KEH -->
+        <stop busStop="30694953" duration="30"/>  <!-- Allee der Kosmonauten/Rhinstraße -->
+        <stop busStop="30694949" duration="30"/>  <!-- Beilsteiner Straße -->
+        <stop busStop="96536154" duration="30"/>  <!-- S Springpfuhl -->
+        <stop busStop="1899067690" duration="30"/>  <!-- Helene-Weigel-Platz -->
+        <stop busStop="96535658" duration="30"/>  <!-- Boschpoler Straße -->
+        <stop busStop="96535655" duration="30"/>  <!-- Allee der Kosmonauten/Poelchaustraße -->
+        <stop busStop="85897703" duration="30"/>  <!-- Adersleber Weg -->
+    </trip>
+    <trip id="52_tram_16:0" type="pt_tram" depart="14588.0" departLane="best" from="4788982#1" to="170185198#1">
+        <stop busStop="30694295" duration="30"/>  <!-- Gewerbepark Georg Knorr -->
+        <stop busStop="30694289" duration="30"/>  <!-- Dingelstädter Straße -->
+        <stop busStop="30694284" duration="30"/>  <!-- Landsberger Allee/Rhinstraße -->
+        <stop busStop="243830926" duration="30"/>  <!-- Schalkauer Straße -->
+        <stop busStop="1828394571" duration="30"/>  <!-- Arendsweg -->
+        <stop busStop="30694268" duration="30"/>  <!-- Genslerstraße -->
+        <stop busStop="1860626127" duration="30"/>  <!-- Zechliner Straße -->
+        <stop busStop="1828810863" duration="30"/>  <!-- Altenhofer Straße -->
+        <stop busStop="1795862367" duration="30"/>  <!-- Hohenschönhauser Straße -->
+        <stop busStop="30684987" duration="30"/>  <!-- Landsberger Allee/Weißenseer Weg -->
+        <stop busStop="1830281726" duration="30"/>  <!-- Roederplatz -->
+        <stop busStop="30695393" duration="30"/>  <!-- Möllendorffstraße/Storkower Straße -->
+        <stop busStop="669763367" duration="30"/>  <!-- Loeperplatz -->
+        <stop busStop="288268231" duration="30"/>  <!-- Rathaus Lichtenberg -->
+        <stop busStop="288268520" duration="30"/>  <!-- S+U Frankfurter Allee -->
+        <stop busStop="10657421608" duration="30"/>  <!-- Jessnerstraße -->
+        <stop busStop="1813427810" duration="30"/>  <!-- Traveplatz -->
+    </trip>
+    <trip id="53_tram_16:1" type="pt_tram" depart="14589.0" departLane="best" from="806903746" to="171871257#4">
+        <stop busStop="386790206" duration="30"/>  <!-- Traveplatz -->
+        <stop busStop="10657421609" duration="30"/>  <!-- Jessnerstraße -->
+        <stop busStop="1679204630" duration="30"/>  <!-- S+U Frankfurter Allee -->
+        <stop busStop="1679204629" duration="30"/>  <!-- Rathaus Lichtenberg -->
+        <stop busStop="1679204625" duration="30"/>  <!-- Loeperplatz -->
+        <stop busStop="1679204628" duration="30"/>  <!-- Möllendorffstraße/Storkower Straße -->
+        <stop busStop="3901927132" duration="30"/>  <!-- Roederplatz -->
+        <stop busStop="1679204624" duration="30"/>  <!-- Landsberger Allee/Weißenseer Weg -->
+        <stop busStop="243460732" duration="30"/>  <!-- Hohenschönhauser Straße -->
+        <stop busStop="30684982" duration="30"/>  <!-- Altenhofer Straße -->
+        <stop busStop="30694255" duration="30"/>  <!-- Zechliner Straße -->
+        <stop busStop="1839999791" duration="30"/>  <!-- Genslerstraße -->
+        <stop busStop="30694279" duration="30"/>  <!-- Arendsweg -->
+        <stop busStop="1828394573" duration="30"/>  <!-- Schalkauer Straße -->
+        <stop busStop="1861621569" duration="30"/>  <!-- Landsberger Allee/Rhinstraße -->
+        <stop busStop="1828394572" duration="30"/>  <!-- Dingelstädter Straße -->
+        <stop busStop="1861621568" duration="30"/>  <!-- Gewerbepark Georg Knorr -->
+    </trip>
+    <trip id="54_bus_156:0" type="pt_bus" depart="14594.0" departLane="best" from="-39352164#2" to="494498820">
+        <stop busStop="-3936237258" duration="30"/>  <!-- Franz-Jacob-Straße -->
+        <stop busStop="4862572305" duration="30"/>  <!-- S Storkower Straße -->
+    </trip>
+    <trip id="55_bus_156:1" type="pt_bus" depart="14601.0" departLane="best" from="494498820" to="39352164#2">
+        <stop busStop="4862572305" duration="30"/>  <!-- S Storkower Straße -->
+        <stop busStop="3936237257" duration="30"/>  <!-- Franz-Jacob-Straße -->
+    </trip>
+    <trip id="56_tram_M6:0" type="pt_tram" depart="14604.0" departLane="best" from="4788982#1" to="83014039#0">
+        <stop busStop="30694295" duration="30"/>  <!-- Gewerbepark Georg Knorr -->
+        <stop busStop="30694289" duration="30"/>  <!-- Dingelstädter Straße -->
+        <stop busStop="30694284" duration="30"/>  <!-- Landsberger Allee/Rhinstraße -->
+        <stop busStop="243830926" duration="30"/>  <!-- Schalkauer Straße -->
+        <stop busStop="1828394571" duration="30"/>  <!-- Arendsweg -->
+        <stop busStop="30694268" duration="30"/>  <!-- Genslerstraße -->
+        <stop busStop="1860626127" duration="30"/>  <!-- Zechliner Straße -->
+        <stop busStop="1828810863" duration="30"/>  <!-- Altenhofer Straße -->
+        <stop busStop="98871740" duration="30"/>  <!-- Hohenschönhauser Straße -->
+        <stop busStop="1828366917" duration="30"/>  <!-- Judith-Auer-Straße -->
+        <stop busStop="1828354198" duration="30"/>  <!-- Oderbruchstraße -->
+    </trip>
+    <trip id="57_tram_M6:1" type="pt_tram" depart="14618.0" departLane="best" from="4788982#1" to="83014039#0">
+        <stop busStop="30694295" duration="30"/>  <!-- Gewerbepark Georg Knorr -->
+        <stop busStop="30694289" duration="30"/>  <!-- Dingelstädter Straße -->
+        <stop busStop="30694284" duration="30"/>  <!-- Landsberger Allee/Rhinstraße -->
+        <stop busStop="243830926" duration="30"/>  <!-- Schalkauer Straße -->
+        <stop busStop="1828394571" duration="30"/>  <!-- Arendsweg -->
+        <stop busStop="30694268" duration="30"/>  <!-- Genslerstraße -->
+        <stop busStop="1860626127" duration="30"/>  <!-- Zechliner Straße -->
+        <stop busStop="1828810863" duration="30"/>  <!-- Altenhofer Straße -->
+        <stop busStop="98871740" duration="30"/>  <!-- Hohenschönhauser Straße -->
+        <stop busStop="1828366917" duration="30"/>  <!-- Judith-Auer-Straße -->
+        <stop busStop="1828354198" duration="30"/>  <!-- Oderbruchstraße -->
+    </trip>
+    <trip id="58_tram_M6:2" type="pt_tram" depart="14622.0" departLane="best" from="1039993869#1" to="171871257#4">
+        <stop busStop="30693019" duration="30"/>  <!-- Oderbruchstraße -->
+        <stop busStop="1865279611" duration="30"/>  <!-- Judith-Auer-Straße -->
+        <stop busStop="1679204623" duration="30"/>  <!-- Hohenschönhauser Straße -->
+        <stop busStop="30684982" duration="30"/>  <!-- Altenhofer Straße -->
+        <stop busStop="30694255" duration="30"/>  <!-- Zechliner Straße -->
+        <stop busStop="1839999791" duration="30"/>  <!-- Genslerstraße -->
+        <stop busStop="30694279" duration="30"/>  <!-- Arendsweg -->
+        <stop busStop="1828394573" duration="30"/>  <!-- Schalkauer Straße -->
+        <stop busStop="1861621569" duration="30"/>  <!-- Landsberger Allee/Rhinstraße -->
+        <stop busStop="1828394572" duration="30"/>  <!-- Dingelstädter Straße -->
+        <stop busStop="1861621568" duration="30"/>  <!-- Gewerbepark Georg Knorr -->
+    </trip>
+    <trip id="59_tram_M6:3" type="pt_tram" depart="14627.0" departLane="best" from="1039993869#1" to="171871257#4">
+        <stop busStop="30693019" duration="30"/>  <!-- Oderbruchstraße -->
+        <stop busStop="1865279611" duration="30"/>  <!-- Judith-Auer-Straße -->
+        <stop busStop="1679204623" duration="30"/>  <!-- Hohenschönhauser Straße -->
+        <stop busStop="30684982" duration="30"/>  <!-- Altenhofer Straße -->
+        <stop busStop="30694255" duration="30"/>  <!-- Zechliner Straße -->
+        <stop busStop="1839999791" duration="30"/>  <!-- Genslerstraße -->
+        <stop busStop="30694279" duration="30"/>  <!-- Arendsweg -->
+        <stop busStop="1828394573" duration="30"/>  <!-- Schalkauer Straße -->
+        <stop busStop="1861621569" duration="30"/>  <!-- Landsberger Allee/Rhinstraße -->
+        <stop busStop="1828394572" duration="30"/>  <!-- Dingelstädter Straße -->
+        <stop busStop="1861621568" duration="30"/>  <!-- Gewerbepark Georg Knorr -->
+    </trip>
+    <trip id="60_tram_M13:0" type="pt_tram" depart="14627.0" departLane="best" from="1044512706#0" to="155531545#1">
+        <stop busStop="471493996" duration="30"/>  <!-- Holteistraße -->
+        <stop busStop="386790206" duration="30"/>  <!-- Traveplatz -->
+        <stop busStop="10657421609" duration="30"/>  <!-- Jessnerstraße -->
+        <stop busStop="1679204630" duration="30"/>  <!-- S+U Frankfurter Allee -->
+        <stop busStop="1679204629" duration="30"/>  <!-- Rathaus Lichtenberg -->
+        <stop busStop="1679204625" duration="30"/>  <!-- Loeperplatz -->
+        <stop busStop="1679204628" duration="30"/>  <!-- Möllendorffstraße/Storkower Straße -->
+        <stop busStop="3901927132" duration="30"/>  <!-- Roederplatz -->
+        <stop busStop="1679204624" duration="30"/>  <!-- Landsberger Allee/Weißenseer Weg -->
+        <stop busStop="243460732" duration="30"/>  <!-- Hohenschönhauser Straße -->
+        <stop busStop="1679204631" duration="30"/>  <!-- Sportforum -->
+    </trip>
+    <trip id="61_tram_M13:1" type="pt_tram" depart="14628.0" departLane="best" from="86301472#3" to="1329197585#1">
+        <stop busStop="243460915" duration="30"/>  <!-- Sportforum -->
+        <stop busStop="1795862367" duration="30"/>  <!-- Hohenschönhauser Straße -->
+        <stop busStop="30684987" duration="30"/>  <!-- Landsberger Allee/Weißenseer Weg -->
+        <stop busStop="1830281726" duration="30"/>  <!-- Roederplatz -->
+        <stop busStop="30695393" duration="30"/>  <!-- Möllendorffstraße/Storkower Straße -->
+        <stop busStop="669763367" duration="30"/>  <!-- Loeperplatz -->
+        <stop busStop="288268231" duration="30"/>  <!-- Rathaus Lichtenberg -->
+        <stop busStop="288268520" duration="30"/>  <!-- S+U Frankfurter Allee -->
+        <stop busStop="10657421608" duration="30"/>  <!-- Jessnerstraße -->
+        <stop busStop="10657404875" duration="30"/>  <!-- Traveplatz -->
+        <stop busStop="1840716906" duration="30"/>  <!-- Holteistraße -->
+    </trip>
+    <trip id="62_tram_M17:0" type="pt_tram" depart="14637.0" departLane="best" from="816397840#4" to="1171296144#14">
+        <stop busStop="30694968" duration="30"/>  <!-- Rhinstraße/Plauener Straße -->
+        <stop busStop="1797405922" duration="30"/>  <!-- Landsberger Allee/Rhinstraße -->
+        <stop busStop="1797326623" duration="30"/>  <!-- Meeraner Straße -->
+        <stop busStop="1840709506" duration="30"/>  <!-- Allee der Kosmonauten/Rhinstraße -->
+        <stop busStop="1830277395" duration="30"/>  <!-- Kleingartenanlage Bielefeldt -->
+        <stop busStop="1830277396" duration="30"/>  <!-- S Friedrichsfelde Ost -->
+        <stop busStop="1830648100" duration="30"/>  <!-- Alt-Friedrichsfelde/Rhinstraße -->
+        <stop busStop="100062685" duration="30"/>  <!-- Alfred-Kowalke-Straße -->
+        <stop busStop="1830648101" duration="30"/>  <!-- Criegernweg -->
+        <stop busStop="1830648105" duration="30"/>  <!-- U Tierpark -->
+        <stop busStop="1830648103" duration="30"/>  <!-- Treskowallee/HTW -->
+    </trip>
+    <trip id="63_tram_M17:1" type="pt_tram" depart="14639.0" departLane="best" from="816397840#4" to="1171296144#14">
+        <stop busStop="30694968" duration="30"/>  <!-- Rhinstraße/Plauener Straße -->
+        <stop busStop="1797405922" duration="30"/>  <!-- Landsberger Allee/Rhinstraße -->
+        <stop busStop="1797326623" duration="30"/>  <!-- Meeraner Straße -->
+        <stop busStop="1840709506" duration="30"/>  <!-- Allee der Kosmonauten/Rhinstraße -->
+        <stop busStop="1830277395" duration="30"/>  <!-- Kleingartenanlage Bielefeldt -->
+        <stop busStop="1830277396" duration="30"/>  <!-- S Friedrichsfelde Ost -->
+        <stop busStop="1830648100" duration="30"/>  <!-- Alt-Friedrichsfelde/Rhinstraße -->
+        <stop busStop="100062685" duration="30"/>  <!-- Alfred-Kowalke-Straße -->
+        <stop busStop="1830648101" duration="30"/>  <!-- Criegernweg -->
+        <stop busStop="1830648105" duration="30"/>  <!-- U Tierpark -->
+        <stop busStop="1830648103" duration="30"/>  <!-- Treskowallee/HTW -->
+    </trip>
+    <trip id="64_tram_M17:2" type="pt_tram" depart="14653.0" departLane="best" from="172551636#4" to="173005522#4">
+        <stop busStop="30736431" duration="30"/>  <!-- Treskowallee/HTW -->
+        <stop busStop="243996833" duration="30"/>  <!-- U Tierpark -->
+        <stop busStop="243996834" duration="30"/>  <!-- Criegernweg -->
+        <stop busStop="1830648241" duration="30"/>  <!-- Alfred-Kowalke-Straße -->
+        <stop busStop="243996913" duration="30"/>  <!-- Alt-Friedrichsfelde/Rhinstraße -->
+        <stop busStop="30736442" duration="30"/>  <!-- S Friedrichsfelde Ost -->
+        <stop busStop="243856643" duration="30"/>  <!-- Kleingartenanlage Bielefeldt -->
+        <stop busStop="30694959" duration="30"/>  <!-- Allee der Kosmonauten/Rhinstraße -->
+        <stop busStop="30694960" duration="30"/>  <!-- Meeraner Straße -->
+        <stop busStop="30694967" duration="30"/>  <!-- Landsberger Allee/Rhinstraße -->
+        <stop busStop="1866487720" duration="30"/>  <!-- Rhinstraße/Plauener Straße -->
+    </trip>
+    <trip id="65_tram_M17:3" type="pt_tram" depart="14653.0" departLane="best" from="172551636#4" to="173005522#4">
+        <stop busStop="30736431" duration="30"/>  <!-- Treskowallee/HTW -->
+        <stop busStop="243996833" duration="30"/>  <!-- U Tierpark -->
+        <stop busStop="243996834" duration="30"/>  <!-- Criegernweg -->
+        <stop busStop="1830648241" duration="30"/>  <!-- Alfred-Kowalke-Straße -->
+        <stop busStop="243996913" duration="30"/>  <!-- Alt-Friedrichsfelde/Rhinstraße -->
+        <stop busStop="30736442" duration="30"/>  <!-- S Friedrichsfelde Ost -->
+        <stop busStop="243856643" duration="30"/>  <!-- Kleingartenanlage Bielefeldt -->
+        <stop busStop="30694959" duration="30"/>  <!-- Allee der Kosmonauten/Rhinstraße -->
+        <stop busStop="30694960" duration="30"/>  <!-- Meeraner Straße -->
+        <stop busStop="30694967" duration="30"/>  <!-- Landsberger Allee/Rhinstraße -->
+        <stop busStop="1866487720" duration="30"/>  <!-- Rhinstraße/Plauener Straße -->
+    </trip>
+    <trip id="66_tram_27:0" type="pt_tram" depart="14653.0" departLane="best" from="172551636#4" to="173005522#4">
+        <stop busStop="30736431" duration="30"/>  <!-- Treskowallee/HTW -->
+        <stop busStop="243996833" duration="30"/>  <!-- U Tierpark -->
+        <stop busStop="243996834" duration="30"/>  <!-- Criegernweg -->
+        <stop busStop="1830648241" duration="30"/>  <!-- Alfred-Kowalke-Straße -->
+        <stop busStop="243996913" duration="30"/>  <!-- Alt-Friedrichsfelde/Rhinstraße -->
+        <stop busStop="30736442" duration="30"/>  <!-- S Friedrichsfelde Ost -->
+        <stop busStop="243856643" duration="30"/>  <!-- Kleingartenanlage Bielefeldt -->
+        <stop busStop="30694959" duration="30"/>  <!-- Allee der Kosmonauten/Rhinstraße -->
+        <stop busStop="30694960" duration="30"/>  <!-- Meeraner Straße -->
+        <stop busStop="30694967" duration="30"/>  <!-- Landsberger Allee/Rhinstraße -->
+        <stop busStop="1866487720" duration="30"/>  <!-- Rhinstraße/Plauener Straße -->
+    </trip>
+    <trip id="67_tram_27:1" type="pt_tram" depart="14660.0" departLane="best" from="816397840#4" to="1171296144#14">
+        <stop busStop="30694968" duration="30"/>  <!-- Rhinstraße/Plauener Straße -->
+        <stop busStop="1797405922" duration="30"/>  <!-- Landsberger Allee/Rhinstraße -->
+        <stop busStop="1797326623" duration="30"/>  <!-- Meeraner Straße -->
+        <stop busStop="1840709506" duration="30"/>  <!-- Allee der Kosmonauten/Rhinstraße -->
+        <stop busStop="1830277395" duration="30"/>  <!-- Kleingartenanlage Bielefeldt -->
+        <stop busStop="1830277396" duration="30"/>  <!-- S Friedrichsfelde Ost -->
+        <stop busStop="1830648100" duration="30"/>  <!-- Alt-Friedrichsfelde/Rhinstraße -->
+        <stop busStop="100062685" duration="30"/>  <!-- Alfred-Kowalke-Straße -->
+        <stop busStop="1830648101" duration="30"/>  <!-- Criegernweg -->
+        <stop busStop="1830648105" duration="30"/>  <!-- U Tierpark -->
+        <stop busStop="1830648103" duration="30"/>  <!-- Treskowallee/HTW -->
+    </trip>
+    <trip id="68_tram_21:0" type="pt_tram" depart="14672.0" departLane="best" from="173318266#2" to="104765080#3">
+        <stop busStop="1896387646" duration="30"/>  <!-- Gustav-Holzmann-Straße -->
+        <stop busStop="1841628954" duration="30"/>  <!-- Kosanke-Siedlung -->
+        <stop busStop="1841628955" duration="30"/>  <!-- S Rummelsburg -->
+        <stop busStop="-3910983107" duration="30"/>  <!-- Marktstraße -->
+        <stop busStop="361482764" duration="30"/>  <!-- Neue Bahnhofstraße -->
+        <stop busStop="471493995" duration="30"/>  <!-- Holteistraße -->
+        <stop busStop="431281298" duration="30"/>  <!-- Wismarplatz -->
+    </trip>
+    <trip id="69_tram_21:1" type="pt_tram" depart="14675.0" departLane="best" from="170782996#8" to="171851826#2">
+        <stop busStop="1864614599" duration="30"/>  <!-- S+U Lichtenberg/Gudrunstraße -->
+        <stop busStop="96536918" duration="30"/>  <!-- S+U Lichtenberg/Siegfriedstraße -->
+        <stop busStop="1864614582" duration="30"/>  <!-- Freiaplatz -->
+        <stop busStop="1864614587" duration="30"/>  <!-- Gotlindestraße -->
+        <stop busStop="1864168419" duration="30"/>  <!-- Betriebshof Lichtenberg -->
+        <stop busStop="1864168424" duration="30"/>  <!-- Siegfriedstraße/Josef-Orlopp-Straße -->
+        <stop busStop="1819268905" duration="30"/>  <!-- Herzbergstraße/Siegfriedstraße -->
+        <stop busStop="3901927131" duration="30"/>  <!-- Herzbergstraße/Siegfriedstraße -->
+        <stop busStop="1830277393" duration="30"/>  <!-- Herzbergstraße/Industriegebiet -->
+        <stop busStop="276002421" duration="30"/>  <!-- Bernhard-Bästlein-Straße -->
+        <stop busStop="30695393" duration="30"/>  <!-- Möllendorffstraße/Storkower Straße -->
+        <stop busStop="1154232187" duration="30"/>  <!-- Loeperplatz -->
+        <stop busStop="1828231426" duration="30"/>  <!-- Scheffelstraße -->
+        <stop busStop="1864917862" duration="30"/>  <!-- James-Hobrecht-Straße -->
+        <stop busStop="1828093026" duration="30"/>  <!-- Proskauer Straße -->
+    </trip>
+    <trip id="70_tram_37:0" type="pt_tram" depart="14685.0" departLane="best" from="1329449960" to="1171296144#14">
+        <stop busStop="96536918" duration="30"/>  <!-- S+U Lichtenberg/Siegfriedstraße -->
+        <stop busStop="1864614582" duration="30"/>  <!-- Freiaplatz -->
+        <stop busStop="1864614587" duration="30"/>  <!-- Gotlindestraße -->
+        <stop busStop="1864168419" duration="30"/>  <!-- Betriebshof Lichtenberg -->
+        <stop busStop="1864168424" duration="30"/>  <!-- Siegfriedstraße/Josef-Orlopp-Straße -->
+        <stop busStop="1819268905" duration="30"/>  <!-- Herzbergstraße/Siegfriedstraße -->
+        <stop busStop="30695361" duration="30"/>  <!-- Ev. Krankenhaus KEH -->
+        <stop busStop="1840709506" duration="30"/>  <!-- Allee der Kosmonauten/Rhinstraße -->
+        <stop busStop="1830277395" duration="30"/>  <!-- Kleingartenanlage Bielefeldt -->
+        <stop busStop="1830277396" duration="30"/>  <!-- S Friedrichsfelde Ost -->
+        <stop busStop="1830648100" duration="30"/>  <!-- Alt-Friedrichsfelde/Rhinstraße -->
+        <stop busStop="100062685" duration="30"/>  <!-- Alfred-Kowalke-Straße -->
+        <stop busStop="1830648101" duration="30"/>  <!-- Criegernweg -->
+        <stop busStop="1830648105" duration="30"/>  <!-- U Tierpark -->
+        <stop busStop="1830648103" duration="30"/>  <!-- Treskowallee/HTW -->
+    </trip>
+    <trip id="71_tram_37:1" type="pt_tram" depart="14691.0" departLane="best" from="172551636#4" to="170782996#8">
+        <stop busStop="30736431" duration="30"/>  <!-- Treskowallee/HTW -->
+        <stop busStop="243996833" duration="30"/>  <!-- U Tierpark -->
+        <stop busStop="243996834" duration="30"/>  <!-- Criegernweg -->
+        <stop busStop="1830648241" duration="30"/>  <!-- Alfred-Kowalke-Straße -->
+        <stop busStop="243996913" duration="30"/>  <!-- Alt-Friedrichsfelde/Rhinstraße -->
+        <stop busStop="30736442" duration="30"/>  <!-- S Friedrichsfelde Ost -->
+        <stop busStop="243856643" duration="30"/>  <!-- Kleingartenanlage Bielefeldt -->
+        <stop busStop="30694959" duration="30"/>  <!-- Allee der Kosmonauten/Rhinstraße -->
+        <stop busStop="1864168423" duration="30"/>  <!-- Ev. Krankenhaus KEH -->
+        <stop busStop="1864168565" duration="30"/>  <!-- Herzbergstraße/Siegfriedstraße -->
+        <stop busStop="3901927140" duration="30"/>  <!-- Siegfriedstraße/Josef-Orlopp-Straße -->
+        <stop busStop="1868463702" duration="30"/>  <!-- Betriebshof Lichtenberg -->
+        <stop busStop="3667255637" duration="30"/>  <!-- Gotlindestraße -->
+        <stop busStop="1864614733" duration="30"/>  <!-- Fanningerstraße -->
+        <stop busStop="1865263813" duration="30"/>  <!-- Guntherstraße -->
+        <stop busStop="1864614599" duration="30"/>  <!-- S+U Lichtenberg/Gudrunstraße -->
+    </trip>
+    <trip id="72_light_rail_S75:0" type="pt_light_rail" depart="14700.0" departLane="best" from="446682250" to="1239772056#0">
+        <stop busStop="4095970528" duration="30"/>  <!-- Ostkreuz -->
+        <stop busStop="1117011753" duration="30"/>  <!-- Nöldnerplatz -->
+        <stop busStop="1117011942" duration="30"/>  <!-- Lichtenberg -->
+        <stop busStop="7896839337" duration="30"/>  <!-- Friedrichsfelde Ost -->
+        <stop busStop="1117011608" duration="30"/>  <!-- Springpfuhl -->
+    </trip>
+    <trip id="73_light_rail_S75:1" type="pt_light_rail" depart="14703.0" departLane="best" from="705181367#2" to="446682252#2">
+        <stop busStop="1117011600" duration="30"/>  <!-- Springpfuhl -->
+        <stop busStop="1117011829" duration="30"/>  <!-- Friedrichsfelde Ost -->
+        <stop busStop="320929401" duration="30"/>  <!-- Lichtenberg -->
+        <stop busStop="1117011896" duration="30"/>  <!-- Nöldnerplatz -->
+        <stop busStop="4095970537" duration="30"/>  <!-- Ostkreuz -->
+    </trip>
+    <trip id="74_bus_194:0" type="pt_bus" depart="14705.0" departLane="best" from="24694114#1" to="-155605329#1">
+        <stop busStop="3918673863" duration="30"/>  <!-- Helene-Weigel-Platz -->
+        <stop busStop="3913185623" duration="30"/>  <!-- S Springpfuhl -->
+        <stop busStop="-4004265230" duration="30"/>  <!-- Merler Weg -->
+        <stop busStop="-4004265226" duration="30"/>  <!-- Kröver Straße -->
+        <stop busStop="-4004265233" duration="30"/>  <!-- Reiler Straße -->
+        <stop busStop="-4004265228" duration="30"/>  <!-- Zur Alten Börse -->
+        <stop busStop="3913185621" duration="30"/>  <!-- S Friedrichsfelde Ost -->
+        <stop busStop="-55198474" duration="30"/>  <!-- Gensinger Straße Nord -->
+        <stop busStop="-4004265221" duration="30"/>  <!-- Gensinger Straße Ost -->
+        <stop busStop="3933537005" duration="30"/>  <!-- Alt-Friedrichsfelde 60 -->
+        <stop busStop="3913185603" duration="30"/>  <!-- Alt-Friedrichsfelde/Rhinstraße -->
+        <stop busStop="504717235" duration="30"/>  <!-- Alfred-Kowalke-Straße -->
+        <stop busStop="6329369329" duration="30"/>  <!-- U Friedrichsfelde -->
+        <stop busStop="5114938327" duration="30"/>  <!-- Rummelsburger Straße -->
+        <stop busStop="-352823731" duration="30"/>  <!-- Schwarzmeerstraße -->
+        <stop busStop="-4003905921" duration="30"/>  <!-- Balatonstraße -->
+        <stop busStop="-538464925" duration="30"/>  <!-- Sewanstraße/Volkradstraße -->
+        <stop busStop="-4003905935" duration="30"/>  <!-- Michiganseestraße -->
+        <stop busStop="-4003905957" duration="30"/>  <!-- Wönnichstraße -->
+        <stop busStop="-4003905946" duration="30"/>  <!-- S Nöldnerplatz/Schlichtallee -->
+        <stop busStop="-3983685979" duration="30"/>  <!-- S Rummelsburg -->
+        <stop busStop="5289023576" duration="30"/>  <!-- S Ostkreuz -->
+        <stop busStop="-4574766498" duration="30"/>  <!-- Markgrafendamm -->
+    </trip>
+    <trip id="75_bus_194:1" type="pt_bus" depart="14717.0" departLane="best" from="838651755" to="1087466605">
+        <stop busStop="1369967395" duration="30"/>  <!-- S Treptower Park -->
+        <stop busStop="262652924" duration="30"/>  <!-- Markgrafendamm -->
+        <stop busStop="4370346533" duration="30"/>  <!-- S Ostkreuz -->
+        <stop busStop="-3983685978" duration="30"/>  <!-- S Rummelsburg -->
+        <stop busStop="4003905947" duration="30"/>  <!-- S Nöldnerplatz/Schlichtallee -->
+        <stop busStop="4003905958" duration="30"/>  <!-- Wönnichstraße -->
+        <stop busStop="520272363" duration="30"/>  <!-- Michiganseestraße -->
+        <stop busStop="4003905951" duration="30"/>  <!-- Sewanstraße/Volkradstraße -->
+        <stop busStop="4003905920" duration="30"/>  <!-- Balatonstraße -->
+        <stop busStop="4003905948" duration="30"/>  <!-- Schwarzmeerstraße -->
+        <stop busStop="4003905943" duration="30"/>  <!-- Rummelsburger Straße -->
+        <stop busStop="-4757399028" duration="30"/>  <!-- U Friedrichsfelde -->
+        <stop busStop="2101142658" duration="30"/>  <!-- Alfred-Kowalke-Straße -->
+        <stop busStop="593975924" duration="30"/>  <!-- Alt-Friedrichsfelde/Rhinstraße -->
+        <stop busStop="3933537004" duration="30"/>  <!-- Alt-Friedrichsfelde 60 -->
+        <stop busStop="55198449" duration="30"/>  <!-- Alt-Friedrichsfelde/Gensinger Straße -->
+        <stop busStop="590056656" duration="30"/>  <!-- Gensinger Straße Ost -->
+        <stop busStop="4004265222" duration="30"/>  <!-- Gensinger Straße Nord -->
+        <stop busStop="3913185619" duration="30"/>  <!-- S Friedrichsfelde Ost -->
+        <stop busStop="6856168515" duration="30"/>  <!-- Zur Alten Börse -->
+        <stop busStop="4004265234" duration="30"/>  <!-- Reiler Straße -->
+        <stop busStop="4004265225" duration="30"/>  <!-- Kröver Straße -->
+        <stop busStop="4004265231" duration="30"/>  <!-- Merler Weg -->
+        <stop busStop="3913185622" duration="30"/>  <!-- S Springpfuhl -->
+        <stop busStop="801074790" duration="30"/>  <!-- Helene-Weigel-Platz -->
+    </trip>
+    <trip id="78_bus_191:0" type="pt_bus" depart="14722.0" departLane="best" from="1145124974#3" to="42739064">
+        <stop busStop="4095683613" duration="30"/>  <!-- Hänflingsteig -->
+        <stop busStop="4108069531" duration="30"/>  <!-- Langhoffstraße -->
+        <stop busStop="483415810" duration="30"/>  <!-- Allee der Kosmonauten/Poelchaustraße -->
+        <stop busStop="360243247" duration="30"/>  <!-- Elisabethstraße/Oberfeldstraße -->
+        <stop busStop="29885006" duration="30"/>  <!-- Blumberger Damm/Elisabethstraße -->
+        <stop busStop="308711210" duration="30"/>  <!-- Cecilienstraße/Blumberger Damm -->
+        <stop busStop="2453767144" duration="30"/>  <!-- Garzauer Straße -->
+        <stop busStop="4108069526" duration="30"/>  <!-- Cecilienstraße/Wuhle -->
+    </trip>
+    <trip id="86_subway_U5:0" type="pt_subway" depart="14750.0" departLane="best" from="381471709#0" to="221009437">
+        <stop busStop="3935369910" duration="30"/>  <!-- Samariterstraße -->
+        <stop busStop="710904931" duration="30"/>  <!-- Frankfurter Allee -->
+        <stop busStop="3933477400" duration="30"/>  <!-- Magdalenenstraße -->
+        <stop busStop="1784905015" duration="30"/>  <!-- Lichtenberg -->
+        <stop busStop="3926745600" duration="30"/>  <!-- Friedrichsfelde -->
+        <stop busStop="4635829120" duration="30"/>  <!-- Tierpark -->
+        <stop busStop="557841454" duration="30"/>  <!-- Biesdorf-Süd -->
+        <stop busStop="557827057" duration="30"/>  <!-- Elsterwerdaer Platz -->
+        <stop busStop="1117011601" duration="30"/>  <!-- Wuhletal -->
+    </trip>
+    <trip id="87_subway_U5:1" type="pt_subway" depart="14753.0" departLane="best" from="44065817" to="288200093#2">
+        <stop busStop="427669846" duration="30"/>  <!-- Wuhletal -->
+        <stop busStop="1929541432" duration="30"/>  <!-- Elsterwerdaer Platz -->
+        <stop busStop="29880185" duration="30"/>  <!-- Biesdorf-Süd -->
+        <stop busStop="4635829117" duration="30"/>  <!-- Tierpark -->
+        <stop busStop="3951294989" duration="30"/>  <!-- Friedrichsfelde -->
+        <stop busStop="2445663203" duration="30"/>  <!-- Lichtenberg -->
+        <stop busStop="3933477402" duration="30"/>  <!-- Magdalenenstraße -->
+        <stop busStop="3880774070" duration="30"/>  <!-- Frankfurter Allee -->
+        <stop busStop="55189254" duration="30"/>  <!-- Samariterstraße -->
+    </trip>
+    <trip id="88_bus_108:0" type="pt_bus" depart="14762.0" departLane="best" from="1005049898" to="27604363#26">
+        <stop busStop="3983685973" duration="30"/>  <!-- S+U Lichtenberg -->
+        <stop busStop="364793296" duration="30"/>  <!-- Irenenstraße -->
+        <stop busStop="364793286" duration="30"/>  <!-- Einbecker Straße/Rosenfelder Straße -->
+        <stop busStop="3933537014" duration="30"/>  <!-- Robert-Uhrig-Straße -->
+        <stop busStop="3913185602" duration="30"/>  <!-- Alt-Friedrichsfelde/Rhinstraße -->
+        <stop busStop="3933537004" duration="30"/>  <!-- Alt-Friedrichsfelde 60 -->
+        <stop busStop="3933537002" duration="30"/>  <!-- Alt-Friedrichsfelde/Gensinger Straße -->
+        <stop busStop="3933537010" duration="30"/>  <!-- Märkische Allee/Alt-Friedrichsfelde -->
+        <stop busStop="3933537008" duration="30"/>  <!-- Lötschbergstraße -->
+        <stop busStop="3933537012" duration="30"/>  <!-- Oberfeldstraße -->
+        <stop busStop="-3933537018" duration="30"/>  <!-- Weißenhöher Straße -->
+        <stop busStop="-3464846428" duration="30"/>  <!-- U Elsterwerdaer Platz -->
+        <stop busStop="343527006" duration="30"/>  <!-- U Elsterwerdaer Platz Bus Köpenicker Straße -->
+        <stop busStop="-3906256149" duration="30"/>  <!-- Aurorafalterweg -->
+        <stop busStop="3906256151" duration="30"/>  <!-- Dohlengrund -->
+        <stop busStop="3906256156" duration="30"/>  <!-- Gleiwitzer Straße -->
+    </trip>
+    <trip id="89_bus_108:1" type="pt_bus" depart="14765.0" departLane="best" from="-27604363#20" to="1005049898">
+        <stop busStop="-3906256657" duration="30"/>  <!-- Gleiwitzer Straße -->
+        <stop busStop="-3906256152" duration="30"/>  <!-- Dohlengrund -->
+        <stop busStop="3906256150" duration="30"/>  <!-- Aurorafalterweg -->
+        <stop busStop="343527012" duration="30"/>  <!-- U Elsterwerdaer Platz Bus Köpenicker Straße -->
+        <stop busStop="3933537019" duration="30"/>  <!-- Weißenhöher Straße -->
+        <stop busStop="3933537013" duration="30"/>  <!-- Oberfeldstraße -->
+        <stop busStop="3933537009" duration="30"/>  <!-- Lötschbergstraße -->
+        <stop busStop="3933537011" duration="30"/>  <!-- Märkische Allee/Alt-Friedrichsfelde -->
+        <stop busStop="3933537003" duration="30"/>  <!-- Alt-Friedrichsfelde/Gensinger Straße -->
+        <stop busStop="3933537005" duration="30"/>  <!-- Alt-Friedrichsfelde 60 -->
+        <stop busStop="3913185603" duration="30"/>  <!-- Alt-Friedrichsfelde/Rhinstraße -->
+        <stop busStop="3933537015" duration="30"/>  <!-- Robert-Uhrig-Straße -->
+        <stop busStop="3933537016" duration="30"/>  <!-- Löwenberger Straße -->
+        <stop busStop="3983685973" duration="30"/>  <!-- S+U Lichtenberg -->
+    </trip>
+    <trip id="90_bus_269:0" type="pt_bus" depart="14765.0" departLane="best" from="-31578381#5" to="-24872481#19">
+        <stop busStop="-3815943388" duration="30"/>  <!-- Alt-Kaulsdorf/Chemnitzer Straße -->
+        <stop busStop="-3815943384" duration="30"/>  <!-- Achardstraße -->
+        <stop busStop="-3815943412" duration="30"/>  <!-- Wernitzer Straße -->
+        <stop busStop="-3815943396" duration="30"/>  <!-- Gerdastraße -->
+    </trip>
+    <trip id="91_bus_269:1" type="pt_bus" depart="14771.0" departLane="best" from="24872481#16" to="31578381#0">
+        <stop busStop="3815943395" duration="30"/>  <!-- Gerdastraße -->
+        <stop busStop="3815943411" duration="30"/>  <!-- Wernitzer Straße -->
+        <stop busStop="3815943383" duration="30"/>  <!-- Achardstraße -->
+        <stop busStop="3815943387" duration="30"/>  <!-- Alt-Kaulsdorf/Chemnitzer Straße -->
+    </trip>
+    <trip id="92_light_rail_S8:0" type="pt_light_rail" depart="14776.0" departLane="best" from="1155847958" to="136703828">
+        <stop busStop="316786620" duration="30"/>  <!-- Storkower Straße -->
+        <stop busStop="316787417" duration="30"/>  <!-- Frankfurter Allee -->
+        <stop busStop="1797163098" duration="30"/>  <!-- Ostkreuz -->
+        <stop busStop="1106283849" duration="30"/>  <!-- Treptower Park -->
+    </trip>
+    <trip id="93_light_rail_S8:1" type="pt_light_rail" depart="14781.0" departLane="best" from="136703831" to="375331614#0">
+        <stop busStop="1106283897" duration="30"/>  <!-- Treptower Park -->
+        <stop busStop="1797163101" duration="30"/>  <!-- Ostkreuz -->
+        <stop busStop="21385742" duration="30"/>  <!-- Frankfurter Allee -->
+        <stop busStop="1127966990" duration="30"/>  <!-- Storkower Straße -->
+    </trip>
+    <trip id="94_bus_347:2" type="pt_bus" depart="14783.0" departLane="best" from="35552254#1" to="1125943769#1">
+        <stop busStop="3870914559" duration="30"/>  <!-- Persiusstraße -->
+        <stop busStop="3870914553" duration="30"/>  <!-- Markgrafendamm -->
+        <stop busStop="4370346533" duration="30"/>  <!-- S Ostkreuz -->
+        <stop busStop="3959807203" duration="30"/>  <!-- Glasbläserallee -->
+        <stop busStop="1583269303" duration="30"/>  <!-- Krachtstraße -->
+        <stop busStop="-1583269280" duration="30"/>  <!-- Bootsbauerstraße -->
+        <stop busStop="1583269282" duration="30"/>  <!-- Friedrich-Junge-Straße -->
+        <stop busStop="3959807196" duration="30"/>  <!-- Alt-Stralau -->
+    </trip>
+    <trip id="95_bus_347:3" type="pt_bus" depart="14783.0" departLane="best" from="-1056858943#1" to="-35552254#1">
+        <stop busStop="-1583269258" duration="30"/>  <!-- Alt-Stralau -->
+        <stop busStop="-1583269284" duration="30"/>  <!-- Friedrich-Junge-Straße -->
+        <stop busStop="1583269277" duration="30"/>  <!-- Bootsbauerstraße -->
+        <stop busStop="1583269306" duration="30"/>  <!-- Krachtstraße -->
+        <stop busStop="-1583269285" duration="30"/>  <!-- Glasbläserallee -->
+        <stop busStop="5289023576" duration="30"/>  <!-- S Ostkreuz -->
+        <stop busStop="-3870914554" duration="30"/>  <!-- Markgrafendamm -->
+        <stop busStop="-3870914560" duration="30"/>  <!-- Persiusstraße -->
+    </trip>
+    <trip id="96_bus_256:0" type="pt_bus" depart="14783.0" departLane="best" from="464609372" to="-40520575#10">
+        <stop busStop="506002095" duration="30"/>  <!-- Zentralfriedhof -->
+        <stop busStop="4004265236" duration="30"/>  <!-- Rüdigerstraße/Kriemhildstraße -->
+        <stop busStop="3901927127" duration="30"/>  <!-- Gernotstraße -->
+        <stop busStop="1864614609" duration="30"/>  <!-- S+U Lichtenberg/Siegfriedstraße -->
+        <stop busStop="3901927137" duration="30"/>  <!-- Freiaplatz -->
+        <stop busStop="-3901927129" duration="30"/>  <!-- Gotlindestraße -->
+        <stop busStop="3901927124" duration="30"/>  <!-- Betriebshof Lichtenberg -->
+        <stop busStop="3901927141" duration="30"/>  <!-- Siegfriedstraße/Josef-Orlopp-Straße -->
+        <stop busStop="1864168552" duration="30"/>  <!-- Herzbergstraße/Siegfriedstraße -->
+        <stop busStop="55042155" duration="30"/>  <!-- Reinhardsbrunner Straße -->
+        <stop busStop="4200225224" duration="30"/>  <!-- Liebenwalder Straße/Landsberger Allee -->
+        <stop busStop="-4200225222" duration="30"/>  <!-- Liebenwalder Straße -->
+    </trip>
+    <trip id="98_bus_192:0" type="pt_bus" depart="14788.0" departLane="best" from="462058954" to="1101186010#1">
+        <stop busStop="3913185620" duration="30"/>  <!-- S Friedrichsfelde Ost -->
+        <stop busStop="-55198474" duration="30"/>  <!-- Gensinger Straße Nord -->
+        <stop busStop="-4004265221" duration="30"/>  <!-- Gensinger Straße Ost -->
+        <stop busStop="3933537002" duration="30"/>  <!-- Alt-Friedrichsfelde/Gensinger Straße -->
+        <stop busStop="3933537010" duration="30"/>  <!-- Märkische Allee/Alt-Friedrichsfelde -->
+        <stop busStop="3933537017" duration="30"/>  <!-- Waldbacher Weg -->
+        <stop busStop="534377654" duration="30"/>  <!-- Bentschener Weg -->
+        <stop busStop="4004265235" duration="30"/>  <!-- Roßlauer Straße -->
+        <stop busStop="4004265238" duration="30"/>  <!-- S Biesdorf -->
+        <stop busStop="2206447175" duration="30"/>  <!-- S Biesdorf -->
+        <stop busStop="306701522" duration="30"/>  <!-- Biesdorfer Promenade -->
+        <stop busStop="306701934" duration="30"/>  <!-- Buschiner Straße -->
+        <stop busStop="8757604732" duration="30"/>  <!-- Eitelstraße -->
+        <stop busStop="306703103" duration="30"/>  <!-- Cecilienstraße/Oberfeldstraße -->
+        <stop busStop="4108069528" duration="30"/>  <!-- Elisabethstraße/Oberfeldstraße -->
+        <stop busStop="2137622748" duration="30"/>  <!-- Heliosstraße -->
+        <stop busStop="3918673351" duration="30"/>  <!-- Adersleber Weg -->
+    </trip>
+    <trip id="99_bus_192:1" type="pt_bus" depart="14789.0" departLane="best" from="1101186017#1" to="27959275#2">
+        <stop busStop="3918673350" duration="30"/>  <!-- Adersleber Weg -->
+        <stop busStop="2137622749" duration="30"/>  <!-- Heliosstraße -->
+        <stop busStop="360243247" duration="30"/>  <!-- Elisabethstraße/Oberfeldstraße -->
+        <stop busStop="-306702968" duration="30"/>  <!-- Cecilienstraße/Oberfeldstraße -->
+        <stop busStop="-8757604746" duration="30"/>  <!-- Eitelstraße -->
+        <stop busStop="-306701941" duration="30"/>  <!-- Buschiner Straße -->
+        <stop busStop="-306701525" duration="30"/>  <!-- Biesdorfer Promenade -->
+        <stop busStop="-306701465" duration="30"/>  <!-- Roßlauer Straße -->
+        <stop busStop="4004265238" duration="30"/>  <!-- S Biesdorf -->
+        <stop busStop="590063521" duration="30"/>  <!-- S Biesdorf -->
+        <stop busStop="-306701529" duration="30"/>  <!-- Roßlauer Straße -->
+        <stop busStop="590057562" duration="30"/>  <!-- Bentschener Weg -->
+        <stop busStop="3933537011" duration="30"/>  <!-- Märkische Allee/Alt-Friedrichsfelde -->
+        <stop busStop="590056656" duration="30"/>  <!-- Gensinger Straße Ost -->
+        <stop busStop="4004265222" duration="30"/>  <!-- Gensinger Straße Nord -->
+        <stop busStop="486429196" duration="30"/>  <!-- S Friedrichsfelde Ost -->
+    </trip>
+    <trip id="100_bus_240:0" type="pt_bus" depart="14793.0" departLane="best" from="-11923626#0" to="667924254">
+        <stop busStop="-2915699919" duration="30"/>  <!-- Wismarplatz -->
+        <stop busStop="-1423996589" duration="30"/>  <!-- Holteistraße -->
+        <stop busStop="-3910983109" duration="30"/>  <!-- Neue Bahnhofstraße -->
+        <stop busStop="3910983106" duration="30"/>  <!-- Marktstraße -->
+        <stop busStop="-3983685978" duration="30"/>  <!-- S Rummelsburg -->
+        <stop busStop="4003905947" duration="30"/>  <!-- S Nöldnerplatz/Schlichtallee -->
+        <stop busStop="-3983685964" duration="30"/>  <!-- Lückstraße/Weitlingstraße -->
+        <stop busStop="-3983685968" duration="30"/>  <!-- Münsterlandplatz -->
+        <stop busStop="-3983685965" duration="30"/>  <!-- Margaretenstraße -->
+        <stop busStop="-3983685976" duration="30"/>  <!-- S+U Lichtenberg -->
+        <stop busStop="3983685971" duration="30"/>  <!-- Rosenfelder Straße -->
+        <stop busStop="3933537006" duration="30"/>  <!-- Lichtenberger Brücke Nord -->
+        <stop busStop="3933477383" duration="30"/>  <!-- Atzpodienstraße -->
+        <stop busStop="-3983685972" duration="30"/>  <!-- Rüdigerstraße -->
+        <stop busStop="-3901927125" duration="30"/>  <!-- Freiaplatz -->
+        <stop busStop="-3901927129" duration="30"/>  <!-- Gotlindestraße -->
+        <stop busStop="3901927124" duration="30"/>  <!-- Betriebshof Lichtenberg -->
+        <stop busStop="3901927139" duration="30"/>  <!-- Siegfriedstraße/Josef-Orlopp-Straße -->
+        <stop busStop="633721415" duration="30"/>  <!-- Josef-Orlopp-Straße/Gewerbegebiet -->
+        <stop busStop="3933477390" duration="30"/>  <!-- Josef-Orlopp-Straße/Vulkanstraße -->
+        <stop busStop="3885075776" duration="30"/>  <!-- Möllendorffstraße/Storkower Straße -->
+        <stop busStop="27195071" duration="30"/>  <!-- Paul-Junius-Straße -->
+        <stop busStop="258117307" duration="30"/>  <!-- S Storkower Straße -->
+    </trip>
+    <trip id="101_bus_240:1" type="pt_bus" depart="14806.0" departLane="best" from="667924254" to="11923626#0">
+        <stop busStop="3885967098" duration="30"/>  <!-- S Storkower Straße -->
+        <stop busStop="-3885967099" duration="30"/>  <!-- Paul-Junius-Straße -->
+        <stop busStop="-3885075775" duration="30"/>  <!-- Möllendorffstraße/Storkower Straße -->
+        <stop busStop="-3933477389" duration="30"/>  <!-- Josef-Orlopp-Straße/Vulkanstraße -->
+        <stop busStop="-3983685962" duration="30"/>  <!-- Josef-Orlopp-Straße/Gewerbegebiet -->
+        <stop busStop="-3901927138" duration="30"/>  <!-- Siegfriedstraße/Josef-Orlopp-Straße -->
+        <stop busStop="-3901927121" duration="30"/>  <!-- Betriebshof Lichtenberg -->
+        <stop busStop="3901927128" duration="30"/>  <!-- Gotlindestraße -->
+        <stop busStop="3983685958" duration="30"/>  <!-- Freiaplatz -->
+        <stop busStop="3983685980" duration="30"/>  <!-- Schottstraße -->
+        <stop busStop="3933477403" duration="30"/>  <!-- U Magdalenenstraße -->
+        <stop busStop="3933477380" duration="30"/>  <!-- U Magdalenenstraße/Buchberger Straße -->
+        <stop busStop="3933537007" duration="30"/>  <!-- Lichtenberger Brücke Süd -->
+        <stop busStop="364793280" duration="30"/>  <!-- Einbecker Straße/Rosenfelder Straße -->
+        <stop busStop="3983685973" duration="30"/>  <!-- S+U Lichtenberg -->
+        <stop busStop="3983685966" duration="30"/>  <!-- Margaretenstraße -->
+        <stop busStop="3983685983" duration="30"/>  <!-- Sophienstraße -->
+        <stop busStop="3983685967" duration="30"/>  <!-- Münsterlandplatz -->
+        <stop busStop="3983685963" duration="30"/>  <!-- Lückstraße/Weitlingstraße -->
+        <stop busStop="-4003905946" duration="30"/>  <!-- S Nöldnerplatz/Schlichtallee -->
+        <stop busStop="-3983685979" duration="30"/>  <!-- S Rummelsburg -->
+        <stop busStop="3910983108" duration="30"/>  <!-- Marktstraße -->
+        <stop busStop="3910983110" duration="30"/>  <!-- Neue Bahnhofstraße -->
+        <stop busStop="3910983105" duration="30"/>  <!-- Holteistraße -->
+        <stop busStop="3910272100" duration="30"/>  <!-- Wismarplatz -->
+    </trip>
+    <trip id="102_light_rail_S3:0" type="pt_light_rail" depart="14809.0" departLane="best" from="385258473" to="-653881643#0">
+        <stop busStop="1106283890" duration="30"/>  <!-- Betriebsbahnhof Rummelsburg -->
+        <stop busStop="1106283718" duration="30"/>  <!-- Rummelsburg -->
+        <stop busStop="-5316085166" duration="30"/>  <!-- Ostkreuz -->
+    </trip>
+    <trip id="103_light_rail_S3:1" type="pt_light_rail" depart="14810.0" departLane="best" from="446682260#2" to="719295167#1">
+        <stop busStop="4439191866" duration="30"/>  <!-- Ostkreuz -->
+        <stop busStop="5046353031" duration="30"/>  <!-- Rummelsburg -->
+        <stop busStop="1106283742" duration="30"/>  <!-- Betriebsbahnhof Rummelsburg -->
+    </trip>
+    <trip id="108_bus_291:0" type="pt_bus" depart="14837.0" departLane="best" from="28102821#0" to="42739064">
+        <stop busStop="4095683617" duration="30"/>  <!-- S Poelchaustraße -->
+        <stop busStop="4108069531" duration="30"/>  <!-- Langhoffstraße -->
+        <stop busStop="483415810" duration="30"/>  <!-- Allee der Kosmonauten/Poelchaustraße -->
+        <stop busStop="360243247" duration="30"/>  <!-- Elisabethstraße/Oberfeldstraße -->
+        <stop busStop="29885006" duration="30"/>  <!-- Blumberger Damm/Elisabethstraße -->
+        <stop busStop="308711210" duration="30"/>  <!-- Cecilienstraße/Blumberger Damm -->
+        <stop busStop="2453767144" duration="30"/>  <!-- Garzauer Straße -->
+        <stop busStop="4108069526" duration="30"/>  <!-- Cecilienstraße/Wuhle -->
+    </trip>
+    <trip id="110_bus_190:0" type="pt_bus" depart="14856.0" departLane="best" from="1112236350#3" to="-760410926">
+        <stop busStop="3906256154" duration="30"/>  <!-- Gleiwitzer Straße -->
+        <stop busStop="-3906256669" duration="30"/>  <!-- Pirolstraße -->
+        <stop busStop="-3906256658" duration="30"/>  <!-- Grabensprung -->
+        <stop busStop="-3906256152" duration="30"/>  <!-- Dohlengrund -->
+        <stop busStop="3906256150" duration="30"/>  <!-- Aurorafalterweg -->
+        <stop busStop="343527012" duration="30"/>  <!-- U Elsterwerdaer Platz Bus Köpenicker Straße -->
+        <stop busStop="-3464846428" duration="30"/>  <!-- U Elsterwerdaer Platz -->
+    </trip>
+    <trip id="111_bus_190:1" type="pt_bus" depart="14857.0" departLane="best" from="387396999" to="-1112236350#3">
+        <stop busStop="3464846428" duration="30"/>  <!-- U Elsterwerdaer Platz -->
+        <stop busStop="343527006" duration="30"/>  <!-- U Elsterwerdaer Platz Bus Köpenicker Straße -->
+        <stop busStop="-3906256149" duration="30"/>  <!-- Aurorafalterweg -->
+        <stop busStop="3906256151" duration="30"/>  <!-- Dohlengrund -->
+        <stop busStop="-3906256659" duration="30"/>  <!-- Grabensprung -->
+        <stop busStop="3906256668" duration="30"/>  <!-- Pirolstraße -->
+        <stop busStop="-3906256155" duration="30"/>  <!-- Gleiwitzer Straße -->
+    </trip>
+    <trip id="116_light_rail_S85:0" type="pt_light_rail" depart="14883.0" departLane="best" from="136703831" to="375331614#0">
+        <stop busStop="1106283897" duration="30"/>  <!-- Treptower Park -->
+        <stop busStop="1797163101" duration="30"/>  <!-- Ostkreuz -->
+        <stop busStop="21385742" duration="30"/>  <!-- Frankfurter Allee -->
+        <stop busStop="1127966990" duration="30"/>  <!-- Storkower Straße -->
+    </trip>
+    <trip id="117_light_rail_S85:1" type="pt_light_rail" depart="14884.0" departLane="best" from="136703831" to="375331614#0">
+        <stop busStop="1106283897" duration="30"/>  <!-- Treptower Park -->
+        <stop busStop="1797163101" duration="30"/>  <!-- Ostkreuz -->
+        <stop busStop="21385742" duration="30"/>  <!-- Frankfurter Allee -->
+        <stop busStop="1127966990" duration="30"/>  <!-- Storkower Straße -->
+    </trip>
+    <trip id="118_light_rail_S85:2" type="pt_light_rail" depart="14885.0" departLane="best" from="1155847958" to="136703825">
+        <stop busStop="316786620" duration="30"/>  <!-- Storkower Straße -->
+        <stop busStop="316787417" duration="30"/>  <!-- Frankfurter Allee -->
+        <stop busStop="1797163098" duration="30"/>  <!-- Ostkreuz -->
+        <stop busStop="1106283795" duration="30"/>  <!-- Treptower Park -->
+    </trip>
+    <trip id="119_light_rail_S85:3" type="pt_light_rail" depart="14897.0" departLane="best" from="1155847958" to="136703825">
+        <stop busStop="316786620" duration="30"/>  <!-- Storkower Straße -->
+        <stop busStop="316787417" duration="30"/>  <!-- Frankfurter Allee -->
+        <stop busStop="1797163098" duration="30"/>  <!-- Ostkreuz -->
+        <stop busStop="1106283795" duration="30"/>  <!-- Treptower Park -->
+    </trip>
+    <trip id="120_bus_296:0" type="pt_bus" depart="14898.0" departLane="best" from="-47160515#0" to="32446831#0">
+        <stop busStop="-4003905928" duration="30"/>  <!-- Kötztinger Straße -->
+        <stop busStop="4003905938" duration="30"/>  <!-- Neuwieder Straße -->
+        <stop busStop="352830687" duration="30"/>  <!-- Treskowallee/HTW -->
+        <stop busStop="5114603722" duration="30"/>  <!-- U Tierpark -->
+        <stop busStop="-641203649" duration="30"/>  <!-- Erieseering -->
+        <stop busStop="4003905934" duration="30"/>  <!-- Mellenseestraße/Sewanstraße -->
+        <stop busStop="364793271" duration="30"/>  <!-- Sewanstraße/Dolgenseestraße -->
+        <stop busStop="4003905920" duration="30"/>  <!-- Balatonstraße -->
+        <stop busStop="4003905948" duration="30"/>  <!-- Schwarzmeerstraße -->
+        <stop busStop="4003905943" duration="30"/>  <!-- Rummelsburger Straße -->
+        <stop busStop="6329369329" duration="30"/>  <!-- U Friedrichsfelde -->
+        <stop busStop="-364793275" duration="30"/>  <!-- Lincolnstraße/Einbecker Straße -->
+        <stop busStop="364793280" duration="30"/>  <!-- Einbecker Straße/Rosenfelder Straße -->
+        <stop busStop="3983685977" duration="30"/>  <!-- S+U Lichtenberg -->
+    </trip>
+    <trip id="121_bus_296:1" type="pt_bus" depart="14905.0" departLane="best" from="1005049898" to="47160515#0">
+        <stop busStop="3983685973" duration="30"/>  <!-- S+U Lichtenberg -->
+        <stop busStop="364793296" duration="30"/>  <!-- Irenenstraße -->
+        <stop busStop="364793286" duration="30"/>  <!-- Einbecker Straße/Rosenfelder Straße -->
+        <stop busStop="4003905931" duration="30"/>  <!-- Lincolnstraße/Einbecker Straße -->
+        <stop busStop="-4003905955" duration="30"/>  <!-- U Friedrichsfelde/Massower Straße -->
+        <stop busStop="5114938327" duration="30"/>  <!-- Rummelsburger Straße -->
+        <stop busStop="-352823731" duration="30"/>  <!-- Schwarzmeerstraße -->
+        <stop busStop="-4003905921" duration="30"/>  <!-- Balatonstraße -->
+        <stop busStop="-4003905950" duration="30"/>  <!-- Sewanstraße/Dolgenseestraße -->
+        <stop busStop="4003905933" duration="30"/>  <!-- Mellenseestraße/Sewanstraße -->
+        <stop busStop="4003905922" duration="30"/>  <!-- Erieseering -->
+        <stop busStop="3913185626" duration="30"/>  <!-- U Tierpark -->
+        <stop busStop="-352830689" duration="30"/>  <!-- Gregoroviusweg -->
+        <stop busStop="4003905939" duration="30"/>  <!-- Neuwieder Straße -->
+        <stop busStop="4003905927" duration="30"/>  <!-- Kötztinger Straße -->
+    </trip>
+    <trip id="123_bus_256:1" type="pt_bus" depart="14916.0" departLane="best" from="40520575#10" to="464609372">
+        <stop busStop="4200225221" duration="30"/>  <!-- Liebenwalder Straße -->
+        <stop busStop="4200225223" duration="30"/>  <!-- Liebenwalder Straße/Landsberger Allee -->
+        <stop busStop="-4200225253" duration="30"/>  <!-- Reinhardsbrunner Straße -->
+        <stop busStop="-3901927130" duration="30"/>  <!-- Herzbergstraße/Siegfriedstraße -->
+        <stop busStop="-3901927138" duration="30"/>  <!-- Siegfriedstraße/Josef-Orlopp-Straße -->
+        <stop busStop="-3901927121" duration="30"/>  <!-- Betriebshof Lichtenberg -->
+        <stop busStop="3901927128" duration="30"/>  <!-- Gotlindestraße -->
+        <stop busStop="-276004783" duration="30"/>  <!-- Fanningerstraße -->
+        <stop busStop="-3901927136" duration="30"/>  <!-- S+U Lichtenberg/Siegfriedstraße -->
+        <stop busStop="-3901927126" duration="30"/>  <!-- Gernotstraße -->
+        <stop busStop="4004265224" duration="30"/>  <!-- Kriemhildstraße -->
+        <stop busStop="506002095" duration="30"/>  <!-- Zentralfriedhof -->
+    </trip>
+    <trip id="125_train_RB12:1" type="pt_train" depart="14922.0" departLane="best" from="-1196812437#0" to="-635807492#0">
+        <stop busStop="-2440453081" duration="30"/>  <!-- Berlin-Lichtenberg -->
+        <stop busStop="-5316085165" duration="30"/>  <!-- Berlin Ostkreuz -->
+    </trip>
+    <trip id="130_train_RB25:0" type="pt_train" depart="14927.0" departLane="best" from="236544334#1" to="-81623751#0">
+        <stop busStop="3936632579" duration="30"/>  <!-- Berlin-Lichtenberg -->
+        <stop busStop="-1342275460" duration="30"/>  <!-- Berlin Ostkreuz -->
+    </trip>
+    <trip id="131_tram_M5:2" type="pt_tram" depart="14935.0" departLane="best" from="101699684#0" to="83014039#0">
+        <stop busStop="52776952" duration="30"/>  <!-- Simon-Bolivar-Straße -->
+        <stop busStop="146866102" duration="30"/>  <!-- Sandinostraße -->
+        <stop busStop="98871740" duration="30"/>  <!-- Hohenschönhauser Straße -->
+        <stop busStop="1828366917" duration="30"/>  <!-- Judith-Auer-Straße -->
+        <stop busStop="1828354198" duration="30"/>  <!-- Oderbruchstraße -->
+    </trip>
+    <trip id="132_tram_M5:3" type="pt_tram" depart="14938.0" departLane="best" from="1039993869#1" to="171931190#16">
+        <stop busStop="30693019" duration="30"/>  <!-- Oderbruchstraße -->
+        <stop busStop="1865279611" duration="30"/>  <!-- Judith-Auer-Straße -->
+        <stop busStop="1679204623" duration="30"/>  <!-- Hohenschönhauser Straße -->
+        <stop busStop="7076449612" duration="30"/>  <!-- Sandinostraße -->
+        <stop busStop="7076449611" duration="30"/>  <!-- Simon-Bolivar-Straße -->
+    </trip>
+    <trip id="133_tram_M8:2" type="pt_tram" depart="14947.0" departLane="best" from="172551635#1" to="39232656#4">
+        <stop busStop="1834446929" duration="30"/>  <!-- Adersleber Weg -->
+        <stop busStop="1797514517" duration="30"/>  <!-- Allee der Kosmonauten/Poelchaustraße -->
+        <stop busStop="1797506132" duration="30"/>  <!-- Boschpoler Straße -->
+        <stop busStop="1797361151" duration="30"/>  <!-- Helene-Weigel-Platz -->
+        <stop busStop="1797381754" duration="30"/>  <!-- S Springpfuhl -->
+        <stop busStop="1797381752" duration="30"/>  <!-- Beilsteiner Straße -->
+        <stop busStop="1797381789" duration="30"/>  <!-- Allee der Kosmonauten/Rhinstraße -->
+        <stop busStop="1864168423" duration="30"/>  <!-- Ev. Krankenhaus KEH -->
+        <stop busStop="3901927131" duration="30"/>  <!-- Herzbergstraße/Siegfriedstraße -->
+        <stop busStop="1830277393" duration="30"/>  <!-- Herzbergstraße/Industriegebiet -->
+        <stop busStop="276002421" duration="30"/>  <!-- Bernhard-Bästlein-Straße -->
+        <stop busStop="30695385" duration="30"/>  <!-- Roederplatz -->
+        <stop busStop="1829909910" duration="30"/>  <!-- Anton-Saefkow-Platz -->
+        <stop busStop="1867058882" duration="30"/>  <!-- Karl-Lade-Straße -->
+    </trip>
+    <trip id="134_tram_M8:3" type="pt_tram" depart="14948.0" departLane="best" from="171867099#1" to="93852620#7">
+        <stop busStop="30695390" duration="30"/>  <!-- Karl-Lade-Straße -->
+        <stop busStop="521821577" duration="30"/>  <!-- Anton-Saefkow-Platz -->
+        <stop busStop="1679204729" duration="30"/>  <!-- Roederplatz -->
+        <stop busStop="2480027318" duration="30"/>  <!-- Bernhard-Bästlein-Straße -->
+        <stop busStop="1895220895" duration="30"/>  <!-- Herzbergstraße/Industriegebiet -->
+        <stop busStop="3708887804" duration="30"/>  <!-- Herzbergstraße/Siegfriedstraße -->
+        <stop busStop="30695361" duration="30"/>  <!-- Ev. Krankenhaus KEH -->
+        <stop busStop="30694953" duration="30"/>  <!-- Allee der Kosmonauten/Rhinstraße -->
+        <stop busStop="30694949" duration="30"/>  <!-- Beilsteiner Straße -->
+        <stop busStop="96536154" duration="30"/>  <!-- S Springpfuhl -->
+        <stop busStop="1899067690" duration="30"/>  <!-- Helene-Weigel-Platz -->
+        <stop busStop="96535658" duration="30"/>  <!-- Boschpoler Straße -->
+        <stop busStop="96535655" duration="30"/>  <!-- Allee der Kosmonauten/Poelchaustraße -->
+        <stop busStop="85897703" duration="30"/>  <!-- Adersleber Weg -->
+    </trip>
+    <trip id="136_bus_X69:0" type="pt_bus" depart="14961.0" departLane="best" from="1175686101#1" to="164927497#1">
+        <stop busStop="3906388126" duration="30"/>  <!-- Blumberger Damm/Gärten der Welt -->
+        <stop busStop="150677775" duration="30"/>  <!-- Cecilienstraße/Blumberger Damm -->
+        <stop busStop="151012886" duration="30"/>  <!-- Rapsweg/Unfallkrankenhaus -->
+        <stop busStop="343527006" duration="30"/>  <!-- U Elsterwerdaer Platz Bus Köpenicker Straße -->
+    </trip>
+    <trip id="137_bus_X69:1" type="pt_bus" depart="14965.0" departLane="best" from="164927496" to="42738268#2">
+        <stop busStop="343527012" duration="30"/>  <!-- U Elsterwerdaer Platz Bus Köpenicker Straße -->
+        <stop busStop="151012874" duration="30"/>  <!-- Rapsweg/Unfallkrankenhaus -->
+        <stop busStop="150677416" duration="30"/>  <!-- Cecilienstraße/Blumberger Damm -->
+        <stop busStop="3906388127" duration="30"/>  <!-- Blumberger Damm/Gärten der Welt -->
+    </trip>
+    <trip id="138_bus_396:0" type="pt_bus" depart="14968.0" departLane="best" from="-630243640#3" to="4689028#1">
+        <stop busStop="-4003905932" duration="30"/>  <!-- Mellenseestraße -->
+        <stop busStop="-4003905949" duration="30"/>  <!-- Sewanstraße/Dolgenseestraße -->
+        <stop busStop="4003905920" duration="30"/>  <!-- Balatonstraße -->
+        <stop busStop="4003905948" duration="30"/>  <!-- Schwarzmeerstraße -->
+        <stop busStop="4003905943" duration="30"/>  <!-- Rummelsburger Straße -->
+        <stop busStop="6329369329" duration="30"/>  <!-- U Friedrichsfelde -->
+        <stop busStop="5114938327" duration="30"/>  <!-- Rummelsburger Straße -->
+        <stop busStop="-352823720" duration="30"/>  <!-- Kraetkestraße -->
+        <stop busStop="-4003905930" duration="30"/>  <!-- Lincolnstraße -->
+        <stop busStop="-4003905957" duration="30"/>  <!-- Wönnichstraße -->
+        <stop busStop="4003905944" duration="30"/>  <!-- S Nöldnerplatz -->
+    </trip>
+    <trip id="139_train_RB25:1" type="pt_train" depart="14972.0" departLane="best" from="446700170" to="48923447#1">
+        <stop busStop="5316085165" duration="30"/>  <!-- Berlin Ostkreuz -->
+        <stop busStop="2440453083" duration="30"/>  <!-- Berlin-Lichtenberg -->
+    </trip>
+    <trip id="140_bus_396:1" type="pt_bus" depart="14974.0" departLane="best" from="464685679#1" to="164927486#0">
+        <stop busStop="4003905945" duration="30"/>  <!-- S Nöldnerplatz -->
+        <stop busStop="3983685963" duration="30"/>  <!-- Lückstraße/Weitlingstraße -->
+        <stop busStop="4003905958" duration="30"/>  <!-- Wönnichstraße -->
+        <stop busStop="4003905929" duration="30"/>  <!-- Lincolnstraße -->
+        <stop busStop="4003905924" duration="30"/>  <!-- Kraetkestraße -->
+        <stop busStop="4003905943" duration="30"/>  <!-- Rummelsburger Straße -->
+        <stop busStop="6329369329" duration="30"/>  <!-- U Friedrichsfelde -->
+        <stop busStop="5114938327" duration="30"/>  <!-- Rummelsburger Straße -->
+        <stop busStop="-352823731" duration="30"/>  <!-- Schwarzmeerstraße -->
+        <stop busStop="-4003905921" duration="30"/>  <!-- Balatonstraße -->
+        <stop busStop="352823746" duration="30"/>  <!-- Sewanstraße/Dolgenseestraße -->
+        <stop busStop="277845539" duration="30"/>  <!-- Mellenseestraße -->
+    </trip>
+    <trip id="142_light_rail_S3:2" type="pt_light_rail" depart="14983.0" departLane="best" from="446682260#2" to="719295167#1">
+        <stop busStop="4439191866" duration="30"/>  <!-- Ostkreuz -->
+        <stop busStop="5046353031" duration="30"/>  <!-- Rummelsburg -->
+        <stop busStop="1106283742" duration="30"/>  <!-- Betriebsbahnhof Rummelsburg -->
+    </trip>
+    <trip id="143_light_rail_S3:3" type="pt_light_rail" depart="14993.0" departLane="best" from="385258473" to="446682252#2">
+        <stop busStop="1106283890" duration="30"/>  <!-- Betriebsbahnhof Rummelsburg -->
+        <stop busStop="1106283718" duration="30"/>  <!-- Rummelsburg -->
+        <stop busStop="4095970537" duration="30"/>  <!-- Ostkreuz -->
+    </trip>
+</routes>

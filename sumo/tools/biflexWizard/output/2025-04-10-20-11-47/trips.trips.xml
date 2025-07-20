@@ -1,0 +1,615 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2025-04-10 20:12:01.113879 by $Id: ptlines2flows.py v1_3_1+0313-ccb31df3eb jakob.erdmann@dlr.de 2019-09-02 13:26:32 +0200 $ v1_22_0+0002-63e50f52594
+<configuration>
+    <net-file value="osm.net.xml"/>
+    <ptlines-file value="osm_ptlines.xml"/>
+    <ptstops-file value="osm_stops.add.xml"/>
+    <output-file value="osm_pt.rou.xml"/>
+    <begin value="14400.0"/>
+    <end value="86400.0"/>
+    <random-begin value="True"/>
+    <seed value="42"/>
+    <ignore-errors value="True"/>
+    <vtype-prefix value="pt_"/>
+    <verbose value="True"/>
+</configuration>
+-->
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <vType id="pt_bus" vClass="bus" speedFactor="0.95"/>
+    <vType id="pt_tram" vClass="tram" speedFactor="1.0"/>
+    <vType id="pt_train" vClass="rail"/>
+    <vType id="pt_subway" vClass="subway"/>
+    <vType id="pt_light_rail" vClass="rail_urban"/>
+    <vType id="pt_monorail" vClass="rail_urban"/>
+    <vType id="pt_trolleybus" vClass="bus" speedFactor="0.95"/>
+    <vType id="pt_minibus" vClass="bus" speedFactor="0.95"/>
+    <vType id="pt_share_taxi" vClass="taxi" speedFactor="0.95"/>
+    <vType id="pt_aerialway" vClass="cable_car" length="2.5" width="2" personCapacity="4"/>
+    <vType id="pt_ferry" vClass="ship"/>
+    <trip id="0_train_RB32:0" type="pt_train" depart="14403.0" departLane="best" from="-387718524#1" to="-39980778#2">
+        <stop busStop="-1169704106" duration="30"/>  <!-- Birkengrund -->
+        <stop busStop="-5224018762" duration="30"/>  <!-- Ludwigsfelde -->
+    </trip>
+    <trip id="1_train_RB32:1" type="pt_train" depart="14415.0" departLane="best" from="39980778#2" to="387718524#1">
+        <stop busStop="5224018762" duration="30"/>  <!-- Ludwigsfelde -->
+        <stop busStop="1169704106" duration="30"/>  <!-- Birkengrund -->
+    </trip>
+    <trip id="2_bus_720:0" type="pt_bus" depart="14415.0" departLane="best" from="374844419" to="-34293113#1">
+        <stop busStop="477145947" duration="30"/>  <!-- Birkengrund Bahnhof -->
+        <stop busStop="-6679495866" duration="30"/>  <!-- Straße der Jugend -->
+        <stop busStop="-6679495867" duration="30"/>  <!-- Ludwigsfelde, Ärztehaus -->
+        <stop busStop="-1380465392" duration="30"/>  <!-- Waldstadion -->
+        <stop busStop="-833326941" duration="30"/>  <!-- Zentrum -->
+        <stop busStop="307682781" duration="30"/>  <!-- Stadtverwaltung -->
+        <stop busStop="3612246623" duration="30"/>  <!-- Bahnhof -->
+        <stop busStop="3612246624" duration="30"/>  <!-- Bahnhof -->
+        <stop busStop="-5935432014" duration="30"/>  <!-- Märkersteig -->
+        <stop busStop="-6699773646" duration="30"/>  <!-- Am Birkengrund -->
+        <stop busStop="12463270024" duration="30"/>  <!-- Parkallee Süd -->
+        <stop busStop="11218161862" duration="30"/>  <!-- Genshagen, Eichenhain -->
+        <stop busStop="11218161860" duration="30"/>  <!-- Genshagen, Parkallee -->
+        <stop busStop="11218161859" duration="30"/>  <!-- Genshagen, Spitzahornweg -->
+        <stop busStop="-11218161857" duration="30"/>  <!-- Genshagen, Platanenweg -->
+        <stop busStop="-11218161855" duration="30"/>  <!-- Genshagen, Seestraße -->
+        <stop busStop="-11218161853" duration="30"/>  <!-- Genshagen, Lindenweg -->
+        <stop busStop="-11218161852" duration="30"/>  <!-- Genshagener Dorfstraße -->
+        <stop busStop="-37883736" duration="30"/>  <!-- Genshagen, Waldsiedlung -->
+    </trip>
+    <trip id="3_bus_720:1" type="pt_bus" depart="14417.0" departLane="best" from="374844419" to="-34293113#1">
+        <stop busStop="477145947" duration="30"/>  <!-- Birkengrund Bahnhof -->
+        <stop busStop="-6679495866" duration="30"/>  <!-- Straße der Jugend -->
+        <stop busStop="-6679495867" duration="30"/>  <!-- Ludwigsfelde, Ärztehaus -->
+        <stop busStop="-1380465392" duration="30"/>  <!-- Waldstadion -->
+        <stop busStop="-833326941" duration="30"/>  <!-- Zentrum -->
+        <stop busStop="307682781" duration="30"/>  <!-- Stadtverwaltung -->
+        <stop busStop="3612246623" duration="30"/>  <!-- Bahnhof -->
+        <stop busStop="3612246624" duration="30"/>  <!-- Bahnhof -->
+        <stop busStop="-5935432014" duration="30"/>  <!-- Märkersteig -->
+        <stop busStop="-6699773646" duration="30"/>  <!-- Am Birkengrund -->
+        <stop busStop="12463270024" duration="30"/>  <!-- Parkallee Süd -->
+        <stop busStop="6700099576" duration="30"/>  <!-- Genshagen, Siedlung -->
+        <stop busStop="6700121803" duration="30"/>  <!-- Ludwigsfelder Straße -->
+        <stop busStop="353846641" duration="30"/>  <!-- Genshagen, Dorf -->
+        <stop busStop="-37883736" duration="30"/>  <!-- Genshagen, Waldsiedlung -->
+    </trip>
+    <trip id="4_bus_720:2" type="pt_bus" depart="14427.0" departLane="best" from="38452686#0" to="-710055152">
+        <stop busStop="6699973938" duration="30"/>  <!-- Genshagen, Waldsiedlung -->
+        <stop busStop="-6699773640" duration="30"/>  <!-- Genshagen, Dorf -->
+        <stop busStop="-6699773643" duration="30"/>  <!-- Ludwigsfelder Straße -->
+        <stop busStop="12463270023" duration="30"/>  <!-- Parkallee Süd -->
+        <stop busStop="6699773647" duration="30"/>  <!-- Am Birkengrund -->
+        <stop busStop="6699973896" duration="30"/>  <!-- Märkersteig -->
+        <stop busStop="3612246623" duration="30"/>  <!-- Bahnhof -->
+        <stop busStop="3612246624" duration="30"/>  <!-- Bahnhof -->
+        <stop busStop="307682780" duration="30"/>  <!-- Stadtverwaltung -->
+        <stop busStop="5676247155" duration="30"/>  <!-- Zentrum -->
+        <stop busStop="6679843602" duration="30"/>  <!-- Waldstadion -->
+        <stop busStop="1380465396" duration="30"/>  <!-- Ludwigsfelde, Ärztehaus -->
+        <stop busStop="3813050867" duration="30"/>  <!-- Straße der Jugend -->
+        <stop busStop="-477145942" duration="30"/>  <!-- Birkengrund Bahnhof -->
+    </trip>
+    <trip id="5_bus_750:0" type="pt_bus" depart="14447.0" departLane="best" from="125089860#1" to="366095618">
+        <stop busStop="6679843610" duration="30"/>  <!-- Am Friedhof -->
+        <stop busStop="3612246623" duration="30"/>  <!-- Bahnhof -->
+        <stop busStop="307682780" duration="30"/>  <!-- Stadtverwaltung -->
+        <stop busStop="5676247155" duration="30"/>  <!-- Zentrum -->
+        <stop busStop="307682620" duration="30"/>  <!-- Hochhaus -->
+        <stop busStop="307680966" duration="30"/>  <!-- Salvador-Allende-Straße -->
+        <stop busStop="476034565" duration="30"/>  <!-- Neckarstraße -->
+        <stop busStop="307798747" duration="30"/>  <!-- Gröbener Heide -->
+        <stop busStop="2061656757" duration="30"/>  <!-- Struveweg -->
+    </trip>
+    <trip id="6_bus_750:1" type="pt_bus" depart="14452.0" departLane="best" from="-710005982" to="366095618">
+        <stop busStop="-3612246623" duration="30"/>  <!-- Bahnhof -->
+        <stop busStop="307682780" duration="30"/>  <!-- Stadtverwaltung -->
+        <stop busStop="5676247155" duration="30"/>  <!-- Zentrum -->
+        <stop busStop="307682620" duration="30"/>  <!-- Hochhaus -->
+        <stop busStop="307680966" duration="30"/>  <!-- Salvador-Allende-Straße -->
+        <stop busStop="476034565" duration="30"/>  <!-- Neckarstraße -->
+        <stop busStop="307798747" duration="30"/>  <!-- Gröbener Heide -->
+        <stop busStop="2061656757" duration="30"/>  <!-- Struveweg -->
+    </trip>
+    <trip id="7_bus_750:2" type="pt_bus" depart="14455.0" departLane="best" from="-917165930" to="-125089860#1">
+        <stop busStop="-3612246624" duration="30"/>  <!-- Bahnhof -->
+        <stop busStop="-3268946876" duration="30"/>  <!-- Am Friedhof -->
+    </trip>
+    <trip id="8_bus_750:3" type="pt_bus" depart="14458.0" departLane="best" from="-917165930" to="-125089860#1">
+        <stop busStop="-3612246624" duration="30"/>  <!-- Bahnhof -->
+        <stop busStop="-3268946876" duration="30"/>  <!-- Am Friedhof -->
+    </trip>
+    <trip id="11_bus_705:0" type="pt_bus" depart="14498.0" departLane="best" from="353156945#1" to="217272321#4">
+        <stop busStop="6679843605" duration="30"/>  <!-- Gymnasium -->
+        <stop busStop="5676247155" duration="30"/>  <!-- Zentrum -->
+        <stop busStop="-3636340111" duration="30"/>  <!-- Joliot-Curie-Platz -->
+        <stop busStop="-6679495898" duration="30"/>  <!-- Kulturhaus -->
+        <stop busStop="307682620" duration="30"/>  <!-- Hochhaus -->
+        <stop busStop="708958441" duration="30"/>  <!-- Schule 3 -->
+        <stop busStop="404354348" duration="30"/>  <!-- Karl-Liebknecht-Straße -->
+    </trip>
+    <trip id="12_bus_705:1" type="pt_bus" depart="14502.0" departLane="best" from="-614280179#6" to="-653761396#0">
+        <stop busStop="-11408398074" duration="30"/>  <!-- Ludwigsfelde, Rousseau Allee -->
+        <stop busStop="3196600159" duration="30"/>  <!-- Ludwigsdorf -->
+        <stop busStop="-5676247156" duration="30"/>  <!-- Neckarstraße -->
+        <stop busStop="-307680966" duration="30"/>  <!-- Salvador-Allende-Straße -->
+        <stop busStop="708958441" duration="30"/>  <!-- Schule 3 -->
+        <stop busStop="404354348" duration="30"/>  <!-- Karl-Liebknecht-Straße -->
+        <stop busStop="-3636340111" duration="30"/>  <!-- Joliot-Curie-Platz -->
+        <stop busStop="-6679495898" duration="30"/>  <!-- Kulturhaus -->
+        <stop busStop="-307682781" duration="30"/>  <!-- Stadtverwaltung -->
+    </trip>
+    <trip id="13_bus_705:2" type="pt_bus" depart="14519.0" departLane="best" from="-614280179#6" to="-30717059#0">
+        <stop busStop="-11408398074" duration="30"/>  <!-- Ludwigsfelde, Rousseau Allee -->
+        <stop busStop="3196600159" duration="30"/>  <!-- Ludwigsdorf -->
+        <stop busStop="-5676247156" duration="30"/>  <!-- Neckarstraße -->
+        <stop busStop="-307680966" duration="30"/>  <!-- Salvador-Allende-Straße -->
+    </trip>
+    <trip id="14_bus_750:4" type="pt_bus" depart="14525.0" departLane="best" from="125089860#1" to="366095618">
+        <stop busStop="6679843610" duration="30"/>  <!-- Am Friedhof -->
+        <stop busStop="3612246623" duration="30"/>  <!-- Bahnhof -->
+        <stop busStop="307682780" duration="30"/>  <!-- Stadtverwaltung -->
+        <stop busStop="5676247155" duration="30"/>  <!-- Zentrum -->
+        <stop busStop="307682620" duration="30"/>  <!-- Hochhaus -->
+        <stop busStop="307680966" duration="30"/>  <!-- Salvador-Allende-Straße -->
+        <stop busStop="476034565" duration="30"/>  <!-- Neckarstraße -->
+        <stop busStop="307798747" duration="30"/>  <!-- Gröbener Heide -->
+        <stop busStop="2061656757" duration="30"/>  <!-- Struveweg -->
+    </trip>
+    <trip id="15_bus_750:5" type="pt_bus" depart="14531.0" departLane="best" from="361444615#0" to="-125089860#1">
+        <stop busStop="3628285157" duration="30"/>  <!-- Struveweg -->
+        <stop busStop="307798748" duration="30"/>  <!-- Gröbener Heide -->
+        <stop busStop="-5676247156" duration="30"/>  <!-- Neckarstraße -->
+        <stop busStop="-307680966" duration="30"/>  <!-- Salvador-Allende-Straße -->
+        <stop busStop="-307682617" duration="30"/>  <!-- Hochhaus -->
+        <stop busStop="-833326941" duration="30"/>  <!-- Zentrum -->
+        <stop busStop="-307682781" duration="30"/>  <!-- Stadtverwaltung -->
+        <stop busStop="3612246623" duration="30"/>  <!-- Bahnhof -->
+        <stop busStop="3612246623" duration="30"/>  <!-- Bahnhof -->
+        <stop busStop="-3268946876" duration="30"/>  <!-- Am Friedhof -->
+    </trip>
+    <trip id="16_bus_750:6" type="pt_bus" depart="14532.0" departLane="best" from="361444615#0" to="710005983#1">
+        <stop busStop="3628285157" duration="30"/>  <!-- Struveweg -->
+        <stop busStop="307798748" duration="30"/>  <!-- Gröbener Heide -->
+        <stop busStop="-5676247156" duration="30"/>  <!-- Neckarstraße -->
+        <stop busStop="-307680966" duration="30"/>  <!-- Salvador-Allende-Straße -->
+        <stop busStop="-307682617" duration="30"/>  <!-- Hochhaus -->
+        <stop busStop="-833326941" duration="30"/>  <!-- Zentrum -->
+        <stop busStop="-307682781" duration="30"/>  <!-- Stadtverwaltung -->
+        <stop busStop="3612246623" duration="30"/>  <!-- Bahnhof -->
+    </trip>
+    <trip id="17_bus_750:7" type="pt_bus" depart="14533.0" departLane="best" from="361444615#0" to="-125089860#1">
+        <stop busStop="3628285157" duration="30"/>  <!-- Struveweg -->
+        <stop busStop="307798748" duration="30"/>  <!-- Gröbener Heide -->
+        <stop busStop="-5676247156" duration="30"/>  <!-- Neckarstraße -->
+        <stop busStop="-307680966" duration="30"/>  <!-- Salvador-Allende-Straße -->
+        <stop busStop="-307682617" duration="30"/>  <!-- Hochhaus -->
+        <stop busStop="-833326941" duration="30"/>  <!-- Zentrum -->
+        <stop busStop="-307682781" duration="30"/>  <!-- Stadtverwaltung -->
+        <stop busStop="3612246623" duration="30"/>  <!-- Bahnhof -->
+        <stop busStop="3612246623" duration="30"/>  <!-- Bahnhof -->
+        <stop busStop="-3268946876" duration="30"/>  <!-- Am Friedhof -->
+    </trip>
+    <trip id="18_bus_750:8" type="pt_bus" depart="14536.0" departLane="best" from="361444615#0" to="-125089860#1">
+        <stop busStop="3628285157" duration="30"/>  <!-- Struveweg -->
+        <stop busStop="307798748" duration="30"/>  <!-- Gröbener Heide -->
+        <stop busStop="-5676247156" duration="30"/>  <!-- Neckarstraße -->
+        <stop busStop="-307680966" duration="30"/>  <!-- Salvador-Allende-Straße -->
+        <stop busStop="-307682617" duration="30"/>  <!-- Hochhaus -->
+        <stop busStop="-833326941" duration="30"/>  <!-- Zentrum -->
+        <stop busStop="-307682781" duration="30"/>  <!-- Stadtverwaltung -->
+        <stop busStop="3612246623" duration="30"/>  <!-- Bahnhof -->
+        <stop busStop="3612246623" duration="30"/>  <!-- Bahnhof -->
+        <stop busStop="-3268946876" duration="30"/>  <!-- Am Friedhof -->
+    </trip>
+    <trip id="19_bus_701:0" type="pt_bus" depart="14539.0" departLane="best" from="-917165930" to="254882225">
+        <stop busStop="-3612246624" duration="30"/>  <!-- Bahnhof -->
+        <stop busStop="294726358" duration="30"/>  <!-- Am Preußen-Park -->
+    </trip>
+    <trip id="20_bus_701:1" type="pt_bus" depart="14560.0" departLane="best" from="-254882225" to="-710055152">
+        <stop busStop="-6679495891" duration="30"/>  <!-- Am Preußen-Park -->
+        <stop busStop="307682780" duration="30"/>  <!-- Stadtverwaltung -->
+        <stop busStop="5676247155" duration="30"/>  <!-- Zentrum -->
+        <stop busStop="307682620" duration="30"/>  <!-- Hochhaus -->
+        <stop busStop="307680966" duration="30"/>  <!-- Salvador-Allende-Straße -->
+        <stop busStop="6679495861" duration="30"/>  <!-- Brandenburgische Straße -->
+        <stop busStop="6676049939" duration="30"/>  <!-- Damsdorfer Heide -->
+        <stop busStop="1200466114" duration="30"/>  <!-- Krankenhaus -->
+        <stop busStop="3813050867" duration="30"/>  <!-- Straße der Jugend -->
+        <stop busStop="-477145942" duration="30"/>  <!-- Birkengrund Bahnhof -->
+    </trip>
+    <trip id="21_bus_701:2" type="pt_bus" depart="14565.0" departLane="best" from="-254882225" to="-710055152">
+        <stop busStop="-6679495891" duration="30"/>  <!-- Am Preußen-Park -->
+        <stop busStop="307682780" duration="30"/>  <!-- Stadtverwaltung -->
+        <stop busStop="5676247155" duration="30"/>  <!-- Zentrum -->
+        <stop busStop="307682620" duration="30"/>  <!-- Hochhaus -->
+        <stop busStop="307680966" duration="30"/>  <!-- Salvador-Allende-Straße -->
+        <stop busStop="6679495861" duration="30"/>  <!-- Brandenburgische Straße -->
+        <stop busStop="3811279253" duration="30"/>  <!-- Zum Industriepark -->
+        <stop busStop="-477145942" duration="30"/>  <!-- Birkengrund Bahnhof -->
+    </trip>
+    <trip id="22_bus_701:3" type="pt_bus" depart="14566.0" departLane="best" from="-254882225" to="-710055152">
+        <stop busStop="-6679495891" duration="30"/>  <!-- Am Preußen-Park -->
+        <stop busStop="307682780" duration="30"/>  <!-- Stadtverwaltung -->
+        <stop busStop="5676247155" duration="30"/>  <!-- Zentrum -->
+        <stop busStop="307682620" duration="30"/>  <!-- Hochhaus -->
+        <stop busStop="307680966" duration="30"/>  <!-- Salvador-Allende-Straße -->
+        <stop busStop="6679495861" duration="30"/>  <!-- Brandenburgische Straße -->
+        <stop busStop="6676049939" duration="30"/>  <!-- Damsdorfer Heide -->
+        <stop busStop="1200466114" duration="30"/>  <!-- Krankenhaus -->
+        <stop busStop="3813050867" duration="30"/>  <!-- Straße der Jugend -->
+        <stop busStop="-477145942" duration="30"/>  <!-- Birkengrund Bahnhof -->
+    </trip>
+    <trip id="23_bus_721:0" type="pt_bus" depart="14573.0" departLane="best" from="710467894" to="710005983#1">
+        <stop busStop="2608490825" duration="30"/>  <!-- Struveshof Bahnhof -->
+        <stop busStop="307798748" duration="30"/>  <!-- Gröbener Heide -->
+        <stop busStop="-5676247156" duration="30"/>  <!-- Neckarstraße -->
+        <stop busStop="-307680966" duration="30"/>  <!-- Salvador-Allende-Straße -->
+        <stop busStop="-307682617" duration="30"/>  <!-- Hochhaus -->
+        <stop busStop="-833326941" duration="30"/>  <!-- Zentrum -->
+        <stop busStop="-307682781" duration="30"/>  <!-- Stadtverwaltung -->
+        <stop busStop="3612246623" duration="30"/>  <!-- Bahnhof -->
+    </trip>
+    <trip id="24_bus_721:1" type="pt_bus" depart="14601.0" departLane="best" from="-917165930" to="710467894">
+        <stop busStop="-3612246624" duration="30"/>  <!-- Bahnhof -->
+        <stop busStop="307682780" duration="30"/>  <!-- Stadtverwaltung -->
+        <stop busStop="5676247155" duration="30"/>  <!-- Zentrum -->
+        <stop busStop="307682620" duration="30"/>  <!-- Hochhaus -->
+        <stop busStop="307680966" duration="30"/>  <!-- Salvador-Allende-Straße -->
+        <stop busStop="476034565" duration="30"/>  <!-- Neckarstraße -->
+        <stop busStop="307798747" duration="30"/>  <!-- Gröbener Heide -->
+        <stop busStop="2061656757" duration="30"/>  <!-- Struveweg -->
+        <stop busStop="2608490825@16808417" duration="30"/>  <!-- Struveshof Bahnhof -->
+    </trip>
+    <trip id="25_bus_721:2" type="pt_bus" depart="14604.0" departLane="best" from="-917165930" to="710467894">
+        <stop busStop="-3612246624" duration="30"/>  <!-- Bahnhof -->
+        <stop busStop="307682780" duration="30"/>  <!-- Stadtverwaltung -->
+        <stop busStop="5676247155" duration="30"/>  <!-- Zentrum -->
+        <stop busStop="307682620" duration="30"/>  <!-- Hochhaus -->
+        <stop busStop="307680966" duration="30"/>  <!-- Salvador-Allende-Straße -->
+        <stop busStop="476034565" duration="30"/>  <!-- Neckarstraße -->
+        <stop busStop="307798747" duration="30"/>  <!-- Gröbener Heide -->
+        <stop busStop="2061656757" duration="30"/>  <!-- Struveweg -->
+        <stop busStop="2608490825@16808417" duration="30"/>  <!-- Struveshof Bahnhof -->
+    </trip>
+    <trip id="26_bus_721:3" type="pt_bus" depart="14618.0" departLane="best" from="-917165930" to="614280179#6">
+        <stop busStop="-3612246624" duration="30"/>  <!-- Bahnhof -->
+        <stop busStop="307682780" duration="30"/>  <!-- Stadtverwaltung -->
+        <stop busStop="5676247155" duration="30"/>  <!-- Zentrum -->
+        <stop busStop="307682620" duration="30"/>  <!-- Hochhaus -->
+        <stop busStop="307680966" duration="30"/>  <!-- Salvador-Allende-Straße -->
+        <stop busStop="476034565" duration="30"/>  <!-- Neckarstraße -->
+        <stop busStop="307798747" duration="30"/>  <!-- Gröbener Heide -->
+        <stop busStop="2061656757" duration="30"/>  <!-- Struveweg -->
+        <stop busStop="2608490825@16808417" duration="30"/>  <!-- Struveshof Bahnhof -->
+        <stop busStop="307798748" duration="30"/>  <!-- Gröbener Heide -->
+        <stop busStop="3196600159" duration="30"/>  <!-- Ludwigsdorf -->
+        <stop busStop="11408398074" duration="30"/>  <!-- Ludwigsfelde, Rousseau Allee -->
+    </trip>
+    <trip id="27_bus_702:0" type="pt_bus" depart="14622.0" departLane="best" from="374844419" to="15259429#1">
+        <stop busStop="477145947" duration="30"/>  <!-- Birkengrund Bahnhof -->
+        <stop busStop="3644517649" duration="30"/>  <!-- Mercedes-Benz Werk -->
+        <stop busStop="477163981" duration="30"/>  <!-- Industriepark Ost -->
+        <stop busStop="6679925317" duration="30"/>  <!-- Nikolaus-Otto-Straße -->
+    </trip>
+    <trip id="28_bus_720:3" type="pt_bus" depart="14627.0" departLane="best" from="374844419" to="710005983#1">
+        <stop busStop="477145947" duration="30"/>  <!-- Birkengrund Bahnhof -->
+        <stop busStop="-6679495866" duration="30"/>  <!-- Straße der Jugend -->
+        <stop busStop="-6679495867" duration="30"/>  <!-- Ludwigsfelde, Ärztehaus -->
+        <stop busStop="-1380465392" duration="30"/>  <!-- Waldstadion -->
+        <stop busStop="-833326941" duration="30"/>  <!-- Zentrum -->
+        <stop busStop="-307682781" duration="30"/>  <!-- Stadtverwaltung -->
+        <stop busStop="3612246623" duration="30"/>  <!-- Bahnhof -->
+    </trip>
+    <trip id="29_bus_720:4" type="pt_bus" depart="14627.0" departLane="best" from="-917165930" to="-34293113#1">
+        <stop busStop="-3612246624" duration="30"/>  <!-- Bahnhof -->
+        <stop busStop="-5935432014" duration="30"/>  <!-- Märkersteig -->
+        <stop busStop="-6699773646" duration="30"/>  <!-- Am Birkengrund -->
+        <stop busStop="12463270024" duration="30"/>  <!-- Parkallee Süd -->
+        <stop busStop="11218161862" duration="30"/>  <!-- Genshagen, Eichenhain -->
+        <stop busStop="11218161860" duration="30"/>  <!-- Genshagen, Parkallee -->
+        <stop busStop="11218161859" duration="30"/>  <!-- Genshagen, Spitzahornweg -->
+        <stop busStop="-11218161857" duration="30"/>  <!-- Genshagen, Platanenweg -->
+        <stop busStop="-11218161855" duration="30"/>  <!-- Genshagen, Seestraße -->
+        <stop busStop="-11218161853" duration="30"/>  <!-- Genshagen, Lindenweg -->
+        <stop busStop="-11218161852" duration="30"/>  <!-- Genshagener Dorfstraße -->
+        <stop busStop="-37883736" duration="30"/>  <!-- Genshagen, Waldsiedlung -->
+    </trip>
+    <trip id="30_bus_720:5" type="pt_bus" depart="14653.0" departLane="best" from="-917165930" to="-710055152">
+        <stop busStop="-3612246624" duration="30"/>  <!-- Bahnhof -->
+        <stop busStop="307682780" duration="30"/>  <!-- Stadtverwaltung -->
+        <stop busStop="5676247155" duration="30"/>  <!-- Zentrum -->
+        <stop busStop="6679843602" duration="30"/>  <!-- Waldstadion -->
+        <stop busStop="1380465396" duration="30"/>  <!-- Ludwigsfelde, Ärztehaus -->
+        <stop busStop="3813050867" duration="30"/>  <!-- Straße der Jugend -->
+        <stop busStop="-477145942" duration="30"/>  <!-- Birkengrund Bahnhof -->
+    </trip>
+    <trip id="31_bus_702:1" type="pt_bus" depart="14703.0" departLane="best" from="374844419" to="917165930">
+        <stop busStop="477145947" duration="30"/>  <!-- Birkengrund Bahnhof -->
+        <stop busStop="-1832331110" duration="30"/>  <!-- Brandenburgische Straße -->
+        <stop busStop="-307680966" duration="30"/>  <!-- Salvador-Allende-Straße -->
+        <stop busStop="-307682617" duration="30"/>  <!-- Hochhaus -->
+        <stop busStop="-833326941" duration="30"/>  <!-- Zentrum -->
+        <stop busStop="-307682781" duration="30"/>  <!-- Stadtverwaltung -->
+        <stop busStop="3612246624" duration="30"/>  <!-- Bahnhof -->
+    </trip>
+    <trip id="32_bus_703:0" type="pt_bus" depart="14721.0" departLane="best" from="38452686#0" to="217272321#4">
+        <stop busStop="6699973938" duration="30"/>  <!-- Genshagen, Waldsiedlung -->
+        <stop busStop="393204661" duration="30"/>  <!-- Waldsiedlung -->
+        <stop busStop="-6699773640" duration="30"/>  <!-- Genshagen, Dorf -->
+        <stop busStop="-393204656" duration="30"/>  <!-- Dorf -->
+        <stop busStop="-6699773643" duration="30"/>  <!-- Ludwigsfelder Straße -->
+        <stop busStop="-12458643748" duration="30"/>  <!-- Genshagen, Siedlung -->
+        <stop busStop="12463270023" duration="30"/>  <!-- Parkallee Süd -->
+        <stop busStop="6699773647" duration="30"/>  <!-- Am Birkengrund -->
+        <stop busStop="-3636340111" duration="30"/>  <!-- Joliot-Curie-Platz -->
+        <stop busStop="-6679495898" duration="30"/>  <!-- Kulturhaus -->
+        <stop busStop="5676247155" duration="30"/>  <!-- Zentrum -->
+        <stop busStop="307682620" duration="30"/>  <!-- Hochhaus -->
+        <stop busStop="708958441" duration="30"/>  <!-- Schule 3 -->
+        <stop busStop="404354348" duration="30"/>  <!-- Karl-Liebknecht-Straße -->
+    </trip>
+    <trip id="33_bus_703:1" type="pt_bus" depart="14726.0" departLane="best" from="254882223#6" to="-34293113#1">
+        <stop busStop="307682781" duration="30"/>  <!-- Stadtverwaltung -->
+        <stop busStop="-5935432014" duration="30"/>  <!-- Märkersteig -->
+        <stop busStop="-6699773646" duration="30"/>  <!-- Am Birkengrund -->
+        <stop busStop="12463270024" duration="30"/>  <!-- Parkallee Süd -->
+        <stop busStop="6700099576" duration="30"/>  <!-- Genshagen, Siedlung -->
+        <stop busStop="6700121803" duration="30"/>  <!-- Ludwigsfelder Straße -->
+        <stop busStop="353846641" duration="30"/>  <!-- Genshagen, Dorf -->
+        <stop busStop="393204655" duration="30"/>  <!-- Dorf -->
+        <stop busStop="-37883736" duration="30"/>  <!-- Genshagen, Waldsiedlung -->
+        <stop busStop="-393204662" duration="30"/>  <!-- Waldsiedlung -->
+    </trip>
+    <trip id="34_bus_703:2" type="pt_bus" depart="14731.0" departLane="best" from="44838770" to="-34293113#1">
+        <stop busStop="307680966" duration="30"/>  <!-- Salvador-Allende-Straße -->
+        <stop busStop="708958441" duration="30"/>  <!-- Schule 3 -->
+        <stop busStop="404354348" duration="30"/>  <!-- Karl-Liebknecht-Straße -->
+        <stop busStop="3648764665" duration="30"/>  <!-- Erich-Weinert-Straße -->
+        <stop busStop="3648718513" duration="30"/>  <!-- Kristallbad -->
+        <stop busStop="-3636340111" duration="30"/>  <!-- Joliot-Curie-Platz -->
+        <stop busStop="-6679495898" duration="30"/>  <!-- Kulturhaus -->
+        <stop busStop="-307682781" duration="30"/>  <!-- Stadtverwaltung -->
+        <stop busStop="-5935432014" duration="30"/>  <!-- Märkersteig -->
+        <stop busStop="-6699773646" duration="30"/>  <!-- Am Birkengrund -->
+        <stop busStop="12463270024" duration="30"/>  <!-- Parkallee Süd -->
+        <stop busStop="6700099576" duration="30"/>  <!-- Genshagen, Siedlung -->
+        <stop busStop="6700121803" duration="30"/>  <!-- Ludwigsfelder Straße -->
+        <stop busStop="353846641" duration="30"/>  <!-- Genshagen, Dorf -->
+        <stop busStop="393204655" duration="30"/>  <!-- Dorf -->
+        <stop busStop="-37883736" duration="30"/>  <!-- Genshagen, Waldsiedlung -->
+        <stop busStop="-393204662" duration="30"/>  <!-- Waldsiedlung -->
+    </trip>
+    <trip id="35_bus_708:0" type="pt_bus" depart="14746.0" departLane="best" from="-917165930" to="710467894">
+        <stop busStop="-3612246624" duration="30"/>  <!-- Bahnhof -->
+        <stop busStop="-6679843612" duration="30"/>  <!-- Arthur-Ladwig-Straße -->
+        <stop busStop="-3268946876" duration="30"/>  <!-- Am Friedhof -->
+        <stop busStop="-5481242539" duration="30"/>  <!-- Heinrich-Zille-Straße -->
+        <stop busStop="1390156012" duration="30"/>  <!-- Taubenstraße -->
+        <stop busStop="6679843605" duration="30"/>  <!-- Gymnasium -->
+        <stop busStop="476355583" duration="30"/>  <!-- Kulturhaus -->
+        <stop busStop="5303809573" duration="30"/>  <!-- Joliot-Curie-Platz -->
+        <stop busStop="3648718514" duration="30"/>  <!-- Kristallbad -->
+        <stop busStop="6679843602" duration="30"/>  <!-- Waldstadion -->
+        <stop busStop="1380465396" duration="30"/>  <!-- Ludwigsfelde, Ärztehaus -->
+        <stop busStop="-3782204757" duration="30"/>  <!-- Krankenhaus -->
+        <stop busStop="-6676049940" duration="30"/>  <!-- Damsdorfer Heide -->
+        <stop busStop="-1832331110" duration="30"/>  <!-- Brandenburgische Straße -->
+        <stop busStop="6679843597" duration="30"/>  <!-- Donaustraße -->
+        <stop busStop="404354263" duration="30"/>  <!-- August-Bebel-Straße -->
+        <stop busStop="404354299" duration="30"/>  <!-- Waldhaus -->
+        <stop busStop="404354348" duration="30"/>  <!-- Karl-Liebknecht-Straße -->
+        <stop busStop="3648764665" duration="30"/>  <!-- Erich-Weinert-Straße -->
+        <stop busStop="307682620" duration="30"/>  <!-- Hochhaus -->
+        <stop busStop="307680966" duration="30"/>  <!-- Salvador-Allende-Straße -->
+        <stop busStop="476034565" duration="30"/>  <!-- Neckarstraße -->
+        <stop busStop="307798747" duration="30"/>  <!-- Gröbener Heide -->
+        <stop busStop="2061656757" duration="30"/>  <!-- Struveweg -->
+        <stop busStop="2608490825@16808417" duration="30"/>  <!-- Struveshof Bahnhof -->
+    </trip>
+    <trip id="40_train_RE3:0" type="pt_train" depart="14781.0" departLane="best" from="1136429654#1" to="387718524#1">
+        <stop busStop="5224018765" duration="30"/>  <!-- Ludwigsfelde -->
+        <stop busStop="1169704106" duration="30"/>  <!-- Birkengrund -->
+    </trip>
+    <trip id="41_train_RE3:1" type="pt_train" depart="14783.0" departLane="best" from="493374843#1" to="44701719#0">
+        <stop busStop="4852950169" duration="30"/>  <!-- Birkengrund -->
+        <stop busStop="31018652" duration="30"/>  <!-- Ludwigsfelde -->
+    </trip>
+    <trip id="42_bus_621:0" type="pt_bus" depart="14783.0" departLane="best" from="-917165930" to="173756567#2">
+        <stop busStop="-3612246624" duration="30"/>  <!-- Bahnhof -->
+        <stop busStop="307682780" duration="30"/>  <!-- Stadtverwaltung -->
+        <stop busStop="5676247155" duration="30"/>  <!-- Zentrum -->
+        <stop busStop="307682620" duration="30"/>  <!-- Hochhaus -->
+        <stop busStop="307680966" duration="30"/>  <!-- Salvador-Allende-Straße -->
+        <stop busStop="476034565" duration="30"/>  <!-- Neckarstraße -->
+        <stop busStop="307798747" duration="30"/>  <!-- Gröbener Heide -->
+        <stop busStop="2061656757" duration="30"/>  <!-- Struveweg -->
+        <stop busStop="2608490822" duration="30"/>  <!-- Struveshof Bahnhof -->
+        <stop busStop="307798780" duration="30"/>  <!-- Siedlerweg -->
+    </trip>
+    <trip id="43_bus_621:1" type="pt_bus" depart="14788.0" departLane="best" from="-173756567#2" to="917165930">
+        <stop busStop="-6690631689" duration="30"/>  <!-- Siedlerweg -->
+        <stop busStop="2608490822" duration="30"/>  <!-- Struveshof Bahnhof -->
+        <stop busStop="307798748" duration="30"/>  <!-- Gröbener Heide -->
+        <stop busStop="-5676247156" duration="30"/>  <!-- Neckarstraße -->
+        <stop busStop="-307680966" duration="30"/>  <!-- Salvador-Allende-Straße -->
+        <stop busStop="-307682617" duration="30"/>  <!-- Hochhaus -->
+        <stop busStop="-833326941" duration="30"/>  <!-- Zentrum -->
+        <stop busStop="-307682781" duration="30"/>  <!-- Stadtverwaltung -->
+        <stop busStop="3612246624" duration="30"/>  <!-- Bahnhof -->
+    </trip>
+    <trip id="45_bus_720:6" type="pt_bus" depart="14806.0" departLane="best" from="38452686#0" to="-710055152">
+        <stop busStop="6699973938" duration="30"/>  <!-- Genshagen, Waldsiedlung -->
+        <stop busStop="11218161852" duration="30"/>  <!-- Genshagener Dorfstraße -->
+        <stop busStop="11218161851" duration="30"/>  <!-- Genshagen, Lindenweg -->
+        <stop busStop="11218161854" duration="30"/>  <!-- Genshagen, Seestraße -->
+        <stop busStop="11218161856" duration="30"/>  <!-- Genshagen, Platanenweg -->
+        <stop busStop="-11218161858" duration="30"/>  <!-- Genshagen, Spitzahornweg -->
+        <stop busStop="-11218161860" duration="30"/>  <!-- Genshagen, Parkallee -->
+        <stop busStop="-11218161861" duration="30"/>  <!-- Genshagen, Eichenhain -->
+        <stop busStop="-732557718" duration="30"/>  <!-- Eichenhain -->
+        <stop busStop="12463270023" duration="30"/>  <!-- Parkallee Süd -->
+        <stop busStop="6699773647" duration="30"/>  <!-- Am Birkengrund -->
+        <stop busStop="6699973896" duration="30"/>  <!-- Märkersteig -->
+        <stop busStop="3612246623" duration="30"/>  <!-- Bahnhof -->
+        <stop busStop="3612246624" duration="30"/>  <!-- Bahnhof -->
+        <stop busStop="307682780" duration="30"/>  <!-- Stadtverwaltung -->
+        <stop busStop="5676247155" duration="30"/>  <!-- Zentrum -->
+        <stop busStop="6679843602" duration="30"/>  <!-- Waldstadion -->
+        <stop busStop="1380465396" duration="30"/>  <!-- Ludwigsfelde, Ärztehaus -->
+        <stop busStop="3813050867" duration="30"/>  <!-- Straße der Jugend -->
+        <stop busStop="-477145942" duration="30"/>  <!-- Birkengrund Bahnhof -->
+    </trip>
+    <trip id="46_bus_705:3" type="pt_bus" depart="14818.0" departLane="best" from="254882223#6" to="366095618">
+        <stop busStop="307682780" duration="30"/>  <!-- Stadtverwaltung -->
+        <stop busStop="5676247155" duration="30"/>  <!-- Zentrum -->
+        <stop busStop="307682620" duration="30"/>  <!-- Hochhaus -->
+        <stop busStop="307680966" duration="30"/>  <!-- Salvador-Allende-Straße -->
+        <stop busStop="476034565" duration="30"/>  <!-- Neckarstraße -->
+        <stop busStop="3196600159" duration="30"/>  <!-- Ludwigsdorf -->
+        <stop busStop="307798747" duration="30"/>  <!-- Gröbener Heide -->
+        <stop busStop="2061656757" duration="30"/>  <!-- Struveweg -->
+    </trip>
+    <trip id="47_bus_701:4" type="pt_bus" depart="14822.0" departLane="best" from="374844419" to="254882225">
+        <stop busStop="477145947" duration="30"/>  <!-- Birkengrund Bahnhof -->
+        <stop busStop="-6679495866" duration="30"/>  <!-- Straße der Jugend -->
+        <stop busStop="-3782204757" duration="30"/>  <!-- Krankenhaus -->
+        <stop busStop="-6676049940" duration="30"/>  <!-- Damsdorfer Heide -->
+        <stop busStop="-1832331110" duration="30"/>  <!-- Brandenburgische Straße -->
+        <stop busStop="-307680966" duration="30"/>  <!-- Salvador-Allende-Straße -->
+        <stop busStop="-307682617" duration="30"/>  <!-- Hochhaus -->
+        <stop busStop="3648718513" duration="30"/>  <!-- Kristallbad -->
+        <stop busStop="-3636340111" duration="30"/>  <!-- Joliot-Curie-Platz -->
+        <stop busStop="-6679495898" duration="30"/>  <!-- Kulturhaus -->
+        <stop busStop="-307682781" duration="30"/>  <!-- Stadtverwaltung -->
+        <stop busStop="294726358" duration="30"/>  <!-- Am Preußen-Park -->
+    </trip>
+    <trip id="48_bus_701:5" type="pt_bus" depart="14837.0" departLane="best" from="254882223#6" to="254882225">
+        <stop busStop="307682781" duration="30"/>  <!-- Stadtverwaltung -->
+        <stop busStop="294726358" duration="30"/>  <!-- Am Preußen-Park -->
+    </trip>
+    <trip id="49_bus_701:6" type="pt_bus" depart="14837.0" departLane="best" from="-254882225" to="-710055152">
+        <stop busStop="-6679495891" duration="30"/>  <!-- Am Preußen-Park -->
+        <stop busStop="307682780" duration="30"/>  <!-- Stadtverwaltung -->
+        <stop busStop="5676247155" duration="30"/>  <!-- Zentrum -->
+        <stop busStop="307682620" duration="30"/>  <!-- Hochhaus -->
+        <stop busStop="307680966" duration="30"/>  <!-- Salvador-Allende-Straße -->
+        <stop busStop="6679495861" duration="30"/>  <!-- Brandenburgische Straße -->
+        <stop busStop="6676049939" duration="30"/>  <!-- Damsdorfer Heide -->
+        <stop busStop="1200466114" duration="30"/>  <!-- Krankenhaus -->
+        <stop busStop="3813050867" duration="30"/>  <!-- Straße der Jugend -->
+        <stop busStop="-477145942" duration="30"/>  <!-- Birkengrund Bahnhof -->
+    </trip>
+    <trip id="50_bus_710:0" type="pt_bus" depart="14841.0" departLane="best" from="-917165930" to="-34293113#1">
+        <stop busStop="-3612246624" duration="30"/>  <!-- Bahnhof -->
+        <stop busStop="-5935432014" duration="30"/>  <!-- Märkersteig -->
+        <stop busStop="-6699773646" duration="30"/>  <!-- Am Birkengrund -->
+        <stop busStop="12463270024" duration="30"/>  <!-- Parkallee Süd -->
+        <stop busStop="6700099576" duration="30"/>  <!-- Genshagen, Siedlung -->
+        <stop busStop="6700121803" duration="30"/>  <!-- Ludwigsfelder Straße -->
+        <stop busStop="353846641" duration="30"/>  <!-- Genshagen, Dorf -->
+        <stop busStop="393204655" duration="30"/>  <!-- Dorf -->
+        <stop busStop="-37883736" duration="30"/>  <!-- Genshagen, Waldsiedlung -->
+        <stop busStop="-393204662" duration="30"/>  <!-- Waldsiedlung -->
+    </trip>
+    <trip id="52_bus_714:0" type="pt_bus" depart="14884.0" departLane="best" from="-254882225" to="917165930">
+        <stop busStop="-6679495891" duration="30"/>  <!-- Am Preußen-Park -->
+        <stop busStop="3612246624" duration="30"/>  <!-- Bahnhof -->
+    </trip>
+    <trip id="53_bus_714:1" type="pt_bus" depart="14885.0" departLane="best" from="-917165930" to="254882225">
+        <stop busStop="-3612246624" duration="30"/>  <!-- Bahnhof -->
+        <stop busStop="294726358" duration="30"/>  <!-- Am Preußen-Park -->
+    </trip>
+    <trip id="54_bus_715:0" type="pt_bus" depart="14897.0" departLane="best" from="361444615#0" to="917165930">
+        <stop busStop="3628285157" duration="30"/>  <!-- Struveweg -->
+        <stop busStop="307798748" duration="30"/>  <!-- Gröbener Heide -->
+        <stop busStop="-5676247156" duration="30"/>  <!-- Neckarstraße -->
+        <stop busStop="-307680966" duration="30"/>  <!-- Salvador-Allende-Straße -->
+        <stop busStop="-307682617" duration="30"/>  <!-- Hochhaus -->
+        <stop busStop="-833326941" duration="30"/>  <!-- Zentrum -->
+        <stop busStop="-307682781" duration="30"/>  <!-- Stadtverwaltung -->
+        <stop busStop="3612246624" duration="30"/>  <!-- Bahnhof -->
+    </trip>
+    <trip id="55_bus_715:1" type="pt_bus" depart="14908.0" departLane="best" from="-710005982" to="366095618">
+        <stop busStop="-3612246623" duration="30"/>  <!-- Bahnhof -->
+        <stop busStop="307682780" duration="30"/>  <!-- Stadtverwaltung -->
+        <stop busStop="5676247155" duration="30"/>  <!-- Zentrum -->
+        <stop busStop="307682620" duration="30"/>  <!-- Hochhaus -->
+        <stop busStop="307680966" duration="30"/>  <!-- Salvador-Allende-Straße -->
+        <stop busStop="476034565" duration="30"/>  <!-- Neckarstraße -->
+        <stop busStop="307798747" duration="30"/>  <!-- Gröbener Heide -->
+        <stop busStop="2061656757" duration="30"/>  <!-- Struveweg -->
+    </trip>
+    <trip id="56_bus_701:7" type="pt_bus" depart="14917.0" departLane="best" from="-254882225" to="217272321#4">
+        <stop busStop="-6679495891" duration="30"/>  <!-- Am Preußen-Park -->
+        <stop busStop="-5935432014" duration="30"/>  <!-- Märkersteig -->
+        <stop busStop="-3636340111" duration="30"/>  <!-- Joliot-Curie-Platz -->
+        <stop busStop="-6679495898" duration="30"/>  <!-- Kulturhaus -->
+        <stop busStop="5676247155" duration="30"/>  <!-- Zentrum -->
+        <stop busStop="307682620" duration="30"/>  <!-- Hochhaus -->
+        <stop busStop="708958441" duration="30"/>  <!-- Schule 3 -->
+        <stop busStop="404354348" duration="30"/>  <!-- Karl-Liebknecht-Straße -->
+    </trip>
+    <trip id="57_bus_708:1" type="pt_bus" depart="14935.0" departLane="best" from="-710467889#0" to="917165930">
+        <stop busStop="-5935432013" duration="30"/>  <!-- Zum Röthepfuhl -->
+        <stop busStop="6679813983" duration="30"/>  <!-- Löwenbrucher Ring -->
+        <stop busStop="6679843585" duration="30"/>  <!-- Parkstraße -->
+        <stop busStop="3612246624" duration="30"/>  <!-- Bahnhof -->
+    </trip>
+    <trip id="58_bus_708:2" type="pt_bus" depart="14961.0" departLane="best" from="-917165930" to="34714441#3">
+        <stop busStop="-3612246624" duration="30"/>  <!-- Bahnhof -->
+        <stop busStop="-5935432014" duration="30"/>  <!-- Märkersteig -->
+        <stop busStop="6679843586" duration="30"/>  <!-- Parkstraße -->
+        <stop busStop="3643896515" duration="30"/>  <!-- Teltowkehre -->
+        <stop busStop="6679813984" duration="30"/>  <!-- Löwenbrucher Ring -->
+        <stop busStop="5935432013" duration="30"/>  <!-- Zum Röthepfuhl -->
+    </trip>
+    <trip id="59_bus_708:3" type="pt_bus" depart="14974.0" departLane="best" from="710467894" to="917165930">
+        <stop busStop="2608490825" duration="30"/>  <!-- Struveshof Bahnhof -->
+        <stop busStop="307798748" duration="30"/>  <!-- Gröbener Heide -->
+        <stop busStop="-5676247156" duration="30"/>  <!-- Neckarstraße -->
+        <stop busStop="-307680966" duration="30"/>  <!-- Salvador-Allende-Straße -->
+        <stop busStop="-307682617" duration="30"/>  <!-- Hochhaus -->
+        <stop busStop="-3648764665" duration="30"/>  <!-- Erich-Weinert-Straße -->
+        <stop busStop="-6679843595" duration="30"/>  <!-- Karl-Liebknecht-Straße -->
+        <stop busStop="-404354299" duration="30"/>  <!-- Waldhaus -->
+        <stop busStop="736936463" duration="30"/>  <!-- Friedrich-Engels-Straße -->
+        <stop busStop="-6679843589" duration="30"/>  <!-- Donaustraße -->
+        <stop busStop="6679495861" duration="30"/>  <!-- Brandenburgische Straße -->
+        <stop busStop="6676049939" duration="30"/>  <!-- Damsdorfer Heide -->
+        <stop busStop="1200466114" duration="30"/>  <!-- Krankenhaus -->
+        <stop busStop="-6679495867" duration="30"/>  <!-- Ludwigsfelde, Ärztehaus -->
+        <stop busStop="-1380465392" duration="30"/>  <!-- Waldstadion -->
+        <stop busStop="3648718513" duration="30"/>  <!-- Kristallbad -->
+        <stop busStop="-3636340111" duration="30"/>  <!-- Joliot-Curie-Platz -->
+        <stop busStop="-6679495898" duration="30"/>  <!-- Kulturhaus -->
+        <stop busStop="-1390155963" duration="30"/>  <!-- Gymnasium -->
+        <stop busStop="-1390156012" duration="30"/>  <!-- Taubenstraße -->
+        <stop busStop="1390155989" duration="30"/>  <!-- Heinrich-Zille-Straße -->
+        <stop busStop="6679843610" duration="30"/>  <!-- Am Friedhof -->
+        <stop busStop="6679843611" duration="30"/>  <!-- Arthur-Ladwig-Straße -->
+        <stop busStop="3612246624" duration="30"/>  <!-- Bahnhof -->
+    </trip>
+    <trip id="60_bus_702:2" type="pt_bus" depart="14983.0" departLane="best" from="-917165930" to="39703163#0">
+        <stop busStop="-3612246624" duration="30"/>  <!-- Bahnhof -->
+        <stop busStop="307682780" duration="30"/>  <!-- Stadtverwaltung -->
+        <stop busStop="5676247155" duration="30"/>  <!-- Zentrum -->
+        <stop busStop="307682620" duration="30"/>  <!-- Hochhaus -->
+        <stop busStop="307680966" duration="30"/>  <!-- Salvador-Allende-Straße -->
+        <stop busStop="6679495861" duration="30"/>  <!-- Brandenburgische Straße -->
+        <stop busStop="6679925329" duration="30"/>  <!-- Prof.-Brunolf-Baade-Straße -->
+        <stop busStop="6679925321" duration="30"/>  <!-- Wilhelm-Maybach-Straße -->
+    </trip>
+    <trip id="61_bus_710:1" type="pt_bus" depart="14993.0" departLane="best" from="38452686#0" to="917165930">
+        <stop busStop="6699973938" duration="30"/>  <!-- Genshagen, Waldsiedlung -->
+        <stop busStop="393204661" duration="30"/>  <!-- Waldsiedlung -->
+        <stop busStop="-6699773640" duration="30"/>  <!-- Genshagen, Dorf -->
+        <stop busStop="-393204656" duration="30"/>  <!-- Dorf -->
+        <stop busStop="-6699773643" duration="30"/>  <!-- Ludwigsfelder Straße -->
+        <stop busStop="-12458643748" duration="30"/>  <!-- Genshagen, Siedlung -->
+        <stop busStop="12463270023" duration="30"/>  <!-- Parkallee Süd -->
+        <stop busStop="6699773647" duration="30"/>  <!-- Am Birkengrund -->
+        <stop busStop="6699973896" duration="30"/>  <!-- Märkersteig -->
+        <stop busStop="3612246624" duration="30"/>  <!-- Bahnhof -->
+    </trip>
+</routes>

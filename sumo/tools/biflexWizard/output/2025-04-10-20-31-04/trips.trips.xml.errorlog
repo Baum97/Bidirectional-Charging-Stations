@@ -1,0 +1,43 @@
+Warning: Rail signal at junction '10719824499' does not control any links
+Warning: Rail signal at junction '10731009954' does not control any links
+Warning: Rail signal at junction '10731009955' does not control any links
+Warning: Rail signal at junction '11576962920' does not control any links
+Warning: Rail signal at junction '8091580085' does not control any links
+Warning: At actuated tlLogic 'cluster_10006304611_1830648168_276585516_29808680_#7more', linkIndex 20 has no controlling detector.
+Warning: At actuated tlLogic 'cluster_10562341964_2917485224_3950098954_3950098955_#6more', linkIndex 12,13,28,29 has no controlling detector.
+Warning: At actuated tlLogic 'cluster_10826750606_10826750607_10992650089_12614606_#12more', linkIndex 20,21 has no controlling detector.
+Warning: At actuated tlLogic 'cluster_11311290696_11311290698_11311290699_11311290700_#23more', linkIndex 7,23,24,37,54,55 has no controlling detector.
+Warning: At actuated tlLogic 'cluster_11343108660_1822749241_1822749242_2101295619_#7more', actuated phase 3 has no controlling detector.
+Warning: At actuated tlLogic 'cluster_11343108660_1822749241_1822749242_2101295619_#7more', linkIndex 12,13,25,26,27 has no controlling detector.
+Warning: At actuated tlLogic 'joinedS_2264783679_cluster_10006334362_10006334368_11373041349_11373041353_#6more_cluster_11373041347_11373041348_11373041350_11373041351_#13more', actuated phase 0 has no controlling detector.
+Warning: Program '0' at tlLogic 'joinedS_cluster_11362930490_11362930491_11362930493_11362930503_#7more_cluster_29881316_3606478080_3606478081_8071416597_#5more' is incompatible with logic at junction 'cluster_29881316_3606478080_3606478081_8071416597_#5more' (mutual conflict between link indices 18,24 tl indices 58,64 phase 0).
+  To avoid deadlock/collisions, either: rebuild the signal plan with a newer version of netconvert/netedit
+  or rebuild the network with option '--tls.ignore-internal-junction-jam' or include the program when building.
+Warning: At actuated tlLogic 'joinedS_cluster_29794851_29794852_4366590253_8477936811_#2more_cluster_4366590251_8614663929', actuated phase 2 has no controlling detector.
+Warning: busStop '-4574766498' on lane '-155605329#1_0' is too short for vehicle '12_bus_M43:0'.
+Warning: busStop '1117011725' on lane '1240008435#2_0' is too short for vehicle '46_light_rail_S5:0'.
+Warning: busStop '4439191866' on lane '446682260#2_0' is too short for vehicle '47_light_rail_S5:1'.
+Warning: busStop '1868463702' on lane '1046115305#1_0' is too short for vehicle '71_tram_37:1'.
+Warning: busStop '4003905958' on lane '120311789#1_0' is too short for vehicle '75_bus_194:1'.
+Warning: busStop '-4757399028' on lane '-1299953204#1_1' is too short for vehicle '75_bus_194:1'.
+Warning: busStop '3933537004' on lane '865948248_0' is too short for vehicle '75_bus_194:1'.
+Warning: busStop '6856168515' on lane '1089784299#1_1' is too short for vehicle '75_bus_194:1'.
+Warning: busStop '-3815943412' on lane '-24872481#29_0' is too short for vehicle '90_bus_269:0'.
+Warning: busStop '4004265238' on lane '111288182_0' is too short for vehicle '98_bus_192:0'.
+Warning: busStop '-306701529' on lane '-30041990#43_0' is too short for vehicle '99_bus_192:1'.
+Warning: busStop '-3910983109' on lane '-4534557#3_0' is too short for vehicle '100_bus_240:0'.
+Warning: busStop '3901927139' on lane '1115655586#3_0' is too short for vehicle '100_bus_240:0'.
+Warning: busStop '3983685958' on lane '367885354#0_1' is too short for vehicle '101_bus_240:1'.
+Warning: Found circular block after rail signal junction '7333335082', link 0 (86 edges, length 13118.40)
+Warning: Found circular block after rail signal junction '6222788675', link 0 (86 edges, length 13118.40)
+Warning: Found circular block after rail signal junction '6222788676', link 0 (86 edges, length 13118.40)
+Warning: Found circular block after rail signal junction '7970342134', link 0 (86 edges, length 13118.40)
+Warning: Found circular block after rail signal junction '10720881129', link 0 (86 edges, length 13118.40)
+Warning: busStop '-4003905932' on lane '-630243640#3_1' is too short for vehicle '138_bus_396:0'.
+Warning: Teleporting vehicle '25_train_D99:1'; waited too long (yield), lane='536259492#1_0', time=14897.00.
+Warning: Vehicle '25_train_D99:1' ends teleporting on edge '-43596221#0', time=14927.00.
+Warning: Teleporting vehicle '103_light_rail_S3:1'; waited too long (yield), lane='719295167#1_0', time=15320.00.
+Warning: Vehicle '103_light_rail_S3:1' ends teleporting on edge '-719295167#0', time=15360.00.
+Warning: 30 total messages of type: At actuated tlLogic '%', linkIndex % has no controlling detector.
+Warning: 6 total messages of type: Found circular block after % (% edges, length %)
+Warning: 10 total messages of type: Rail signal at junction '%' does not control any links
