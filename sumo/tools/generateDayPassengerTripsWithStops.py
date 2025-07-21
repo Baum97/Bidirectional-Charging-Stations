@@ -95,7 +95,7 @@ ET.SubElement(vtype_ev, 'param', key="device.stationfinder.reserveFactor", value
 ET.SubElement(vtype_ev, 'param', key="device.stationfinder.radius", value="3000")
 # ENERGY PARAMETERS
 ET.SubElement(vtype_ev, 'param', key="maximumPower", value="150000")
-ET.SubElement(vtype_ev, 'param', key="recuperationEfficiency", value="0.4")
+ET.SubElement(vtype_ev, 'param', key="recuperationEfficiency", value="0.01")
 ET.SubElement(vtype_ev, 'param', key="stoppingThreshold", value="0.1")
 # Physik-Parameter korrigiert
 ET.SubElement(vtype_ev, 'param', key="airDragCoefficient", value="0.35")
