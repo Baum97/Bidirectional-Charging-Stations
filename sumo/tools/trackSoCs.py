@@ -11,6 +11,8 @@ traci.start(sumo_cmd)
 charging_stations_cache = {}  # lane_id -> [(cs_id, start_pos, end_pos), ...]
 last_soc = {}
 charging_status = {}
+charging_count = 0
+charge_entries = {}
 EV_TYPES = ["veh_ev"]
 
 # PERFORMANCE-EINSTELLUNGEN
@@ -23,7 +25,6 @@ def build_charging_stations_cache():
     global charging_stations_cache
     charging_stations_cache = {}
     
-    print("Lade Ladestationen-Cache...")
     try:
         for cs_id in traci.chargingstation.getIDList():
             try:
@@ -39,8 +40,6 @@ def build_charging_stations_cache():
     except traci.TraCIException:
         print("Warnung: Keine Ladestationen gefunden")
     
-    print(f"Cache aufgebaut: {sum(len(stations) for stations in charging_stations_cache.values())} Stationen auf {len(charging_stations_cache)} Spuren")
-
 def find_charging_station_for_vehicle_fast(veh_id):
     """Schnelle Suche nach Ladestation mit Cache."""
     try:
@@ -64,8 +63,6 @@ build_charging_stations_cache()
 with open(output_csv, "w", newline="") as csvfile:
     writer = csv.writer(csvfile)
     writer.writerow(["time", "vehicle_id", "soc_percent", "is_charging", "station_id"])
-    
-    charge_entries = {}
     step_counter = 0
     ev_vehicles = set()  # Cache für EV-Fahrzeuge
     
@@ -128,15 +125,7 @@ with open(output_csv, "w", newline="") as csvfile:
                             is_charging = True  # Erste Messung, nehme an dass geladen wird
                 
                 # Status-Änderung ausgeben (nur bei Änderung)
-                prev_status = charging_status.get(veh_id, (False, None))
-                if is_charging != prev_status[0]:
-                    if is_charging:
-                        print(f"LADEN BEGONNEN: {veh_id} (SoC: {soc_percent:.1f}%) an Station {station_id}")
-                        if station_id:
-                            charge_entries[station_id] = charge_entries.get(station_id, 0) + 1
-                    else:
-                        print(f"LADEN BEENDET: {veh_id} (SoC: {soc_percent:.1f}%)")
-                
+                prev_status = charging_status.get(veh_id, (False, None))             
                 charging_status[veh_id] = (is_charging, station_id)
                 
                 # CSV schreiben (nur bei Änderungen oder alle 100 Schritte)
@@ -178,6 +167,4 @@ with open(output_csv, "w", newline="") as csvfile:
             writer.writerow([station_id, charge_count])
 
 traci.close()
-print("Simulation beendet. Daten gespeichert in:", output_csv)
-print(f"Verarbeitete EV-Fahrzeuge: {len(ev_vehicles)}")
-print(f"Ladestationen: {sum(len(stations) for stations in charging_stations_cache.values())}")
+print("Simulation beendet.")
