@@ -1,10 +1,12 @@
 import traci
 import csv
+import xml.etree.ElementTree as ET
+
 
 sumo_cfg = "generated_files/osm.sumocfg"
 output_csv = "ev_soc_tracking.csv"
 
-sumo_cmd = ["sumo", "-c", sumo_cfg, "--start"]
+sumo_cmd = ["sumo-gui", "-c", sumo_cfg, "--start"]
 traci.start(sumo_cmd)
 
 # Cache für Performance-Optimierung
@@ -13,12 +15,13 @@ last_soc = {}
 charging_status = {}
 charging_count = 0
 charge_entries = {}
+charge_results = {}
 ev_vehicles = set()
 step_counter = 0
 EV_TYPES = ["veh_ev"]
 
 # PERFORMANCE-EINSTELLUNGEN
-TRACKING_INTERVAL = 10  # Nur jede 10 Schritte tracken (anstatt jeden Schritt)
+TRACKING_INTERVAL = 5  # Nur jede 10 Schritte tracken (anstatt jeden Schritt)
 POSITION_TOLERANCE = 1.0  # Großzügigere Position-Toleranz
 SOC_CHANGE_THRESHOLD = 0.05  # Größerer Schwellenwert für SoC-Änderung
 
@@ -132,21 +135,22 @@ while traci.simulation.getMinExpectedNumber() > 0:
             if (is_charging != prev_status[0]) or (step_counter % 100 == 0):
                 writer.writerow([time, veh_id, soc_percent, is_charging, station_id or ""])
             
-            # Fahrzeugfarbe setzen (nur bei Status-Änderung)
-            if is_charging != prev_status[0]:
-                if is_charging:
-                    color = (0, 255, 255, 255)  # Cyan = lädt
-                elif soc_percent <= 10:
-                    color = (255, 0, 0, 255)    # Rot = niedrig
-                elif soc_percent <= 30:
-                    color = (255, 165, 0, 255)  # Orange = mittel
-                else:
-                    color = (0, 255, 0, 255)    # Grün = ok
+            # Fahrzeugfarbe setzen
+            if is_charging:
+                color = (0, 255, 255, 255)  # Cyan = lädt
+            elif soc_percent <= 10:
+                color = (255, 0, 0, 255)    # Rot = niedrig
+            elif soc_percent <= 30:
+                color = (255, 165, 0, 255)  # Orange = mittel
+            elif soc_percent <= 50:
+                color = (100, 255, 100, 255)
+            else:
+                color = (0, 255, 0, 255)    # Grün = ok
                 
-                try:
-                    traci.vehicle.setColor(veh_id, color)
-                except traci.TraCIException:
-                    pass  # Fahrzeug möglicherweise nicht mehr da
+            try:
+                traci.vehicle.setColor(veh_id, color)
+            except traci.TraCIException:
+                pass  # Fahrzeug möglicherweise nicht mehr da
             
             last_soc[veh_id] = soc_percent
                 
@@ -160,6 +164,30 @@ while traci.simulation.getMinExpectedNumber() > 0:
         writer.writerow(["CS_id", "charges"])
         for station_id, charge_count in charge_entries.items():
             writer.writerow([station_id, charge_count])
+
+tree = ET.parse("generated_files/osm.chargingstations.xml")
+root = tree.getroot()
+
+with open("logCharges.csv", mode="r", newline="") as file:
+    reader = csv.DictReader(file) 
+    for row in reader:
+        charge_results["CS_id"] = row["charges"]
+
+total_amount_charges = 0
+for count in charge_results["CS_id"]:
+    total_amount_charges += int(count)
+
+for cs in root.findall("chargingStation"):
+    if cs.get("id") not in charge_entries.keys():
+        root.remove(cs)
+    elif charge_entries[cs.get("id")] < (total_amount_charges/10):
+        root.remove(cs)
+
+tree.write("generated_files/osm.chargingstations.xml", encoding="utf-8", xml_declaration=True)
+
+
+
+
 
 traci.close()
 print("Simulation beendet.")

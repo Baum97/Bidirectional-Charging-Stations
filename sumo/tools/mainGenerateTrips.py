@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ET
 input_csv = "poi_edges.csv"
 output_xml = "generated_files/osm.passenger.trips.xml"
 netfile = "generated_files/osm.net.xml.gz"
-num_persons = 50
+num_persons = 500
 morning_depart_interval = (23400, 32400)  # 6:30 - 9:00
 work_duration = 8 * 3600  # 8 Stunden in Sekunden
 ev_share = 0.6  # Anteil der Elektrofahrzeuge (z.B. 0.2 = 20%)
@@ -84,7 +84,7 @@ vtype_ev = ET.SubElement(
 # BATTERY CONFIGURATION
 ET.SubElement(vtype_ev, 'param', key="has.battery.device", value="true")
 ET.SubElement(vtype_ev, 'param', key="device.battery.capacity", value="80000")
-ET.SubElement(vtype_ev, 'param', key="device.battery.actualBatteryCapacity", value="70000")
+ET.SubElement(vtype_ev, 'param', key="device.battery.actualBatteryCapacity", value="40000")
 # REROUTING CONFIGURATION
 ET.SubElement(vtype_ev, 'param', key="has.rerouting.device", value="true")
 ET.SubElement(vtype_ev, 'param', key="device.rerouting.probability", value="1")
@@ -95,7 +95,7 @@ ET.SubElement(vtype_ev, 'param', key="device.stationfinder.reserveFactor", value
 ET.SubElement(vtype_ev, 'param', key="device.stationfinder.radius", value="3000")
 # ENERGY PARAMETERS
 ET.SubElement(vtype_ev, 'param', key="maximumPower", value="150000")
-ET.SubElement(vtype_ev, 'param', key="recuperationEfficiency", value="0.01")
+ET.SubElement(vtype_ev, 'param', key="recuperationEfficiency", value="0.00")
 ET.SubElement(vtype_ev, 'param', key="stoppingThreshold", value="0.1")
 # Physik-Parameter korrigiert
 ET.SubElement(vtype_ev, 'param', key="airDragCoefficient", value="0.35")

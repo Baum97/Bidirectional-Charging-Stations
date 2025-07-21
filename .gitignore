@@ -1,2 +1,3 @@
 /matsim/matsim-project/src/.idea
 /sumo/tools/sumolib/__pycache__
+sumo/tools/logCharges.csv
