@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ET
 input_csv = "poi_edges.csv"
 output_xml = "generated_files/osm.passenger.trips.xml"
 netfile = "generated_files/osm.net.xml.gz"
-num_persons = 500
+num_persons = 250
 morning_depart_interval = (23400, 32400)  # 6:30 - 9:00
 work_duration = 8 * 3600  # 8 Stunden in Sekunden
 ev_share = 0.6  # Anteil der Elektrofahrzeuge (z.B. 0.2 = 20%)

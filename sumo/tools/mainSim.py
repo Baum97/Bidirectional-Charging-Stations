@@ -180,7 +180,7 @@ for count in charge_results["CS_id"]:
 for cs in root.findall("chargingStation"):
     if cs.get("id") not in charge_entries.keys():
         root.remove(cs)
-    elif charge_entries[cs.get("id")] < (total_amount_charges/10):
+    elif charge_entries[cs.get("id")] < (total_amount_charges/20):
         root.remove(cs)
 
 tree.write("generated_files/osm.chargingstations.xml", encoding="utf-8", xml_declaration=True)
