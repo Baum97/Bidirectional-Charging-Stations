@@ -4,144 +4,162 @@ import csv
 sumo_cfg = "generated_files/osm.sumocfg"
 output_csv = "ev_soc_tracking.csv"
 
-sumo_cmd = ["sumo-gui", "-c", sumo_cfg, "--start"]
+sumo_cmd = ["sumo", "-c", sumo_cfg, "--start"]
 traci.start(sumo_cmd)
 
+# Cache für Performance-Optimierung
+charging_stations_cache = {}  # lane_id -> [(cs_id, start_pos, end_pos), ...]
 last_soc = {}
-charging_status = {}  # vehicle_id -> (is_charging, station_id)
+charging_status = {}
+charging_count = 0
+charge_entries = {}
+ev_vehicles = set()
+step_counter = 0
 EV_TYPES = ["veh_ev"]
 
-with open(output_csv, "w", newline="") as csvfile:
-    writer = csv.writer(csvfile)
-    writer.writerow(["time", "vehicle_id", "soc_percent", "is_charging", "station_id"])
+# PERFORMANCE-EINSTELLUNGEN
+TRACKING_INTERVAL = 10  # Nur jede 10 Schritte tracken (anstatt jeden Schritt)
+POSITION_TOLERANCE = 1.0  # Großzügigere Position-Toleranz
+SOC_CHANGE_THRESHOLD = 0.05  # Größerer Schwellenwert für SoC-Änderung
 
-    step_counter = 0
+def build_charging_stations_cache():
+    """Einmaliger Aufbau des Ladestations-Cache für bessere Performance."""
+    global charging_stations_cache
+    charging_stations_cache = {}
     
-    while traci.simulation.getMinExpectedNumber() > 0:
-        traci.simulationStep()
-        time = traci.simulation.getTime()
-        step_counter += 1
+    try:
+        for cs_id in traci.chargingstation.getIDList():
+            try:
+                cs_lane = traci.chargingstation.getLaneID(cs_id)
+                cs_start = traci.chargingstation.getStartPos(cs_id)
+                cs_end = traci.chargingstation.getEndPos(cs_id)
+                
+                if cs_lane not in charging_stations_cache:
+                    charging_stations_cache[cs_lane] = []
+                charging_stations_cache[cs_lane].append((cs_id, cs_start, cs_end))
+            except traci.TraCIException:
+                continue
+    except traci.TraCIException:
+        print("Warnung: Keine Ladestationen gefunden")
+    
+def find_charging_station_for_vehicle_fast(veh_id):
+    """Schnelle Suche nach Ladestation mit Cache."""
+    try:
+        current_lane = traci.vehicle.getLaneID(veh_id)
         
-        # Alle EV-Fahrzeuge durchgehen
-        for veh_id in traci.vehicle.getIDList():
+        # Prüfe nur Stationen auf der aktuellen Spur (aus Cache)
+        if current_lane in charging_stations_cache:
+            veh_pos = traci.vehicle.getLanePosition(veh_id)
+            
+            for cs_id, cs_start, cs_end in charging_stations_cache[current_lane]:
+                if (cs_start - POSITION_TOLERANCE) <= veh_pos <= (cs_end + POSITION_TOLERANCE):
+                    return cs_id
+    except traci.TraCIException:
+        pass
+    
+    return None
+
+# Cache aufbauen
+build_charging_stations_cache()
+    
+while traci.simulation.getMinExpectedNumber() > 0:
+    traci.simulationStep()
+    time = traci.simulation.getTime()
+    step_counter += 1
+    
+    # NUR JEDE X SCHRITTE TRACKEN (große Performance-Verbesserung!)
+    if step_counter % TRACKING_INTERVAL != 0:
+        continue
+    
+    # EV-Fahrzeuge-Cache aktualisieren (nur alle 50 Schritte)
+    if step_counter % 50 == 0:
+        current_vehicles = set(traci.vehicle.getIDList())
+        # Entferne nicht mehr existierende Fahrzeuge
+        ev_vehicles = ev_vehicles.intersection(current_vehicles)
+        
+        # Füge neue EVs hinzu
+        for veh_id in current_vehicles - ev_vehicles:
             try:
                 vtype = traci.vehicle.getTypeID(veh_id)
-                if vtype not in EV_TYPES:
-                    continue
-
-                # Battery Status abrufen
+                if vtype in EV_TYPES:
+                    ev_vehicles.add(veh_id)
+            except traci.TraCIException:
+                continue
+    
+    # Nur bekannte EV-Fahrzeuge verarbeiten
+    for veh_id in list(ev_vehicles):  # Liste erstellen für sichere Iteration
+        try:
+            # Schnelle Überprüfung ob Fahrzeug noch existiert
+            try:
                 soc = traci.vehicle.getParameter(veh_id, "device.battery.actualBatteryCapacity")
                 max_soc = traci.vehicle.getParameter(veh_id, "device.battery.maximumBatteryCapacity")
+            except traci.TraCIException:
+                ev_vehicles.discard(veh_id)  # Fahrzeug entfernen
+                continue
                 
-                if not (soc and max_soc):
-                    continue
-                    
-                soc_percent = 100 * float(soc) / float(max_soc)
+            if not soc or not max_soc:
+                continue
                 
-                # CHARGING STATUS ERKENNEN - Mehrere Methoden:
-                is_charging = False
-                station_id = None
+            soc_percent = 100 * float(soc) / float(max_soc)
+            
+            # Lade-Erkennung (vereinfacht für Performance)
+            is_charging = False
+            station_id = None
+            
+            # Position und Geschwindigkeit (mit Cache)
+            speed = traci.vehicle.getSpeed(veh_id)
+            if speed < 0.2:  # Steht relativ still
+                station_id = find_charging_station_for_vehicle_fast(veh_id)
                 
-                # Methode 1: Direkte Abfrage ob Fahrzeug lädt
-                try:
-                    charging_power = float(traci.vehicle.getParameter(veh_id, "device.battery.chargingStationPower"))
-                    if charging_power > 0:
-                        is_charging = True
-                        print(f"*** LADEN *** [t={time:.1f}s] {veh_id} lädt mit {charging_power}W")
-                except:
-                    charging_power = 0
-                
-                # Methode 2: Position an Charging Station prüfen
-                if not is_charging:
-                    try:
-                        current_lane = traci.vehicle.getLaneID(veh_id)
-                        veh_pos = traci.vehicle.getLanePosition(veh_id)
-                        speed = traci.vehicle.getSpeed(veh_id)
-                        
-                        # Prüfe alle Charging Stations
-                        for cs_id in traci.chargingstation.getIDList():
-                            try:
-                                cs_lane = traci.chargingstation.getLaneID(cs_id)
-                                if cs_lane == current_lane:
-                                    cs_start = traci.chargingstation.getStartPos(cs_id)
-                                    cs_end = traci.chargingstation.getEndPos(cs_id)
-                                    
-                                    # Fahrzeug steht in der Station?
-                                    if cs_start <= veh_pos <= cs_end and speed < 0.5:
-                                        is_charging = True
-                                        station_id = cs_id
-                                        print(f"*** POSITION LADEN *** [t={time:.1f}s] {veh_id} steht an Station {cs_id}")
-                                        break
-                            except:
-                                continue
-                    except:
-                        pass
-                
-                # Methode 3: SoC steigt = lädt
-                if not is_charging and veh_id in last_soc:
-                    soc_diff = soc_percent - last_soc[veh_id]
-                    if soc_diff > 0.1:  # SoC steigt um mehr als 0.1%
-                        is_charging = True
-                        print(f"*** SOC STEIGT *** [t={time:.1f}s] {veh_id} lädt (SoC +{soc_diff:.2f}%)")
-                
-                # Methode 4: Vehicle Stops prüfen
-                if not is_charging:
-                    try:
-                        stops = traci.vehicle.getStops(veh_id)
-                        for stop in stops:
-                            if hasattr(stop, 'chargingStation') and stop.chargingStation:
-                                # Fahrzeug hat Charging Stop
-                                if traci.vehicle.getSpeed(veh_id) < 0.1:
-                                    is_charging = True
-                                    station_id = stop.chargingStation
-                                    print(f"*** STOP LADEN *** [t={time:.1f}s] {veh_id} lädt an Stop {station_id}")
-                                break
-                    except:
-                        pass
-                
-                # Status-Änderung ausgeben
-                prev_status = charging_status.get(veh_id, (False, None))
-                if is_charging != prev_status[0]:
-                    if is_charging:
-                        print(f"LADEN BEGONNEN: {veh_id} (SoC: {soc_percent:.1f}%) an Station {station_id}")
+                if station_id:
+                    # Prüfe SoC-Änderung nur wenn an Station
+                    if veh_id in last_soc:
+                        soc_diff = soc_percent - last_soc[veh_id]
+                        if soc_diff > SOC_CHANGE_THRESHOLD:  # SoC steigt deutlich
+                            is_charging = True
                     else:
-                        print(f"LADEN BEENDET: {veh_id} (SoC: {soc_percent:.1f}%)")
-                
-                charging_status[veh_id] = (is_charging, station_id)
-                
-                # CSV schreiben
+                        is_charging = True  # Erste Messung, nehme an dass geladen wird
+                        if station_id not in charge_entries:
+                            charge_entries[station_id] = 0
+                        charge_count = charge_entries[station_id]
+                        charge_entries[station_id] = charge_count+1
+            
+            # Status-Änderung ausgeben (nur bei Änderung)
+            prev_status = charging_status.get(veh_id, (False, None))             
+            charging_status[veh_id] = (is_charging, station_id)
+            
+            # CSV schreiben (nur bei Änderungen oder alle 100 Schritte)
+            if (is_charging != prev_status[0]) or (step_counter % 100 == 0):
                 writer.writerow([time, veh_id, soc_percent, is_charging, station_id or ""])
-                
-                # Fahrzeugfarbe setzen
+            
+            # Fahrzeugfarbe setzen (nur bei Status-Änderung)
+            if is_charging != prev_status[0]:
                 if is_charging:
                     color = (0, 255, 255, 255)  # Cyan = lädt
-                elif soc_percent == 0:
-                    color = (0, 0, 0, 255)      # Schwarz = leer
                 elif soc_percent <= 10:
-                    color = (255, 0, 0, 255)    # Rot = sehr niedrig
+                    color = (255, 0, 0, 255)    # Rot = niedrig
                 elif soc_percent <= 30:
-                    color = (255, 165, 0, 255)  # Orange = niedrig
+                    color = (255, 165, 0, 255)  # Orange = mittel
                 else:
                     color = (0, 255, 0, 255)    # Grün = ok
                 
-                traci.vehicle.setColor(veh_id, color)
+                try:
+                    traci.vehicle.setColor(veh_id, color)
+                except traci.TraCIException:
+                    pass  # Fahrzeug möglicherweise nicht mehr da
+            
+            last_soc[veh_id] = soc_percent
                 
-                # SoC für nächste Iteration speichern
-                last_soc[veh_id] = soc_percent
-                
-                # Periodische Ausgabe für alle EVs
-                if step_counter % 100 == 0:
-                    status_text = "LÄDT" if is_charging else "fährt"
-                    print(f"[t={time:.1f}s] {veh_id}: {soc_percent:.1f}% - {status_text}")
-                    
-            except traci.TraCIException as e:
-                # print(f"TraCI Fehler für {veh_id}: {e}")
-                continue
-            except Exception as e:
-                # print(f"Allgemeiner Fehler für {veh_id}: {e}")
-                continue
+        except (traci.TraCIException, ValueError, TypeError):
+            ev_vehicles.discard(veh_id)  # Fahrzeug entfernen bei Fehlern
+            continue
 
-        # Alle 500 Steps: Zusammenfassung
-        if step_counter % 500 == 0:
-            charging_count = sum(1 for status in charging_status.values() if status[0])
-            total_evs = len([v for v in traci.vehicle.getIDList() if traci.vehicle.getTypeID(v) in EV_TYPES])
+    # Ladezählung speichern
+    with open("logCharges.csv", mode="w", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow(["CS_id", "charges"])
+        for station_id, charge_count in charge_entries.items():
+            writer.writerow([station_id, charge_count])
+
+traci.close()
+print("Simulation beendet.")

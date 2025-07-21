@@ -9,49 +9,44 @@
 
     <time>
         <begin value="23000"/>
+        <step-length value="1"/>  <!-- Standard beibehalten -->
     </time>
 
     <processing>
         <ignore-route-errors value="true"/>
         <tls.actuated.jam-threshold value="30"/>
-        <lateral-resolution value="0.8"/>
-        <collision.action value="warn"/>
+        <lateral-resolution value="1.6"/>  <!-- WENIGER GENAU = SCHNELLER -->
+        <collision.action value="none"/>   <!-- KOLLISIONSERKENNUNG AUS = SCHNELLER -->
         <max-depart-delay value="900"/>
         
-        <!-- BATTERY DEVICES AKTIVIEREN -->
+        <!-- NUR NÖTIGE DEVICES -->
         <device.battery.probability value="1"/>
         <device.battery.explicit value="veh_ev"/>
         
-        <!-- REROUTING DEVICES AKTIVIEREN -->
-        <device.rerouting.probability value="1"/>
+        <!-- REROUTING REDUZIEREN -->
+        <device.rerouting.probability value="1.0"/>  <!-- Nur 50% der Fahrzeuge -->
         <device.rerouting.explicit value="veh_ev"/>
         
-        <!-- STATION FINDER AKTIVIEREN (Das ist der Schlüssel!) -->
+        <!-- STATIONFINDER OPTIMIEREN -->
         <device.stationfinder.probability value="1"/>
         <device.stationfinder.explicit value="veh_ev"/>
-        <device.stationfinder.rescueTime value="1800"/>
-        <device.stationfinder.reserveFactor value="1.2"/>
-        <device.stationfinder.radius value="5000"/>
+        <device.stationfinder.rescueTime value="3600"/>      <!-- Weniger häufig suchen -->
+        <device.stationfinder.reserveFactor value="1.1"/>    <!-- Kleinerer Puffer -->
+        <device.stationfinder.radius value="3000"/>          <!-- Kleinerer Suchradius -->
     </processing>
 
     <routing>
-        <device.rerouting.adaptation-steps value="18"/>
-        <device.rerouting.adaptation-interval value="10"/>
-        <device.rerouting.pre-period value="60"/>
-        
-        <!-- WICHTIG: Rerouting auch bei niedrigem Batteriestand -->
-        <device.rerouting.with-taz value="true"/>
+        <device.rerouting.adaptation-steps value="36"/>      <!-- Weniger Updates -->
+        <device.rerouting.adaptation-interval value="30"/>   <!-- Längere Intervalle -->
+        <device.rerouting.pre-period value="120"/>           <!-- Längere Vorlaufzeit -->
+        <device.rerouting.with-taz value="false"/>           <!-- AUS für Performance -->
     </routing>
 
     <report>
-        <verbose value="true"/>
-        <duration-log.statistics value="true"/>
+        <verbose value="false"/>                    <!-- WENIGER OUTPUT -->
+        <duration-log.statistics value="false"/>    <!-- AUS -->
         <no-step-log value="true"/>
+        <no-warnings value="true"/>                 <!-- WENIGER OUTPUT -->
     </report>
-
-    <gui_only>
-        <delay value="0"/>
-        <gui-settings-file value="osm.view.xml"/>
-    </gui_only>
 
 </sumoConfiguration>

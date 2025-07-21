@@ -79,20 +79,32 @@ vtype_ev = ET.SubElement(
     decel="1.0",
     sigma="0.0",
     emissionClass="Energy",
-    mass="1830000"
+    mass="183000"
 )
+# BATTERY CONFIGURATION
 ET.SubElement(vtype_ev, 'param', key="has.battery.device", value="true")
-ET.SubElement(vtype_ev, 'param', key="airDragCoefficient", value="0.80")       # https://www.evspecifications.com/en/model/e94fa0
-ET.SubElement(vtype_ev, 'param', key="constantPowerIntake", value="100")       # observed summer levels
-ET.SubElement(vtype_ev, 'param', key="frontSurfaceArea", value="2.6")          # computed (ht-clearance) * width
-ET.SubElement(vtype_ev, 'param', key="rotatingMass", value="40")               # guesstimate, inspired by PHEMlight5 PC_BEV
-ET.SubElement(vtype_ev, 'param', key="device.battery.capacity", value="64000")
-ET.SubElement(vtype_ev, 'param', key="maximumPower", value="150000")           # website as above
-ET.SubElement(vtype_ev, 'param', key="propulsionEfficiency", value=".98")      # guesstimate value providing closest match to observed
-ET.SubElement(vtype_ev, 'param', key="radialDragCoefficient", value="0.1")     # as above
-ET.SubElement(vtype_ev, 'param', key="recuperationEfficiency", value=".96")    # as above
-ET.SubElement(vtype_ev, 'param', key="rollDragCoefficient", value="0.01")      # as above
-ET.SubElement(vtype_ev, 'param', key="stoppingThreshold", value="0.1")         # as above
+ET.SubElement(vtype_ev, 'param', key="device.battery.capacity", value="80000")
+ET.SubElement(vtype_ev, 'param', key="device.battery.actualBatteryCapacity", value="70000")
+# REROUTING CONFIGURATION
+ET.SubElement(vtype_ev, 'param', key="has.rerouting.device", value="true")
+ET.SubElement(vtype_ev, 'param', key="device.rerouting.probability", value="1")
+# STATION FINDER CONFIGURATION
+ET.SubElement(vtype_ev, 'param', key="has.stationfinder.device", value="true")
+ET.SubElement(vtype_ev, 'param', key="device.stationfinder.rescueTime", value="1800")
+ET.SubElement(vtype_ev, 'param', key="device.stationfinder.reserveFactor", value="1.2")
+ET.SubElement(vtype_ev, 'param', key="device.stationfinder.radius", value="3000")
+# ENERGY PARAMETERS
+ET.SubElement(vtype_ev, 'param', key="maximumPower", value="150000")
+ET.SubElement(vtype_ev, 'param', key="recuperationEfficiency", value="0.01")
+ET.SubElement(vtype_ev, 'param', key="stoppingThreshold", value="0.1")
+# Physik-Parameter korrigiert
+ET.SubElement(vtype_ev, 'param', key="airDragCoefficient", value="0.35")
+ET.SubElement(vtype_ev, 'param', key="constantPowerIntake", value="500")
+ET.SubElement(vtype_ev, 'param', key="frontSurfaceArea", value="2.6")
+ET.SubElement(vtype_ev, 'param', key="rotatingMass", value="40")
+ET.SubElement(vtype_ev, 'param', key="propulsionEfficiency", value="0.95")
+ET.SubElement(vtype_ev, 'param', key="radialDragCoefficient", value="0.1")
+ET.SubElement(vtype_ev, 'param', key="rollDragCoefficient", value="0.01")
 
 for v in vehicles:
     veh_elem = ET.SubElement(
