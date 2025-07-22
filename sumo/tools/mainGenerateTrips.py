@@ -6,13 +6,13 @@ import xml.etree.ElementTree as ET
 input_csv = "poi_edges.csv"
 output_xml = "generated_files/osm.passenger.trips.xml"
 netfile = "generated_files/osm.net.xml.gz"
-num_persons = 50
+num_persons = 250
 morning_depart_interval = (23400, 32400)  # 6:30 - 9:00
-work_duration = 8 * 3600  # 8 Stunden in Sekunden
-ev_share = 0.6  # Anteil der Elektrofahrzeuge (z.B. 0.2 = 20%)
+work_duration = 8 * 3600  # 8 hrs in sec
+ev_share = 0.6  # part of electrical cars
 num_evs = int(num_persons * ev_share)
 
-# Netz laden und befahrbare Edges bestimmen
+# load networks and define edges
 def edge_allows_passenger(edge):
     for lane in edge.getLanes():
         allowed = getattr(lane, '_allowed', [])
@@ -23,7 +23,7 @@ def edge_allows_passenger(edge):
 net = sumolib.net.readNet(netfile)
 car_edges = set(e.getID() for e in net.getEdges() if edge_allows_passenger(e))
 
-# POI-Edges filtern
+# filter POI-Edges
 edges = set()
 with open(input_csv, 'r', encoding='utf-8') as f:
     reader = csv.DictReader(f)
@@ -36,18 +36,18 @@ edges = list(edges)
 if len(edges) < 2:
     raise ValueError("Es müssen mindestens zwei verschiedene befahrbare Edges vorhanden sein!")
 
-# Für jede Person einen festen home- und work-Edge ziehen (verschieden!)
+# every person gets fixed home/work node
 persons = []
 for i in range(1, num_persons + 1):
     home, work = random.sample(edges, 2)
     persons.append({'id': f'person{i}', 'home': home, 'work': work})
 
-# IDs der EVs zufällig auswählen
-random.seed(42)  # Für Reproduzierbarkeit, kann entfernt werden
+# random id of vehicle
+random.seed(42)  
 all_ids = [p['id'] for p in persons]
 ev_ids = set(random.sample(all_ids, num_evs))
 
-# Fahrzeuge mit Route und Stop generieren
+# produce random route
 vehicles = []
 for p in persons:
     depart_morning = round(random.uniform(*morning_depart_interval), 2)
@@ -61,14 +61,11 @@ for p in persons:
         'stop_duration': work_duration
     })
 
-# HIER SORTIEREN!
 vehicles.sort(key=lambda v: v['depart'])
 
-# XML schreiben (mit Einrückung)
 routes = ET.Element('routes')
 ET.SubElement(routes, 'vType', id="veh_passenger", vClass="passenger", color="0,0,255")
 
-# Korrigierte EV-Definition mit <param>-Tags
 vtype_ev = ET.SubElement(
     routes, 'vType',
     id="veh_ev",
@@ -84,7 +81,7 @@ vtype_ev = ET.SubElement(
 # BATTERY CONFIGURATION
 ET.SubElement(vtype_ev, 'param', key="has.battery.device", value="true")
 ET.SubElement(vtype_ev, 'param', key="device.battery.capacity", value="80000")
-ET.SubElement(vtype_ev, 'param', key="device.battery.actualBatteryCapacity", value="70000")
+ET.SubElement(vtype_ev, 'param', key="device.battery.actualBatteryCapacity", value="40000")
 # REROUTING CONFIGURATION
 ET.SubElement(vtype_ev, 'param', key="has.rerouting.device", value="true")
 ET.SubElement(vtype_ev, 'param', key="device.rerouting.probability", value="1")
@@ -95,9 +92,9 @@ ET.SubElement(vtype_ev, 'param', key="device.stationfinder.reserveFactor", value
 ET.SubElement(vtype_ev, 'param', key="device.stationfinder.radius", value="3000")
 # ENERGY PARAMETERS
 ET.SubElement(vtype_ev, 'param', key="maximumPower", value="150000")
-ET.SubElement(vtype_ev, 'param', key="recuperationEfficiency", value="0.01")
+ET.SubElement(vtype_ev, 'param', key="recuperationEfficiency", value="0.00")
 ET.SubElement(vtype_ev, 'param', key="stoppingThreshold", value="0.1")
-# Physik-Parameter korrigiert
+# Physik-Params
 ET.SubElement(vtype_ev, 'param', key="airDragCoefficient", value="0.35")
 ET.SubElement(vtype_ev, 'param', key="constantPowerIntake", value="500")
 ET.SubElement(vtype_ev, 'param', key="frontSurfaceArea", value="2.6")
