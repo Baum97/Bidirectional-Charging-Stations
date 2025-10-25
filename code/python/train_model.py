@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset
 
-# --- load data ---
+# --- load data of cars ---
 df = pd.read_csv("sumo_data.csv")
 X = df[['x_position', 'y_position', 'mean_speed', 'vehicle_density', 'avg_battery_drop', 'stop_frequency']].values
 y = df[['charging_score']].values
