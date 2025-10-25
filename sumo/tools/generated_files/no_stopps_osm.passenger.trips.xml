@@ -1,6 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<routes>
-  <vType id="veh_passenger" vClass="passenger" />
-  <trip id="person1_morning" type="veh_passenger" depart="30083.28" departLane="best" to="705182548" from="31112516#4" />
-  <trip id="person1_evening" type="veh_passenger" depart="66841.1" departLane="best" to="31112516#4" from="705182548" />
-  </routes>
