@@ -46,7 +46,7 @@ for epoch in range(50):
 
 # --- memorize ---
 torch.save(model.state_dict(), "charging_model.pt")
-print("✅ Modell gespeichert.")
+print("Modell gespeichert.")
 
 # --- demonstration ---
 # Neue Positionen auswerten
