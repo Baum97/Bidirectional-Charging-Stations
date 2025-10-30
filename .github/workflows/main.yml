@@ -20,6 +20,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y sumo sumo-tools
 
+      - name: Set SUMO_HOME
+        run: echo "SUMO_HOME=$(dirname $(which sumo))/../share/sumo" >> $GITHUB_ENV
+
       - name: Find all .sumocfg files and test them
         run: |
           set -e  # fail fast on error
@@ -27,4 +30,3 @@ jobs:
             echo "Testing $f"
             sumo -c "$f" --duration-log.statistics --no-warnings true
           done
-
