@@ -21,9 +21,26 @@ netc_netxml = "Reutlingen.net.xml"
 #! custom input ####################################################!
 
 
+# global variables ################################################
+
+car_details = []
+
+#! global variables ################################################!
 
 
 # custom functions ################################################
+
+#function might need tweaking  (didn't check for variable names)
+def log_car_details():
+    for car in cars:
+        car_details.append({
+            "car_id": car.id,
+            "car_position": car.position,
+            "car_type": car.type,
+            "car_speed": car.speed,
+            "car_battery": car.battery
+        })
+
 
 def compile_java_file(input_files):
     compile_process = subprocess.run(
@@ -63,7 +80,7 @@ def execute_matsim_importPlans(matsim_pop, route_xml):
 
 
 def main(input_file, output_file):
-
+    #log_car_details()
 
 
 
@@ -220,6 +237,10 @@ def main(input_file, output_file):
     df = pd.DataFrame(results)
     df.to_csv(output_file, index=False, encoding="utf-8")
     print(f"{len(df)} Wohngebäude gespeichert in '{output_file}'")
+
+    # save car_details
+    #car_details_df = pd.DataFrame(car_details)
+    #car_details_df.to_csv("car_details.csv", index=False, encoding="utf-8")
 
 
     # java files dir- D:\Master\Forschungsprojekt\GitDir\Bidirectional-Charging-Stations\matsim\matsim-project\src\main\java\org\matsim\project\v1
