@@ -5,7 +5,7 @@ on:
     branches: [main]
 
 env:
-  SUMO_CFG_FILE: reutlingen.sumocfg  # change for execution of different sumocfg
+  SUMO_CFG_FILE: reutlingen.sumocfg
 
 jobs:
   test-sumo:
@@ -27,6 +27,18 @@ jobs:
         run: |
           set -e  # fail fast on error
           for f in $(find . -name '*.sumocfg'); do
-            echo "Testing $f"
-            sumo -c "$f" --duration-log.statistics --no-warnings true
+            echo "============================================="
+            echo "Testing SUMO config: $f"
+            echo "============================================="
+            
+            # Go into the directory of the .sumocfg so relative paths work
+            cfg_dir=$(dirname "$f")
+            cfg_file=$(basename "$f")
+            pushd "$cfg_dir" > /dev/null
+
+            # Run SUMO
+            sumo -c "$cfg_file" --duration-log.statistics --no-warnings true
+
+            popd > /dev/null
+            echo "$f finished successfully"
           done
