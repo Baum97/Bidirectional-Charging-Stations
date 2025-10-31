@@ -3,8 +3,8 @@
 
     <input>
         <net-file value="osm.net.xml.gz"/>
-        <route-files value="osm.passenger.trips.xml"/>
         <additional-files value="combined_additional.xml"/>
+        <route-files value="osm.passenger.trips.xml"/>
     </input>
 
     <time>
