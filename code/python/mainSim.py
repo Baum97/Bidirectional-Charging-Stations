@@ -1,6 +1,7 @@
 import traci
 import csv
 import xml.etree.ElementTree as ET
+import pandas as pd
 
 
 sumo_cfg = "generated_files/osm.sumocfg"
@@ -17,6 +18,7 @@ unique_charging_process = []
 charging_count = 0
 charge_entries = {}
 charge_results = {}
+model_log_data = []
 ev_vehicles = set()
 step_counter = 0
 EV_TYPES = ["veh_ev"]
@@ -106,6 +108,7 @@ while traci.simulation.getMinExpectedNumber() > 0:
             try:
                 soc = traci.vehicle.getParameter(veh_id, "device.battery.actualBatteryCapacity")
                 max_soc = traci.vehicle.getParameter(veh_id, "device.battery.maximumBatteryCapacity")
+
             except traci.TraCIException:
                 ev_vehicles.discard(veh_id)  
                 continue
@@ -135,6 +138,14 @@ while traci.simulation.getMinExpectedNumber() > 0:
             prev_status = charging_status.get(veh_id, (False, None))             
             charging_status[veh_id] = (is_charging, station_id)
             
+            model_log_data.append({
+                    "time": time,
+                    "veh_id": veh_id,
+                    "lane_id": traci.vehicle.getLaneID(veh_id),
+                    "lane_index": traci.vehicle.getLaneIndex(veh_id),
+                    "position": traci.vehicle.getPosition(veh_id)
+            })
+
             if (is_charging != prev_status[0]) or (step_counter % 100 == 0):
                 writer.writerow([time, veh_id, soc_percent, is_charging, station_id or ""])
             
@@ -168,6 +179,9 @@ while traci.simulation.getMinExpectedNumber() > 0:
 
 tree = ET.parse("generated_files/osm.chargingstations.xml")
 root = tree.getroot()
+
+df = pd.DataFrame(model_log_data)
+df.to_csv("model_log_data.csv", index=False)
 
 with open("logCharges.csv", mode="r", newline="") as file:
     reader = csv.DictReader(file) 
