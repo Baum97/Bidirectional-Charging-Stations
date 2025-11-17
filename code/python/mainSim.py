@@ -19,6 +19,7 @@ charging_count = 0
 charge_entries = {}
 charge_results = {}
 model_log_data = []
+log_data = []
 ev_vehicles = set()
 step_counter = 0
 EV_TYPES = ["veh_ev"]
@@ -143,7 +144,8 @@ while traci.simulation.getMinExpectedNumber() > 0:
                     "veh_id": veh_id,
                     "lane_id": traci.vehicle.getLaneID(veh_id),
                     "lane_index": traci.vehicle.getLaneIndex(veh_id),
-                    "position": traci.vehicle.getPosition(veh_id)
+                    "position": traci.vehicle.getPosition(veh_id),
+                    "is_chraging": is_charging
             })
 
             if (is_charging != prev_status[0]) or (step_counter % 100 == 0):
@@ -171,6 +173,7 @@ while traci.simulation.getMinExpectedNumber() > 0:
             ev_vehicles.discard(veh_id) 
             continue
 
+    log_data.append(writer)
     with open("logCharges.csv", mode="w", newline="") as file:
         writer = csv.writer(file)
         writer.writerow(["CS_id", "charges"])
