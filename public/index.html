@@ -72,6 +72,15 @@
           </div>
           <div id="buildStatus"></div>
         </div>
+
+        <div class="container">
+          <h4>Simulation</h4>
+          <div id="commands">
+            <button id="startSimulation">Start Simulation</button>
+          </div>
+          <div id="simStatus"></div>
+        </div>
+
       </div>
 
       <div class="controls" id="vehicle-controls"><div class="container"><h4>Vehicles</h4><div class="options open"><p style="margin:6px;color:#ddd">Prototype: configure later.</p></div></div></div>
@@ -217,6 +226,7 @@
 
       // ===== Build via local helper or show commands =====
       const statusEl2 = document.getElementById('buildStatus');
+      const simStatusEl = document.getElementById('simStatus');
       const sendLocalBtn = document.getElementById('sendLocal');
       const copyBashBtn = document.getElementById('copyBash');
       const copyPwshBtn = document.getElementById('copyPowershell');
@@ -256,22 +266,52 @@ python "$env:SUMO_HOME\tools\randomTrips.py" -n net.net.xml -o trips.trips.xml -
 Write-Host "Run: sumo-gui -c sim.sumocfg"`;
         return { bash, pwsh };
       }
+      
+// Find the last built scenarioDir (reuse statusEl2 or store it globally)
+let lastScenarioDir = null;
+
+// Patch sendToLocal to remember the scenarioDir
 async function sendToLocal(bounds, scenario) {
-        const body = { bbox: getBboxArray(bounds), scenario };
-        statusEl2.textContent = 'Contacting local helper at http://127.0.0.1:8787 ...
-        try {
-          const res = await fetch('http://127.0.0.1:8787/build', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body),
-          });
-          if (!res.ok) throw new Error('HTTP ' + res.status);
-          const j = await res.json();
-          statusEl2.textContent = `Success: ${j.message || 'scenario created'} at ${j.scenarioDir || ''}`;
-        } catch (err) {
-          statusEl2.textContent = 'Local helper not reachable or failed. Use copy commands below.';
-        }
-      }
+  const body = { bbox: getBboxArray(bounds), scenario };
+  statusEl2.textContent = 'Contacting local helper at http://127.0.0.1:8787 ...';
+  try {
+    const res = await fetch('http://127.0.0.1:8787/build', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const j = await res.json();
+    statusEl2.textContent = `Success: ${j.message || 'scenario created'} at ${j.scenarioDir || ''}`;
+    lastScenarioDir = j.scenarioDir; // <-- store for simulation
+  } catch (err) {
+    statusEl2.textContent = 'Local helper not reachable or failed. Use copy commands below.';
+  }
+}
+
+// Add this function to start simulation
+async function startSimulation() {
+  if (!lastScenarioDir) {
+    simStatusEl.textContent = 'No scenario built yet. Please build a scenario first.';
+    return;
+  }
+  simStatusEl.textContent = 'Starting simulation...';
+  try {
+    const res = await fetch('http://127.0.0.1:8787/start-simulation', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ scenarioDir: lastScenarioDir }),
+    });
+    const j = await res.json();
+    if (j.ok) {
+      simStatusEl.textContent = 'Simulation started!';
+    } else {
+      simStatusEl.textContent = 'Simulation failed: ' + (j.error || 'unknown error');
+    }
+  } catch (err) {
+    simStatusEl.textContent = 'Failed to start simulation: ' + err;
+  }
+}
 
       sendLocalBtn?.addEventListener('click', async () => {
         const b = currentBboxBounds();
@@ -379,6 +419,8 @@ async function sendToLocal(bounds, scenario) {
         if (!b) { alert('Please select an area by clicking two corners on the map.'); return; }
         await sendToLocal(b, defaultScenarioName());
       });
+
+      document.getElementById('startSimulation').addEventListener('click', startSimulation);
     </script>
   </body>
   </html>

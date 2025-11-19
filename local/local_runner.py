@@ -60,7 +60,7 @@ def build_scenario(bbox, scenario, prefix="test_name"):
             raise ValueError("bbox must be [minLon, minLat, maxLon, maxLat]")
         paths = _sumo_paths()
 
-        base_dir = os.path.join("data", "scenarios", scenario)
+        base_dir = os.path.join("..", "data", "scenarios", scenario)
         os.makedirs(base_dir, exist_ok=True)
         print(f"[INFO] Created base directory: {base_dir}")
 
@@ -110,7 +110,7 @@ def build_scenario(bbox, scenario, prefix="test_name"):
             # "        <additional-files value=\"combined_additional.xml\"/>\n"
             "    </input>\n"
             "    <time>\n"
-            "        <begin value=\"10000\"/>\n"
+            "        <begin value=\"0\"/>\n"
             "        <step-length value=\"1\"/>\n"
             "    </time>\n"
             "    <processing>\n"
@@ -154,6 +154,38 @@ def build_scenario(bbox, scenario, prefix="test_name"):
         print(f"[ERROR] An error occurred: {e}")
         raise
 
+def start_scenario_in_sumoGUI(scenario_dir):
+    # Start the SUMO-GUI for the given scenario directory using the sim.sumocfg file.
+    sumo_home = os.environ.get("SUMO_HOME")
+    if not sumo_home:
+        raise RuntimeError("SUMO_HOME environment variable is not set.")
+    bin_dir = os.path.join(sumo_home, "bin")
+    sumo_gui_executable = os.path.join(bin_dir, "sumo-gui")
+    if os.name == 'nt':
+        sumo_gui_executable += ".exe"
+    sim_cfg_path = os.path.join(scenario_dir, "sim.sumocfg")
+    if not os.path.isfile(sim_cfg_path):
+        raise FileNotFoundError(f"sim.sumocfg not found in {scenario_dir}")
+    cmd = [sumo_gui_executable, "-c", sim_cfg_path]
+    print(f"[INFO] Starting SUMO-GUI with command: {' '.join(cmd)}")
+    subprocess.run(cmd, check=True)
+
+def start_simulation_for_scenario(scenario_dir):
+    # Start the SUMO simulation for the given scenario directory using the sim.sumocfg file.
+    sumo_home = os.environ.get("SUMO_HOME")
+    if not sumo_home:
+        raise RuntimeError("SUMO_HOME environment variable is not set.")
+    bin_dir = os.path.join(sumo_home, "bin")
+    sumo_executable = os.path.join(bin_dir, "sumo")
+    if os.name == 'nt':
+        sumo_executable += ".exe"
+    sim_cfg_path = os.path.join(scenario_dir, "sim.sumocfg")
+    if not os.path.isfile(sim_cfg_path):
+        raise FileNotFoundError(f"sim.sumocfg not found in {scenario_dir}")
+    cmd = [sumo_executable, "-c", sim_cfg_path]
+    print(f"[INFO] Starting SUMO simulation with command: {' '.join(cmd)}")
+    subprocess.run(cmd, check=True)
+
 
 class Handler(BaseHTTPRequestHandler):
     def _set_cors(self):
@@ -169,35 +201,61 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         parsed = urlparse(self.path)
-        if parsed.path != "/build":
+        if parsed.path == "/build":
+            try:
+                length = int(self.headers.get('Content-Length', '0'))
+                raw = self.rfile.read(length) if length else b"{}"
+                data = json.loads(raw.decode('utf-8') or '{}')
+                bbox = data.get('bbox')
+                scenario = data.get('scenario') or 'scenario'
+                scen_dir = build_scenario(bbox, scenario)
+                resp = {"ok": True, "message": "scenario built", "scenarioDir": scen_dir}
+                payload = json.dumps(resp).encode('utf-8')
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self._set_cors()
+                self.send_header("Content-Length", str(len(payload)))
+                self.end_headers()
+                self.wfile.write(payload)
+            except Exception as e:
+                msg = {"ok": False, "error": str(e)}
+                payload = json.dumps(msg).encode('utf-8')
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json")
+                self._set_cors()
+                self.send_header("Content-Length", str(len(payload)))
+                self.end_headers()
+                self.wfile.write(payload)
+        elif parsed.path == "/start-simulation":
+            try:
+                length = int(self.headers.get('Content-Length', '0'))
+                raw = self.rfile.read(length) if length else b"{}"
+                data = json.loads(raw.decode('utf-8') or '{}')
+                scenario_dir = data.get('scenarioDir')
+                if not scenario_dir:
+                    raise ValueError("Missing scenarioDir")
+                start_scenario_in_sumoGUI(scenario_dir)
+                resp = {"ok": True, "message": "Simulation started"}
+                payload = json.dumps(resp).encode('utf-8')
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self._set_cors()
+                self.send_header("Content-Length", str(len(payload)))
+                self.end_headers()
+                self.wfile.write(payload)
+            except Exception as e:
+                msg = {"ok": False, "error": str(e)}
+                payload = json.dumps(msg).encode('utf-8')
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json")
+                self._set_cors()
+                self.send_header("Content-Length", str(len(payload)))
+                self.end_headers()
+                self.wfile.write(payload)
+        else:
             self.send_response(404)
             self._set_cors()
             self.end_headers()
-            return
-        try:
-            length = int(self.headers.get('Content-Length', '0'))
-            raw = self.rfile.read(length) if length else b"{}"
-            data = json.loads(raw.decode('utf-8') or '{}')
-            bbox = data.get('bbox')
-            scenario = data.get('scenario') or 'scenario'
-            scen_dir = build_scenario(bbox, scenario)
-            resp = {"ok": True, "message": "scenario built", "scenarioDir": scen_dir}
-            payload = json.dumps(resp).encode('utf-8')
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json")
-            self._set_cors()
-            self.send_header("Content-Length", str(len(payload)))
-            self.end_headers()
-            self.wfile.write(payload)
-        except Exception as e:
-            msg = {"ok": False, "error": str(e)}
-            payload = json.dumps(msg).encode('utf-8')
-            self.send_response(500)
-            self.send_header("Content-Type", "application/json")
-            self._set_cors()
-            self.send_header("Content-Length", str(len(payload)))
-            self.end_headers()
-            self.wfile.write(payload)
 
 
 def main():
