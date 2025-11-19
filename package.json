@@ -1,0 +1,17 @@
+{
+  "name": "biflex-static-ws",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Static website with WebSocket backend, containerized with Docker",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "ws": "^8.18.0"
+  }
+}
+

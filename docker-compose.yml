@@ -1,0 +1,13 @@
+version: "3.8"
+services:
+  web:
+    build: .
+    image: biflex-static-ws:local
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+      - WS_PATH=/ws
+    restart: unless-stopped
+
