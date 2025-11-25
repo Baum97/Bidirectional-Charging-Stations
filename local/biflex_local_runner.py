@@ -32,6 +32,11 @@ from mainGenerateChargingStations import generate_charging_stations
 
 import xml.etree.ElementTree as ET
 
+import xml.etree.ElementTree as ET
+import re
+
+
+
 HOST = "127.0.0.1"
 PORT = 8787
 
@@ -232,70 +237,264 @@ def create_sumo_config(net_file, trips_file, additional_files, base_dir):
     print("[INFO] Detailed SUMO configuration file written.")
 
 
+def _parse_voltage_to_kv(voltage_str):
+    """
+    Parse an OSM voltage string into a single float in kV (max of all values),
+    or None if it can't be parsed.
+    Examples:
+      "110000"     -> 110.0
+      "110 kV"     -> 110.0
+      "110000;20000" -> 110.0
+      "0.4"        -> 0.4
+    """
+    if not voltage_str:
+        return None
+    s = str(voltage_str)
+    # Extract all numbers (ints or floats)
+    nums = re.findall(r"\d+(?:\.\d+)?", s.replace(",", "."))
+    if not nums:
+        return None
+    values = [float(n) for n in nums]
+    if not values:
+        return None
+    v = max(values)
+    # Heuristic: if it's > 1000, assume it's in volts and convert to kV
+    if v > 1000:
+        return v / 1000.0
+    return v
+
+
 def extract_power_grid(osm_file):
     """
-    Parse the OSM file and extract power lines + substations as GeoJSON.
+    Parse the OSM file and extract power-related features as GeoJSON.
+
+    - Nodes: substations, transformers, poles, towers, plants, busbars, switches, etc.
+    - Lines: power=line, power=minor_line, power=cable
+    - Areas: power=substation, power=plant (as polygons where possible)
     """
     tree = ET.parse(osm_file)
     root = tree.getroot()
 
-    # 1) Collect all nodes (id -> (lon, lat))
+    # Collect all nodes
     nodes = {}
     for n in root.findall("node"):
         nid = n.get("id")
         lat = float(n.get("lat"))
         lon = float(n.get("lon"))
-        nodes[nid] = (lon, lat)  # GeoJSON is (lon, lat)
+        nodes[nid] = (lon, lat)  # GeoJSON expects [lon, lat]
 
     features = []
 
-    # 2) Power nodes (substation, generator, transformer, pole, etc.)
+    # --- 1) Power nodes ---
+    power_node_types = {
+        "substation",
+        "generator",
+        "transformer",
+        "pole",
+        "tower",
+        "plant",
+        "busbar",
+        "switch",
+        "compensator",
+        "converter",
+    }
+
     for n in root.findall("node"):
         tags = {t.get("k"): t.get("v") for t in n.findall("tag")}
-        if tags.get("power") in {"substation", "generator", "transformer", "pole", "tower"}:
+        power_tag = tags.get("power")
+        if power_tag and power_tag in power_node_types:
             nid = n.get("id")
             lon, lat = nodes[nid]
-            feat = {
+            voltage = tags.get("voltage")
+            voltage_kv = _parse_voltage_to_kv(voltage)
+            feature = {
                 "type": "Feature",
-                "geometry": {"type": "Point", "coordinates": [lon, lat]},
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [lon, lat],
+                },
                 "properties": {
                     "osm_id": nid,
                     "kind": "power_node",
-                    "power": tags.get("power"),
+                    "power": power_tag,
                     "name": tags.get("name"),
-                    "voltage": tags.get("voltage"),
+                    "voltage": voltage,
+                    "voltage_kv": voltage_kv,
+                    "operator": tags.get("operator"),
                 },
             }
-            features.append(feat)
+            features.append(feature)
 
-    # 3) Power lines (line, minor_line, cable)
+    # --- 2) Power lines ---
+    line_types = {"line", "minor_line", "cable"}
+
     for w in root.findall("way"):
         tags = {t.get("k"): t.get("v") for t in w.findall("tag")}
-        if tags.get("power") in {"line", "minor_line", "cable"}:
+        power_tag = tags.get("power")
+        if power_tag and power_tag in line_types:
             coords = []
             for nd in w.findall("nd"):
                 ref = nd.get("ref")
                 if ref in nodes:
                     coords.append(list(nodes[ref]))
             if len(coords) >= 2:
-                feat = {
+                voltage = tags.get("voltage")
+                voltage_kv = _parse_voltage_to_kv(voltage)
+                feature = {
                     "type": "Feature",
-                    "geometry": {"type": "LineString", "coordinates": coords},
+                    "geometry": {
+                        "type": "LineString",
+                        "coordinates": coords,
+                    },
                     "properties": {
                         "osm_id": w.get("id"),
                         "kind": "power_line",
-                        "power": tags.get("power"),
+                        "power": power_tag,
                         "name": tags.get("name"),
-                        "voltage": tags.get("voltage"),
+                        "voltage": voltage,
+                        "voltage_kv": voltage_kv,
                         "circuits": tags.get("circuits"),
+                        "operator": tags.get("operator"),
                     },
                 }
-                features.append(feat)
+                features.append(feature)
+
+    # --- 3) Power areas (substations / plants as polygons) ---
+    area_types = {"substation", "plant"}
+
+    for w in root.findall("way"):
+        tags = {t.get("k"): t.get("v") for t in w.findall("tag")}
+        power_tag = tags.get("power")
+        if power_tag and power_tag in area_types:
+            nd_refs = [nd.get("ref") for nd in w.findall("nd")]
+            if len(nd_refs) < 3:
+                continue
+            # check if closed polygon
+            if nd_refs[0] != nd_refs[-1]:
+                continue
+            ring = []
+            missing = False
+            for ref in nd_refs:
+                if ref not in nodes:
+                    missing = True
+                    break
+                ring.append(list(nodes[ref]))
+            if missing or len(ring) < 4:
+                continue
+
+            voltage = tags.get("voltage")
+            voltage_kv = _parse_voltage_to_kv(voltage)
+            feature = {
+                "type": "Feature",
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [ring],
+                },
+                "properties": {
+                    "osm_id": w.get("id"),
+                    "kind": "power_area",
+                    "power": power_tag,
+                    "name": tags.get("name"),
+                    "voltage": voltage,
+                    "voltage_kv": voltage_kv,
+                    "operator": tags.get("operator"),
+                },
+            }
+            features.append(feature)
 
     return {
         "type": "FeatureCollection",
         "features": features,
     }
+
+
+def generate_synthetic_distribution(osm_file):
+    """
+    Generate a synthetic, dense distribution grid based on OSM roads.
+
+    - Uses residential / living_street / service / unclassified / tertiary roads.
+    - Skips any way that is already tagged with power=*.
+    - Creates LineString features with a low voltage_kv (0.4–10 kV).
+    """
+    tree = ET.parse(osm_file)
+    root = tree.getroot()
+
+    # Collect nodes
+    nodes = {}
+    for n in root.findall("node"):
+        nid = n.get("id")
+        lat = float(n.get("lat"))
+        lon = float(n.get("lon"))
+        nodes[nid] = (lon, lat)
+
+    # Identify ways that are already power lines so we don't clone them
+    power_way_ids = set()
+    for w in root.findall("way"):
+        for t in w.findall("tag"):
+            if t.get("k") == "power":
+                power_way_ids.add(w.get("id"))
+                break
+
+    # Road types to use as synthetic distribution feeders
+    highway_types = {
+        "residential",
+        "living_street",
+        "service",
+        "unclassified",
+        "tertiary",
+        "tertiary_link",
+    }
+
+    features = []
+
+    for w in root.findall("way"):
+        wid = w.get("id")
+        if wid in power_way_ids:
+            continue
+
+        tags = {t.get("k"): t.get("v") for t in w.findall("tag")}
+        hwy = tags.get("highway")
+        if hwy not in highway_types:
+            continue
+
+        coords = []
+        for nd in w.findall("nd"):
+            ref = nd.get("ref")
+            if ref in nodes:
+                coords.append(list(nodes[ref]))
+        if len(coords) < 2:
+            continue
+
+        # Heuristic voltage: MV for bigger roads, LV for small ones
+        if hwy in {"tertiary", "tertiary_link"}:
+            voltage_kv = 10.0   # MV feeder
+        else:
+            voltage_kv = 0.4    # LV distribution
+
+        feature = {
+            "type": "Feature",
+            "geometry": {
+                "type": "LineString",
+                "coordinates": coords,
+            },
+            "properties": {
+                "osm_id": wid,
+                "kind": "synthetic_line",
+                "synthetic": True,
+                "power": "distribution",
+                "highway_source": hwy,
+                "name": tags.get("name"),
+                "voltage": f"{voltage_kv} kV",
+                "voltage_kv": voltage_kv,
+            },
+        }
+        features.append(feature)
+
+    return {
+        "type": "FeatureCollection",
+        "features": features,
+    }
+
 
 class Handler(BaseHTTPRequestHandler):
     def _set_cors(self):
@@ -323,9 +522,17 @@ class Handler(BaseHTTPRequestHandler):
                 osm_file = download_osm_data(bbox, scenario)
                 scen_dir = os.path.dirname(osm_file)
 
-                # NEW: extract power grid GeoJSON from that OSM
-                power_grid = extract_power_grid(osm_file)
-                print(f"[INFO] Extracted power grid with {len(power_grid['features'])} features")
+                # Real high-/medium-voltage grid from OSM
+                real_grid = extract_power_grid(osm_file)
+
+                # Synthetic dense LV/MV distribution along roads
+                synthetic_grid = generate_synthetic_distribution(osm_file)
+
+                # Combine both into one FeatureCollection
+                power_grid = {
+                    "type": "FeatureCollection",
+                    "features": real_grid["features"] + synthetic_grid["features"],
+                }
 
                 # Step 2: Build SUMO network
                 net_file = build_sumo_network(osm_file, scenario)

@@ -179,50 +179,106 @@
 
       let powerLayer = null;
 
+      // --- Helpers to derive voltage and colors ---
+
+      function getFeatureVoltageKv(feature) {
+        const p = feature.properties || {};
+        if (p.voltage_kv != null) {
+          return Number(p.voltage_kv);
+        }
+        if (!p.voltage) return null;
+        const str = String(p.voltage);
+        const matches = str.replace(',', '.').match(/\d+(\.\d+)?/g);
+        if (!matches) return null;
+        let maxVal = 0;
+        for (const m of matches) {
+          const v = parseFloat(m);
+          if (v > maxVal) maxVal = v;
+        }
+        if (maxVal > 1000) return maxVal / 1000.0;
+        return maxVal;
+      }
+
+      function colorForVoltageKv(v) {
+        if (v == null || isNaN(v)) return '#999999';  // unknown / miscellaneous
+        if (v >= 380) return '#ff0000';   // extra high voltage
+        if (v >= 220) return '#ff4500';   // high voltage
+        if (v >= 110) return '#ff8800';   // sub-transmission
+        if (v >= 36)  return '#ffdd00';   // medium
+        if (v >= 1)   return '#00aa00';   // low voltage distribution
+        return '#5555ff';                 // really low stuff
+      }
+
       function showPowerGrid(geojson) {
         if (!geojson || !geojson.features || !geojson.features.length) {
           console.log('No power grid features in this area');
+          if (powerLayer) {
+            map.removeLayer(powerLayer);
+            powerLayer = null;
+          }
           return;
         }
-        // Remove old layer if any
+
         if (powerLayer) {
           map.removeLayer(powerLayer);
         }
+
         powerLayer = L.geoJSON(geojson, {
           style: function (feature) {
-            if (feature.properties.kind === 'power_line') {
+            const kv = getFeatureVoltageKv(feature);
+            const color = colorForVoltageKv(kv);
+
+            // Thicker for higher voltages
+            let weight = 2;
+            if (kv >= 220) weight = 4;
+            else if (kv >= 110) weight = 3;
+
+            if (feature.geometry && feature.geometry.type === 'Polygon') {
               return {
-                color: '#ff8800',
+                color,
                 weight: 2,
-                opacity: 0.8
+                fillColor: color,
+                fillOpacity: 0.15,
+                opacity: 0.9,
               };
             }
-            return {};
+            return {
+              color,
+              weight,
+              opacity: 0.9,
+            };
           },
           pointToLayer: function (feature, latlng) {
-            if (feature.properties.kind === 'power_node') {
-              return L.circleMarker(latlng, {
-                radius: 4,
-                color: '#ffff00',
-                fillColor: '#ffff00',
-                fillOpacity: 0.9
-              });
-            }
-            return L.marker(latlng);
+            const kv = getFeatureVoltageKv(feature);
+            const color = colorForVoltageKv(kv);
+            const p = feature.properties || {};
+            const kind = p.kind || '';
+            const baseRadius = kind === 'power_node' ? 4 : 3;
+            const radius = kv != null && kv >= 110 ? baseRadius + 2 : baseRadius;
+            return L.circleMarker(latlng, {
+              radius,
+              color,
+              fillColor: color,
+              fillOpacity: 0.9,
+            });
           },
           onEachFeature: function (feature, layer) {
             const p = feature.properties || {};
+            const kv = getFeatureVoltageKv(feature);
             const lines = [];
+
             if (p.power) lines.push(`<b>${p.power}</b>`);
             if (p.name) lines.push(p.name);
-            if (p.voltage) lines.push(`Voltage: ${p.voltage}`);
+            if (kv != null && !isNaN(kv)) lines.push(`Voltage: ${kv.toFixed(1)} kV`);
+            else if (p.voltage) lines.push(`Voltage: ${p.voltage}`);
             if (p.circuits) lines.push(`Circuits: ${p.circuits}`);
-            if (lines.length) {
-              layer.bindPopup(lines.join('<br>'));
-            }
+            if (p.operator) lines.push(`Operator: ${p.operator}`);
+
+            if (lines.length) layer.bindPopup(lines.join('<br>'));
           }
         }).addTo(map);
       }
+
 
       function formatBbox(bounds) {
         const sw = bounds.getSouthWest();
@@ -367,7 +423,7 @@ async function downloadOSMData(bounds, scenario) {
 
 async function downloadOSMData(bounds, scenario) {
   const body = { bbox: getBboxArray(bounds), scenario };
-  statusEl2.textContent = 'Contacting local helper at http://127.0.0.1:8787 ...';
+  statusEl2.textContent = 'Downloading OSM data...';
   try {
     const res = await fetch('http://127.0.0.1:8787/build', {
       method: 'POST',
@@ -376,18 +432,19 @@ async function downloadOSMData(bounds, scenario) {
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const j = await res.json();
-    statusEl2.textContent = `Success: ${j.message || 'scenario created'} at ${j.scenarioDir || ''}`;
+    statusEl2.textContent = `OSM data downloaded: ${j.message || ''}`;
     lastScenarioDir = j.scenarioDir;
 
-    // NEW: draw power grid if present
+    // NEW: visualise power grid
     if (j.powerGrid) {
       showPowerGrid(j.powerGrid);
     }
   } catch (err) {
-    statusEl2.textContent = 'Local helper not reachable or failed. Use copy commands below.';
+    statusEl2.textContent = 'Failed to download OSM data: ' + err;
     console.error(err);
   }
 }
+
 
 
 
