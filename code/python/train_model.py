@@ -4,8 +4,9 @@ import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset
 
 # --- load data of cars ---
-df = pd.read_csv("sumo_data.csv")
-X = df[['x_position', 'y_position', 'mean_speed', 'vehicle_density', 'avg_battery_drop', 'stop_frequency']].values
+df = pd.read_csv("model_log_data.csv")
+print(df)
+X = df[['position_x, position_y', 'edge_id', 'lane_id', 'lane_offset', 'soc', 'is_charging']].values
 y = df[['charging_score']].values
 
 X_tensor = torch.tensor(X, dtype=torch.float32)

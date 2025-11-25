@@ -48,6 +48,8 @@ def build_charging_stations_cache():
                 continue
     except traci.TraCIException:
         print("Warnung: Keine Ladestationen gefunden")
+
+        
     
 def find_charging_station_for_vehicle_fast(veh_id):
     """Schnelle Suche nach Ladestation mit Cache."""
@@ -139,13 +141,18 @@ while traci.simulation.getMinExpectedNumber() > 0:
             prev_status = charging_status.get(veh_id, (False, None))             
             charging_status[veh_id] = (is_charging, station_id)
             
+            coord = str(traci.vehicle.getPosition(veh_id)).strip("()")
+            x_pos,y_pos = coord.split(",")
+            y_pos.lstrip()
             model_log_data.append({
                     "time": time,
                     "veh_id": veh_id,
-                    "lane_id": traci.vehicle.getLaneID(veh_id),
-                    "lane_index": traci.vehicle.getLaneIndex(veh_id),
-                    "position": traci.vehicle.getPosition(veh_id),
-                    "is_chraging": is_charging
+                    "position_x" : x_pos,
+                    "position_y": y_pos,
+                    "edge_id": traci.vehicle.getRoadID(veh_id),
+                    "lane_offset": traci.vehicle.getLanePosition(veh_id),
+                    "soc": soc_percent,
+                    "is_charging": is_charging
             })
 
             if (is_charging != prev_status[0]) or (step_counter % 100 == 0):
@@ -173,7 +180,7 @@ while traci.simulation.getMinExpectedNumber() > 0:
             ev_vehicles.discard(veh_id) 
             continue
 
-    log_data.append(writer)
+    log_data.append
     with open("logCharges.csv", mode="w", newline="") as file:
         writer = csv.writer(file)
         writer.writerow(["CS_id", "charges"])
