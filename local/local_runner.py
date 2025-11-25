@@ -88,6 +88,7 @@ def build_scenario(bbox, scenario, prefix="test_name"):
                 )
             )
         print(f"[INFO] Found OSM file: {osm_file}")
+        
 
         # Build network
         print("[INFO] Building network...")
@@ -154,6 +155,26 @@ def build_scenario(bbox, scenario, prefix="test_name"):
         print(f"[ERROR] An error occurred: {e}")
         raise
 
+
+def generate_trips(input_csv, output_xml, netfile, num_persons=250, ev_share=0.6):
+    """
+    Generate trips by running mainGenerateTrips.py as a subprocess.
+    Args:
+        input_csv (str): Path to POI edges CSV file.
+        output_xml (str): Path to output trips XML file.
+        netfile (str): Path to SUMO net file.
+        num_persons (int): Number of persons to generate.
+        ev_share (float): Share of electric vehicles.
+    """
+    script_path = os.path.join(os.path.dirname(__file__), "mainGenerateTrips.py")
+    cmd = [sys.executable, script_path,
+           input_csv, output_xml, netfile,
+           str(num_persons), str(ev_share)]
+    print(f"[INFO] Generating trips with command: {' '.join(cmd)}")
+    subprocess.run(cmd, check=True)
+
+
+
 def start_scenario_in_sumoGUI(scenario_dir):
     # Start the SUMO-GUI for the given scenario directory using the sim.sumocfg file.
     sumo_home = os.environ.get("SUMO_HOME")
@@ -168,22 +189,6 @@ def start_scenario_in_sumoGUI(scenario_dir):
         raise FileNotFoundError(f"sim.sumocfg not found in {scenario_dir}")
     cmd = [sumo_gui_executable, "-c", sim_cfg_path]
     print(f"[INFO] Starting SUMO-GUI with command: {' '.join(cmd)}")
-    subprocess.run(cmd, check=True)
-
-def start_simulation_for_scenario(scenario_dir):
-    # Start the SUMO simulation for the given scenario directory using the sim.sumocfg file.
-    sumo_home = os.environ.get("SUMO_HOME")
-    if not sumo_home:
-        raise RuntimeError("SUMO_HOME environment variable is not set.")
-    bin_dir = os.path.join(sumo_home, "bin")
-    sumo_executable = os.path.join(bin_dir, "sumo")
-    if os.name == 'nt':
-        sumo_executable += ".exe"
-    sim_cfg_path = os.path.join(scenario_dir, "sim.sumocfg")
-    if not os.path.isfile(sim_cfg_path):
-        raise FileNotFoundError(f"sim.sumocfg not found in {scenario_dir}")
-    cmd = [sumo_executable, "-c", sim_cfg_path]
-    print(f"[INFO] Starting SUMO simulation with command: {' '.join(cmd)}")
     subprocess.run(cmd, check=True)
 
 
@@ -236,6 +241,37 @@ class Handler(BaseHTTPRequestHandler):
                     raise ValueError("Missing scenarioDir")
                 start_scenario_in_sumoGUI(scenario_dir)
                 resp = {"ok": True, "message": "Simulation started"}
+                payload = json.dumps(resp).encode('utf-8')
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self._set_cors()
+                self.send_header("Content-Length", str(len(payload)))
+                self.end_headers()
+                self.wfile.write(payload)
+            except Exception as e:
+                msg = {"ok": False, "error": str(e)}
+                payload = json.dumps(msg).encode('utf-8')
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json")
+                self._set_cors()
+                self.send_header("Content-Length", str(len(payload)))
+                self.end_headers()
+                self.wfile.write(payload)
+        elif parsed.path == "/generate-trips":
+            try:
+                length = int(self.headers.get('Content-Length', '0'))
+                raw = self.rfile.read(length) if length else b"{}"
+                data = json.loads(raw.decode('utf-8') or '{}')
+                scenario_dir = data.get('scenarioDir')
+                if not scenario_dir:
+                    raise ValueError("Missing scenarioDir")
+                input_csv = os.path.join("..", "data", "poi_edges.csv")
+                output_xml = os.path.join(scenario_dir, "osm.passenger.trips.xml")
+                netfile = os.path.join(scenario_dir, "osm.net.xml.gz")
+                num_persons = data.get('num_persons', 250)
+                ev_share = data.get('ev_share', 0.6)
+                generate_trips(input_csv, output_xml, netfile, num_persons, ev_share)
+                resp = {"ok": True, "message": "Trips generated"}
                 payload = json.dumps(resp).encode('utf-8')
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json")

@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<additionalFile>
-    <include href="osm.poly.xml.gz"/>
-    <include href="osm.chargingstations.xml"/>
-    <include href="vehicle_types.add.xml"/>
-</additionalFile>

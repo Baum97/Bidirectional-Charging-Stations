@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<additional>
+  <chargingStation id="CS_-1135332360_0" lane="-1135332360_0" startPos="31.195" endPos="36.195" power="200000" chargeInTransit="0" chargeDelay="200.0"/>
+  <chargingStation id="CS_-15244399#3_0" lane="-15244399#3_0" startPos="59.765" endPos="64.765" power="200000" chargeInTransit="0" chargeDelay="200.0"/>
+  <chargingStation id="CS_1135332360_0" lane="1135332360_0" startPos="31.195" endPos="36.195" power="200000" chargeInTransit="0" chargeDelay="200.0"/>
+  <chargingStation id="CS_15244399#3_0" lane="15244399#3_0" startPos="60.275" endPos="65.275" power="200000" chargeInTransit="0" chargeDelay="200.0"/>
+</additional>

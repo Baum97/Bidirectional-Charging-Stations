@@ -76,9 +76,18 @@
         <div class="container">
           <h4>Simulation</h4>
           <div id="commands">
+            <button id="generateTrips">Generate Trips</button>
             <button id="startSimulation">Start Simulation</button>
           </div>
           <div id="simStatus"></div>
+        </div>
+
+        <div class="container">
+          <h4>Developer</h4>
+          <div id="commands">
+            <button id="downloadOSMData">Generate Scenario</button>
+          </div>
+          <div id="devKitContainer"></div>
         </div>
 
       </div>
@@ -289,6 +298,26 @@ async function sendToLocal(bounds, scenario) {
   }
 }
 
+async function downloadOSMData(bounds, scenario) {
+  const body = { bbox: getBboxArray(bounds), scenario };
+  statusEl2.textContent = 'Downloading OSM data...';
+  try {
+    const res = await fetch('http://127.0.0.1:8787/build', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const j = await res.json();
+    statusEl2.textContent = `OSM data downloaded: ${j.message || ''}`;
+    lastScenarioDir = j.scenarioDir; // <-- store for simulation
+  } catch (err) {
+    statusEl2.textContent = 'Failed to download OSM data: ' + err;
+  }
+}
+
+
+
 // Add this function to start simulation
 async function startSimulation() {
   if (!lastScenarioDir) {
@@ -313,10 +342,44 @@ async function startSimulation() {
   }
 }
 
+async function generateTrips() {
+  if (!lastScenarioDir) {
+    simStatusEl.textContent = 'No scenario built yet. Please build a scenario first.';
+    return;
+  }
+  simStatusEl.textContent = 'Generating trips...';
+  try {
+    const res = await fetch('http://127.0.0.1:8787/generate-trips', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ scenarioDir: lastScenarioDir, num_persons: 250, ev_share: 0.6 }),
+    });
+    const j = await res.json();
+    if (j.ok) {
+      simStatusEl.textContent = 'Trips generated successfully!';
+    } else {
+      simStatusEl.textContent = 'Failed to generate trips: ' + (j.error || 'unknown error');
+    }
+  } catch (err) {
+    simStatusEl.textContent = 'Failed to generate trips: ' + err;
+  }
+}
+
       sendLocalBtn?.addEventListener('click', async () => {
         const b = currentBboxBounds();
         if (!b) { alert('Please select an area by clicking two corners on the map.'); return; }
         await sendToLocal(b, defaultScenarioName());
+      });
+
+      const downloadOSMDataBtn = document.getElementById('downloadOSMData');
+
+      downloadOSMDataBtn?.addEventListener('click', async () => {
+        const b = currentBboxBounds();
+        if (!b) {
+          alert('Please select an area by clicking two corners on the map.');
+          return;
+        }
+        await downloadOSMData(b, defaultScenarioName());
       });
 
       copyBashBtn?.addEventListener('click', async () => {
@@ -421,6 +484,7 @@ async function startSimulation() {
       });
 
       document.getElementById('startSimulation').addEventListener('click', startSimulation);
+      document.getElementById('generateTrips').addEventListener('click', generateTrips);
     </script>
   </body>
   </html>
