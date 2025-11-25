@@ -177,6 +177,53 @@
       const canvasToggle = document.getElementById('canvas-toggle');
       const selectionCanvas = document.getElementById('selectionCanvas');
 
+      let powerLayer = null;
+
+      function showPowerGrid(geojson) {
+        if (!geojson || !geojson.features || !geojson.features.length) {
+          console.log('No power grid features in this area');
+          return;
+        }
+        // Remove old layer if any
+        if (powerLayer) {
+          map.removeLayer(powerLayer);
+        }
+        powerLayer = L.geoJSON(geojson, {
+          style: function (feature) {
+            if (feature.properties.kind === 'power_line') {
+              return {
+                color: '#ff8800',
+                weight: 2,
+                opacity: 0.8
+              };
+            }
+            return {};
+          },
+          pointToLayer: function (feature, latlng) {
+            if (feature.properties.kind === 'power_node') {
+              return L.circleMarker(latlng, {
+                radius: 4,
+                color: '#ffff00',
+                fillColor: '#ffff00',
+                fillOpacity: 0.9
+              });
+            }
+            return L.marker(latlng);
+          },
+          onEachFeature: function (feature, layer) {
+            const p = feature.properties || {};
+            const lines = [];
+            if (p.power) lines.push(`<b>${p.power}</b>`);
+            if (p.name) lines.push(p.name);
+            if (p.voltage) lines.push(`Voltage: ${p.voltage}`);
+            if (p.circuits) lines.push(`Circuits: ${p.circuits}`);
+            if (lines.length) {
+              layer.bindPopup(lines.join('<br>'));
+            }
+          }
+        }).addTo(map);
+      }
+
       function formatBbox(bounds) {
         const sw = bounds.getSouthWest();
         const ne = bounds.getNorthEast();
@@ -298,6 +345,7 @@ async function sendToLocal(bounds, scenario) {
   }
 }
 
+/*
 async function downloadOSMData(bounds, scenario) {
   const body = { bbox: getBboxArray(bounds), scenario };
   statusEl2.textContent = 'Downloading OSM data...';
@@ -313,6 +361,31 @@ async function downloadOSMData(bounds, scenario) {
     lastScenarioDir = j.scenarioDir; // <-- store for simulation
   } catch (err) {
     statusEl2.textContent = 'Failed to download OSM data: ' + err;
+  }
+}
+*/
+
+async function downloadOSMData(bounds, scenario) {
+  const body = { bbox: getBboxArray(bounds), scenario };
+  statusEl2.textContent = 'Contacting local helper at http://127.0.0.1:8787 ...';
+  try {
+    const res = await fetch('http://127.0.0.1:8787/build', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const j = await res.json();
+    statusEl2.textContent = `Success: ${j.message || 'scenario created'} at ${j.scenarioDir || ''}`;
+    lastScenarioDir = j.scenarioDir;
+
+    // NEW: draw power grid if present
+    if (j.powerGrid) {
+      showPowerGrid(j.powerGrid);
+    }
+  } catch (err) {
+    statusEl2.textContent = 'Local helper not reachable or failed. Use copy commands below.';
+    console.error(err);
   }
 }
 

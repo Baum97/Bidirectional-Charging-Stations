@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sumoConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
+    <input>
+        <net-file value="C:\Users\erikw\Desktop\AIM\bilfex-container\data\scenarios\test7\osm.net.xml.gz"/>
+        <route-files value="C:\Users\erikw\Desktop\AIM\bilfex-container\data\scenarios\test7\osm.passenger.trips.xml"/>
+        <additional-files value="combined_additional.xml"/>
+    </input>
+    <time>
+        <begin value="0"/>
+        <step-length value="1"/>
+    </time>
+    <processing>
+        <ignore-route-errors value="true"/>
+        <tls.actuated.jam-threshold value="30"/>
+        <lateral-resolution value="1.6"/>
+        <collision.action value="none"/>
+        <max-depart-delay value="900"/>
+        <device.battery.probability value="1"/>
+        <device.battery.explicit value="veh_ev"/>
+        <device.rerouting.probability value="1.0"/>
+        <device.rerouting.explicit value="veh_ev"/>
+        <device.stationfinder.probability value="1"/>
+        <device.stationfinder.explicit value="veh_ev"/>
+        <device.stationfinder.rescueTime value="3600"/>
+        <device.stationfinder.reserveFactor value="1.1"/>
+        <device.stationfinder.radius value="3000"/>
+    </processing>
+    <routing>
+        <device.rerouting.adaptation-steps value="36"/>
+        <device.rerouting.adaptation-interval value="30"/>
+        <device.rerouting.pre-period value="120"/>
+        <device.rerouting.with-taz value="false"/>
+    </routing>
+    <report>
+        <verbose value="false"/>
+        <duration-log.statistics value="false"/>
+        <no-step-log value="true"/>
+        <no-warnings value="true"/>
+    </report>
+</sumoConfiguration>

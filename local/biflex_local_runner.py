@@ -30,6 +30,8 @@ from getPOIEdgeIDs import assign_poi_to_edges
 from mainGenerateTrips import generate_trips
 from mainGenerateChargingStations import generate_charging_stations
 
+import xml.etree.ElementTree as ET
+
 HOST = "127.0.0.1"
 PORT = 8787
 
@@ -230,6 +232,71 @@ def create_sumo_config(net_file, trips_file, additional_files, base_dir):
     print("[INFO] Detailed SUMO configuration file written.")
 
 
+def extract_power_grid(osm_file):
+    """
+    Parse the OSM file and extract power lines + substations as GeoJSON.
+    """
+    tree = ET.parse(osm_file)
+    root = tree.getroot()
+
+    # 1) Collect all nodes (id -> (lon, lat))
+    nodes = {}
+    for n in root.findall("node"):
+        nid = n.get("id")
+        lat = float(n.get("lat"))
+        lon = float(n.get("lon"))
+        nodes[nid] = (lon, lat)  # GeoJSON is (lon, lat)
+
+    features = []
+
+    # 2) Power nodes (substation, generator, transformer, pole, etc.)
+    for n in root.findall("node"):
+        tags = {t.get("k"): t.get("v") for t in n.findall("tag")}
+        if tags.get("power") in {"substation", "generator", "transformer", "pole", "tower"}:
+            nid = n.get("id")
+            lon, lat = nodes[nid]
+            feat = {
+                "type": "Feature",
+                "geometry": {"type": "Point", "coordinates": [lon, lat]},
+                "properties": {
+                    "osm_id": nid,
+                    "kind": "power_node",
+                    "power": tags.get("power"),
+                    "name": tags.get("name"),
+                    "voltage": tags.get("voltage"),
+                },
+            }
+            features.append(feat)
+
+    # 3) Power lines (line, minor_line, cable)
+    for w in root.findall("way"):
+        tags = {t.get("k"): t.get("v") for t in w.findall("tag")}
+        if tags.get("power") in {"line", "minor_line", "cable"}:
+            coords = []
+            for nd in w.findall("nd"):
+                ref = nd.get("ref")
+                if ref in nodes:
+                    coords.append(list(nodes[ref]))
+            if len(coords) >= 2:
+                feat = {
+                    "type": "Feature",
+                    "geometry": {"type": "LineString", "coordinates": coords},
+                    "properties": {
+                        "osm_id": w.get("id"),
+                        "kind": "power_line",
+                        "power": tags.get("power"),
+                        "name": tags.get("name"),
+                        "voltage": tags.get("voltage"),
+                        "circuits": tags.get("circuits"),
+                    },
+                }
+                features.append(feat)
+
+    return {
+        "type": "FeatureCollection",
+        "features": features,
+    }
+
 class Handler(BaseHTTPRequestHandler):
     def _set_cors(self):
         self.send_header("Access-Control-Allow-Origin", "http://localhost:8080")
@@ -255,6 +322,10 @@ class Handler(BaseHTTPRequestHandler):
                 # Step 1: Download OSM data -> returns full path to the file
                 osm_file = download_osm_data(bbox, scenario)
                 scen_dir = os.path.dirname(osm_file)
+
+                # NEW: extract power grid GeoJSON from that OSM
+                power_grid = extract_power_grid(osm_file)
+                print(f"[INFO] Extracted power grid with {len(power_grid['features'])} features")
 
                 # Step 2: Build SUMO network
                 net_file = build_sumo_network(osm_file, scenario)
@@ -291,6 +362,7 @@ class Handler(BaseHTTPRequestHandler):
                     "scenarioDir": scen_dir,
                     "networkFile": net_file,
                     "poiFiles": poi_files,
+                    "powerGrid": power_grid,
                 }
                 payload = json.dumps(resp).encode("utf-8")
                 self.send_response(200)
