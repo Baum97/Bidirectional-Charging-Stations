@@ -47,9 +47,8 @@ for epoch in range(50):
 
 # --- memorize ---
 torch.save(model.state_dict(), "charging_model.pt")
-print("Modell gespeichert.")
 
-# --- demonstration ---
+# --- execute ---
 # Neue Positionen auswerten
 test = torch.tensor([[150.0, 220.0, 30.0, 12.0, 0.3, 5.0]], dtype=torch.float32)
 score = model(test).item()
