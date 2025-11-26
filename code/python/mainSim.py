@@ -14,6 +14,8 @@ traci.start(sumo_cmd)
 charging_stations_cache = {}  # lane_id -> [(cs_id, start_pos, end_pos), ...]
 last_soc = {}
 charging_status = {}
+
+#checks if car is currently actively charging
 unique_charging_process = []
 charging_count = 0
 charge_entries = {}
@@ -22,10 +24,11 @@ model_log_data = []
 log_data = []
 ev_vehicles = set()
 step_counter = 0
+unique_edge_ids = {}
 EV_TYPES = ["veh_ev"]
 
 # performance settings
-TRACKING_INTERVAL = 5  # track every x steps
+TRACKING_INTERVAL = 50  # track every x steps
 POSITION_TOLERANCE = 1.0  
 SOC_CHANGE_THRESHOLD = 0.1 
 
@@ -48,8 +51,6 @@ def build_charging_stations_cache():
                 continue
     except traci.TraCIException:
         print("Warnung: Keine Ladestationen gefunden")
-
-        
     
 def find_charging_station_for_vehicle_fast(veh_id):
     """Schnelle Suche nach Ladestation mit Cache."""
@@ -88,7 +89,7 @@ build_charging_stations_cache()
 while traci.simulation.getMinExpectedNumber() > 0:
     traci.simulationStep()
     time = traci.simulation.getTime()
-    step_counter += 1
+    step_counter += 10
     
     if step_counter % TRACKING_INTERVAL != 0:
         continue
@@ -144,35 +145,29 @@ while traci.simulation.getMinExpectedNumber() > 0:
             coord = str(traci.vehicle.getPosition(veh_id)).strip("()")
             x_pos,y_pos = coord.split(",")
             y_pos.lstrip()
+
+            edge_id = traci.vehicle.getRoadID(veh_id)
+            encoded = unique_edge_ids.get(edge_id)
+
+            if edge_id not in unique_edge_ids:
+                unique_edge_ids[edge_id] = len(unique_edge_ids)
+                encoded_edge_id = encoded
+
+
             model_log_data.append({
                     "time": time,
                     "veh_id": veh_id,
                     "position_x" : x_pos,
                     "position_y": y_pos,
-                    "edge_id": traci.vehicle.getRoadID(veh_id),
+                    "edge_id": edge_id,
                     "lane_offset": traci.vehicle.getLanePosition(veh_id),
                     "soc": soc_percent,
-                    "is_charging": is_charging
+                    "is_charging": is_charging,
+                    "encoded_edge_id": encoded_edge_id,
             })
 
             if (is_charging != prev_status[0]) or (step_counter % 100 == 0):
-                writer.writerow([time, veh_id, soc_percent, is_charging, station_id or ""])
-            
-            if is_charging:
-                color = (0, 255, 255, 255)  # cyan = loading
-            elif soc_percent <= 10:
-                color = (255, 0, 0, 255)    # red = low
-            elif soc_percent <= 30:
-                color = (255, 165, 0, 255)  
-            elif soc_percent <= 50:
-                color = (100, 255, 100, 255)
-            else:
-                color = (0, 255, 0, 255)    
-                
-            try:
-                traci.vehicle.setColor(veh_id, color)
-            except traci.TraCIException:
-                pass  
+                log_data.append([time, veh_id, soc_percent, is_charging, station_id or ""])
             
             last_soc[veh_id] = soc_percent
                 
@@ -180,12 +175,11 @@ while traci.simulation.getMinExpectedNumber() > 0:
             ev_vehicles.discard(veh_id) 
             continue
 
-    log_data.append
-    with open("logCharges.csv", mode="w", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerow(["CS_id", "charges"])
-        for station_id, charge_count in charge_entries.items():
-            writer.writerow([station_id, charge_count])
+with open("logCharges.csv", mode="w", newline="") as file:
+    writer = csv.writer(file)
+    writer.writerow(["CS_id", "charges"])
+    for station_id, charge_count in charge_entries.items():
+        writer.writerow([station_id, charge_count])
 
 tree = ET.parse("generated_files/osm.chargingstations.xml")
 root = tree.getroot()
