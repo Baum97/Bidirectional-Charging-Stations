@@ -7,7 +7,7 @@ import pandas as pd
 sumo_cfg = "generated_files/osm.sumocfg"
 output_csv = "ev_soc_tracking.csv"
 
-sumo_cmd = ["sumo-gui", "-c", sumo_cfg, "--start"]
+sumo_cmd = ["sumo", "-c", sumo_cfg, "--start"]
 traci.start(sumo_cmd)
 
 # Caching
@@ -147,11 +147,13 @@ while traci.simulation.getMinExpectedNumber() > 0:
             y_pos.lstrip()
 
             edge_id = traci.vehicle.getRoadID(veh_id)
-            encoded = unique_edge_ids.get(edge_id)
 
             if edge_id not in unique_edge_ids:
-                unique_edge_ids[edge_id] = len(unique_edge_ids)
-                encoded_edge_id = encoded
+                uid = len(unique_edge_ids)
+                unique_edge_ids[edge_id] = uid
+            else:
+                uid = unique_edge_ids[edge_id]
+            print("uid:" + str(uid))
 
 
             model_log_data.append({
@@ -163,7 +165,7 @@ while traci.simulation.getMinExpectedNumber() > 0:
                     "lane_offset": traci.vehicle.getLanePosition(veh_id),
                     "soc": soc_percent,
                     "is_charging": is_charging,
-                    "encoded_edge_id": encoded_edge_id,
+                    "encoded_edge_id": uid,
             })
 
             if (is_charging != prev_status[0]) or (step_counter % 100 == 0):
