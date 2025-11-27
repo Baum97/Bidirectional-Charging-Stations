@@ -2,6 +2,7 @@ import traci
 import csv
 import xml.etree.ElementTree as ET
 import pandas as pd
+import time
 
 
 sumo_cfg = "generated_files/osm.sumocfg"
@@ -86,11 +87,15 @@ def add_charging_process(veh_id, is_charging):
 # build cache
 build_charging_stations_cache()
     
+step_counter = 50
+
+start = time.time()
 while traci.simulation.getMinExpectedNumber() > 0:
-    traci.simulationStep()
-    time = traci.simulation.getTime()
-    step_counter += 10
-    
+    traci.simulationStep(step_counter)
+    step_counter += 50
+    sim_time = traci.simulation.getTime()
+    if step_counter % 1000 == 0:
+        print("sim_time: " + str(sim_time))
     if step_counter % TRACKING_INTERVAL != 0:
         continue
     
@@ -153,11 +158,10 @@ while traci.simulation.getMinExpectedNumber() > 0:
                 unique_edge_ids[edge_id] = uid
             else:
                 uid = unique_edge_ids[edge_id]
-            print("uid:" + str(uid))
 
 
             model_log_data.append({
-                    "time": time,
+                    "time": sim_time,
                     "veh_id": veh_id,
                     "position_x" : x_pos,
                     "position_y": y_pos,
@@ -169,7 +173,7 @@ while traci.simulation.getMinExpectedNumber() > 0:
             })
 
             if (is_charging != prev_status[0]) or (step_counter % 100 == 0):
-                log_data.append([time, veh_id, soc_percent, is_charging, station_id or ""])
+                log_data.append([sim_time, veh_id, soc_percent, is_charging, station_id or ""])
             
             last_soc[veh_id] = soc_percent
                 
@@ -177,7 +181,7 @@ while traci.simulation.getMinExpectedNumber() > 0:
             ev_vehicles.discard(veh_id) 
             continue
 
-with open("logCharges.csv", mode="w", newline="") as file:
+with open("generated_files/logs/logCharges.csv", mode="w", newline="") as file:
     writer = csv.writer(file)
     writer.writerow(["CS_id", "charges"])
     for station_id, charge_count in charge_entries.items():
@@ -187,9 +191,10 @@ tree = ET.parse("generated_files/osm.chargingstations.xml")
 root = tree.getroot()
 
 df = pd.DataFrame(model_log_data)
-df.to_csv("model_log_data.csv", index=False)
+df.to_csv("generated_files/logs/model_log_data.csv", index=False)
+print("Model Log Data written")
 
-with open("logCharges.csv", mode="r", newline="") as file:
+with open("generated_files/logs/logCharges.csv", mode="r", newline="") as file:
     reader = csv.DictReader(file) 
     for row in reader:
         charge_results["CS_id"] = row["charges"]
@@ -208,4 +213,6 @@ tree.write("generated_files/osm.chargingstations.xml", encoding="utf-8", xml_dec
 
 
 traci.close()
+end = time.time()
+print("Runtime: " + str((end-start)))
 print("Simulation beendet.")
