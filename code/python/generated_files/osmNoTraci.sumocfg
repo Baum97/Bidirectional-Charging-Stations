@@ -10,7 +10,7 @@
 
     <time>
         <begin value="10000"/>
-        <step-length value="50"/>
+        <step-length value="10"/>
     </time>
 
     <processing>
@@ -23,6 +23,7 @@
         <!-- Battery device for SOC tracking -->
         <device.battery.probability value="1"/>
         <device.battery.explicit value="veh_ev"/>
+        <device.battery.track-charging-stations value="true"/>
 
         <!-- Rerouting only for EVs -->
         <device.rerouting.probability value="1.0"/>
@@ -43,13 +44,18 @@
         <device.rerouting.with-taz value="false"/>
     </routing>
 
-<output>
-    <fcd-output value="logs/fcd_output.xml.gz"/>
-    <battery-output value="logs/battery_output.xml.gz"/>
-    <vehroute-output value="logs/veh_routes.xml.gz"/>
-    <vehroute-output.write-unfinished value="true"/>
-    <vehroute-output.sorted value="true"/>
-</output>
+    <output>
+        <!-- Position, Speed, Lane, Edge, etc. -->
+        <fcd-output value="logs/fcd_output.xml.gz"/>
+
+        <!-- Battery data (SOC, max capacity, consumption, etc.) -->
+        <battery-output value="logs/battery_output.xml.gz"/>
+
+        <!-- Route information -->
+        <vehroute-output value="logs/veh_routes.xml.gz"/>
+        <vehroute-output.write-unfinished value="true"/>
+        <vehroute-output.sorted value="true"/>
+    </output>
 
     <report>
         <verbose value="false"/>
