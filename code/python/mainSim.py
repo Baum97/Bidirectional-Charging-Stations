@@ -1,28 +1,35 @@
 import traci
 import csv
 import xml.etree.ElementTree as ET
+import pandas as pd
+import time
 
 
 sumo_cfg = "generated_files/osm.sumocfg"
 output_csv = "ev_soc_tracking.csv"
 
-sumo_cmd = ["sumo-gui", "-c", sumo_cfg, "--start"]
+sumo_cmd = ["sumo", "-c", sumo_cfg, "--start"]
 traci.start(sumo_cmd)
 
 # Caching
 charging_stations_cache = {}  # lane_id -> [(cs_id, start_pos, end_pos), ...]
 last_soc = {}
 charging_status = {}
+
+#checks if car is currently actively charging
 unique_charging_process = []
 charging_count = 0
 charge_entries = {}
 charge_results = {}
+model_log_data = []
+log_data = []
 ev_vehicles = set()
 step_counter = 0
+unique_edge_ids = {}
 EV_TYPES = ["veh_ev"]
 
 # performance settings
-TRACKING_INTERVAL = 5  # track every x steps
+TRACKING_INTERVAL = 50  # track every x steps
 POSITION_TOLERANCE = 1.0  
 SOC_CHANGE_THRESHOLD = 0.1 
 
@@ -80,11 +87,15 @@ def add_charging_process(veh_id, is_charging):
 # build cache
 build_charging_stations_cache()
     
+step_counter = 50
+
+start = time.time()
 while traci.simulation.getMinExpectedNumber() > 0:
-    traci.simulationStep()
-    time = traci.simulation.getTime()
-    step_counter += 1
-    
+    traci.simulationStep(step_counter)
+    step_counter += 50
+    sim_time = traci.simulation.getTime()
+    if step_counter % 1000 == 0:
+        print("sim_time: " + str(sim_time))
     if step_counter % TRACKING_INTERVAL != 0:
         continue
     
@@ -106,6 +117,7 @@ while traci.simulation.getMinExpectedNumber() > 0:
             try:
                 soc = traci.vehicle.getParameter(veh_id, "device.battery.actualBatteryCapacity")
                 max_soc = traci.vehicle.getParameter(veh_id, "device.battery.maximumBatteryCapacity")
+
             except traci.TraCIException:
                 ev_vehicles.discard(veh_id)  
                 continue
@@ -135,24 +147,33 @@ while traci.simulation.getMinExpectedNumber() > 0:
             prev_status = charging_status.get(veh_id, (False, None))             
             charging_status[veh_id] = (is_charging, station_id)
             
-            if (is_charging != prev_status[0]) or (step_counter % 100 == 0):
-                writer.writerow([time, veh_id, soc_percent, is_charging, station_id or ""])
-            
-            if is_charging:
-                color = (0, 255, 255, 255)  # cyan = loading
-            elif soc_percent <= 10:
-                color = (255, 0, 0, 255)    # red = low
-            elif soc_percent <= 30:
-                color = (255, 165, 0, 255)  
-            elif soc_percent <= 50:
-                color = (100, 255, 100, 255)
+            coord = str(traci.vehicle.getPosition(veh_id)).strip("()")
+            x_pos,y_pos = coord.split(",")
+            y_pos.lstrip()
+
+            edge_id = traci.vehicle.getRoadID(veh_id)
+
+            if edge_id not in unique_edge_ids:
+                uid = len(unique_edge_ids)
+                unique_edge_ids[edge_id] = uid
             else:
-                color = (0, 255, 0, 255)    
-                
-            try:
-                traci.vehicle.setColor(veh_id, color)
-            except traci.TraCIException:
-                pass  
+                uid = unique_edge_ids[edge_id]
+
+
+            model_log_data.append({
+                    "time": sim_time,
+                    "veh_id": veh_id,
+                    "position_x" : x_pos,
+                    "position_y": y_pos,
+                    "edge_id": edge_id,
+                    "lane_offset": traci.vehicle.getLanePosition(veh_id),
+                    "soc": soc_percent,
+                    "is_charging": is_charging,
+                    "encoded_edge_id": uid,
+            })
+
+            if (is_charging != prev_status[0]) or (step_counter % 100 == 0):
+                log_data.append([sim_time, veh_id, soc_percent, is_charging, station_id or ""])
             
             last_soc[veh_id] = soc_percent
                 
@@ -160,16 +181,20 @@ while traci.simulation.getMinExpectedNumber() > 0:
             ev_vehicles.discard(veh_id) 
             continue
 
-    with open("logCharges.csv", mode="w", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerow(["CS_id", "charges"])
-        for station_id, charge_count in charge_entries.items():
-            writer.writerow([station_id, charge_count])
+with open("generated_files/logs/logCharges.csv", mode="w", newline="") as file:
+    writer = csv.writer(file)
+    writer.writerow(["CS_id", "charges"])
+    for station_id, charge_count in charge_entries.items():
+        writer.writerow([station_id, charge_count])
 
 tree = ET.parse("generated_files/osm.chargingstations.xml")
 root = tree.getroot()
 
-with open("logCharges.csv", mode="r", newline="") as file:
+df = pd.DataFrame(model_log_data)
+df.to_csv("generated_files/logs/model_log_data.csv", index=False)
+print("Model Log Data written")
+
+with open("generated_files/logs/logCharges.csv", mode="r", newline="") as file:
     reader = csv.DictReader(file) 
     for row in reader:
         charge_results["CS_id"] = row["charges"]
@@ -188,4 +213,6 @@ tree.write("generated_files/osm.chargingstations.xml", encoding="utf-8", xml_dec
 
 
 traci.close()
+end = time.time()
+print("Runtime: " + str((end-start)))
 print("Simulation beendet.")
