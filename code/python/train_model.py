@@ -23,7 +23,7 @@ import sumolib
 # 0) KONFIGURATION
 # ============================================================
 
-CSV_LOG_FILE = "model_log_data.csv"
+CSV_LOG_FILE = "sumo_merged_output.csv"
 NET_FILE = "osm.net.xml.gz"
 
 MODEL_FILE = "charging_model.pt"
