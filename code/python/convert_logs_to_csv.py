@@ -4,7 +4,7 @@ import pandas as pd
 from collections import defaultdict
 
 # ----------------------------------------------------------
-# Pfade
+# Log file and data paths
 # ----------------------------------------------------------
 FCD_FILE = "generated_files/logs/fcd_output.xml.gz"
 BATTERY_FILE = "generated_files/logs/battery_output.xml.gz"
@@ -17,7 +17,7 @@ unique_edge_ids = {}
 battery_data = defaultdict(dict)
 
 # ----------------------------------------------------------
-# 0) Charging-Station Daten einlesen
+# 0) Charging-Station fetch data
 # ----------------------------------------------------------
 print("Loading charging stations...")
 
@@ -50,7 +50,7 @@ def find_station(lane, pos):
 
 
 # ----------------------------------------------------------
-# 1) FCD-Daten
+# 1) FCD-Data
 # ----------------------------------------------------------
 print("Reading FCD data...")
 
