@@ -1,0 +1,20 @@
+%definition neuer ebene
+\titleclass{\subsubsubsection}{straight}[\subsubsection]
+\newcounter{subsubsubsection}[subsubsection]
+\renewcommand\thesubsubsubsection{\thesubsubsection.\arabic{subsubsubsection}}
+
+%überschrift formatierung
+\titleformat{\subsubsubsection}[block]
+  {\refstepcounter{subsubsubsection}\normalfont\small\bfseries}
+  {\thesubsubsubsection}{1em}{}
+
+%abstand
+\titlespacing*{\subsubsubsection}
+  {0pt}{1.5ex plus .2ex minus .2ex}{0.5ex}
+
+%inhaltsverzeichnis
+\makeatletter
+\newcommand{\l@subsubsubsection}{\@dottedtocline{4}{7em}{4em}}
+\usepackage{bookmark}
+\bookmarksetup{numbered,level=4}
+\makeatother

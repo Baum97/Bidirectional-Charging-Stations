@@ -1,0 +1,48 @@
+\section{Discussion}
+
+\subsection{Interpretation of Results and Evaluation of Workflows}
+The research and first implementations have demonstrated that it is possible to generate realistic traffic scenarios from OpenStreetMap data and optimize charging station locations based on demand. Two main workflows were developed, tested and evaluated in detail: MATSim combined with SUMO, and SUMO as a standalone tool.
+
+While the combination of MATSim and SUMO showed initial promise, it ultimately proved unreliable. The most significant barrier was the conversion of networks and trips between the two tools. SUMO's provided Python script frequently failed to convert MATSim generated \texttt{.xml} files, primarily due to node and edge mismatches. This made it impossible for agents to follow their predefined routes, effectively hindering the whole simulation. After multiple iterations and time-consuming troubleshooting, it was concluded that MATSim was not suitable for integration with SUMO in the current setup and had to be disregarded.
+
+Similary, BEAM - an extension of MATSim - offers promising features for vehicle-to-grid (V2G) applications. However, it inherits the same limitations regarding conversion, and SUMO does not provide any direct conversion tools for BEAM. That being said, its practical usability remains questionable in this context.
+
+SAGA was briefly considered during the initial development phase. However, because of its limited documentation and persistent errors, the progress was very slow. Due to these challenges, it was also excluded from further evaluation.
+
+By contrast, SUMO as a standalone tool proved to be powerful and reliable for urban microscopic traffic simulations. Its extensive collection of scripts for traffic generation and statistical analysis, combined with the flexibility of TraCI, provides a solid and customizable foundation. Well-documented functions and tools such as \texttt{osmGet} and \texttt{osmWebWizard} significantly reduce onboarding difficulties and make it an excellent base for further development.
+
+\subsection{Optimizing Charging Station Placement}
+One of the key objectives of the project is the optimization of charging station placement. TraCI, SUMO's interface for traffic control was effectively used for data collection during runtime. The currently implemented algorithm - based on iterative tracking, ranking and pruning of charging stations - served as a good initial approach. However, this method can be improved by introducing more dynamic and predictive techniques such as maschine learning.
+
+In addition, the pruning process, where underused charging stations are deleted from the simulation, could remove too many stations and therefore lack adaptability. Future improvements should reintroduce stations based on variables like demand, station density and inter-station distance. This could create better balance between efficiency and coverage.
+
+\subsection{Challenges with Power Grid Integration}
+A major yet unaddressed challenge is the integration of power grid data to enable V2G simulations. The possible solutions outlined above were not incorporated into this prototype but will be essential for advancing bidirectional charging and modeling the interaction between EVs and the energy network. Furthermore, integrating grid data would allow for more strategic placement of charging stations based on their connectivity to the power infrastructure. This remains a key aspect for future development.
+
+\subsection{Fulfillment of Research Objectives}
+Looking back at the research objectives, all key objectives defined across the first three project phases were successfully archived.
+
+In Phase 1, functional and non-functional were identified, and relevant methods and data sources were explored, resulting in first prototypical concepts and workflows.
+
+During Phase 2, a working prototype using SUMO and TraCI was developed. A realistic traffic scenario was created, an algorithm for optimal charging station placement was implemented, and initial stations were placed within the simulation.
+
+In Phase 3, the prototype was iteratively validated. The results confirmed the effectiveness of the placement strategy and highlighted areas for future refinement.
+
+Overall, the project fulfilled its main goals and provides a strong foundation for continued development, particularly in the areas of V2G integration and optimization.
+
+\subsection{Further work}
+Future work should build upon the current implementation by addressing the following key areas:
+\begin{itemize}
+    \item \textbf{Generalizing the worklow for any area}\\
+    The current system should be adapted to work across different geographic regions with varying infrastructure and demand profiles. Automating data import from OSM and standardized parameters will be essential for broader applicability.
+    \item \textbf{Interactive Dashboard}\\
+    An user-friendly dashboard would allow users to select arbitrary regions, adjust parameters (e.g. station count, vehcile types), visualize simulation outputs and monitor charging behavior in real time.
+    \item \textbf{Leveraging WebWizard}\\
+    SUMO's \texttt{osmWebWizard} should be cleverly included into the workflow. Integrating it would reduce the complexity and enable a faster development.
+    \item \textbf{Modeling Power Grid Interaction}\\
+    A realistic energy grid model must be incorporated to simulate load distribution, feedback from EVs, and the impact of bidirectional charging.
+    \item \textbf{Optimization}\\
+    The placement algorithm should be enhanced with data-driven or machine learning approaches that can adapt to more complex demand patterns.
+    \item \textbf{Improved Scenario Generation}\\
+    Alternatives to the current workflow, such as implementation with BEAM or SAGA, should be explored further ensuring a more realistic and large scale demand pattern.    
+\end{itemize}

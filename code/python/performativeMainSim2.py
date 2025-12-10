@@ -20,14 +20,17 @@ POSITION_TOLERANCE = 1.0
 SOC_CHANGE_THRESHOLD = 0.05               # detect charging
 EV_TYPES = ["veh_ev"]
 
-OUTPUT_CAR_LOG = "generated_files/logs/car_log.csv"
-OUTPUT_CHARGING_LOG = "generated_files/logs/charging_log_data.csv"
+OUTPUT_CHARGING_LOG = "generated_files/logs/model_log_data.csv"
+OUTPUT_EVSE_LOG = "generated_files/logs/evse_log_data.csv"
 
 # apply setChargingPower before advancing the simulation step
 APPLY_POWER_BEFORE_STEP = True
 
 # how often to flush evse_log to disk during run (0 = only at the end)
-EVSE_LOG_FLUSH_INTERVAL = 2000
+EVSE_LOG_FLUSH_INTERVAL = 1000
+
+# Energy tracking: detect when a charging session ends and log cumulative energy
+TRACK_CHARGING_SESSIONS = True
 
 # ----------------------------------------------------
 # INTERNAL STATE
@@ -35,14 +38,16 @@ EVSE_LOG_FLUSH_INTERVAL = 2000
 
 ev_objects = {}                 # veh_id -> ElectricVehicles()
 evse_objects = {}               # station_id -> EVSE_class()
-charging_start_time = {}        # veh_id -> timestamp
+charging_start_time = {}        # veh_id -> timestamp when charging started
 charging_status = {}            # veh_id -> (is_charging, station)
 last_soc = {}
+charging_session_energy = {}    # veh_id -> accumulated energy in kWh during current session
 
 charging_stations_cache = {}    # lane_id -> [(cs_id, start, end)]
 ev_vehicles = set()
 car_log = []
-car_log = []
+evse_log = []
+charging_sessions_log = []      # log for complete charging sessions
 
 
 # ----------------------------------------------------
@@ -53,27 +58,6 @@ def compute_rampup_power(sim_time, start_time, Prated_kW=MAX_CHARGING_POWER_KW):
     dt = sim_time - start_time
     ramp = min(1.0, dt / RAMPUP_DURATION)
     return Prated_kW * ramp
-
-def simple_charge_curve(ev, dt=10):
-    """
-    ev: ElectricVehicles-Objekt
-    dt: Zeitschritt in Sekunden
-    """
-    P_max = 50_000  # in W, z.B. 50 kW
-    eta = 0.95
-    # aktuelle Batteriegröße in Wh
-    current_energy = ev.actualBatteryCapacity
-    max_energy = ev.batterycapacity_kWh * 1000  # kWh -> Wh
-
-    # Energie, die im Zeitschritt geladen wird
-    energy_delta = P_max * dt * eta / 3600  # Wh
-    # sicherstellen, dass SOC nicht über Ziel geht
-    if current_energy + energy_delta > max_energy * ev.target_soc:
-        energy_delta = max_energy * ev.target_soc - current_energy
-
-    ev.actualBatteryCapacity += energy_delta
-    return energy_delta
-
 
 
 # ----------------------------------------------------
@@ -133,6 +117,24 @@ def find_station(veh_id):
     return None
 
 
+def log_charging_session_end(veh_id, station_id, end_time, energy_kwh, soc_start, soc_end):
+    """
+    Log a complete charging session when it ends.
+    """
+    if not TRACK_CHARGING_SESSIONS:
+        return
+    
+    charging_sessions_log.append({
+        "veh_id": veh_id,
+        "station_id": station_id,
+        "end_time": end_time,
+        "energy_kwh": energy_kwh,
+        "soc_start": soc_start,
+        "soc_end": soc_end,
+        "duration_sec": 0  # can be calculated from model_log if needed
+    })
+
+
 # ----------------------------------------------------
 # MAIN LOOP
 # ----------------------------------------------------
@@ -170,6 +172,8 @@ def main():
             # ensure these are defined for logging and safe calls
             ramp_kw = 0.0
             allowed_kw = 0.0
+            energy_kwh_this_step = 0.0
+            kWh_delivered = 0.0
 
             try:
                 # get SOC from SUMO
@@ -205,14 +209,17 @@ def main():
                     station_id = find_station(vid)
                     if station_id:
                         is_charging = True
-                        # removed premature ev.chargevehicle(...) call here;
-                        # allowed_kw will be computed once EVSE and server interaction happen below.
 
                 # update charging status
                 prev_status = charging_status.get(vid, (False, None))
+                was_charging = prev_status[0]
+                prev_station = prev_status[1]
+
                 charging_status[vid] = (is_charging, station_id)
 
+                # EVSE management
                 if is_charging and station_id:
+
                     # construct EVSE object if not exists
                     if station_id not in evse_objects:
                         evse_objects[station_id] = EVSE_class(
@@ -226,6 +233,7 @@ def main():
                     # RAMP UP handling
                     if vid not in charging_start_time:
                         charging_start_time[vid] = sim_time
+                        charging_session_energy[vid] = 0.0
                     ramp_kw = compute_rampup_power(sim_time, charging_start_time[vid], evse.Prated_kW)
 
                     # inform EVSE from server (server_setpoint will be ramped)
@@ -250,8 +258,12 @@ def main():
                     w = allowed_kw * 1000
                     traci.chargingstation.setChargingPower(station_id, w)
 
+                    # Accumulate energy during this session (kWh per second)
+                    energy_kwh_this_step = allowed_kw / 3600.0
+                    charging_session_energy[vid] = charging_session_energy.get(vid, 0.0) + energy_kwh_this_step
+
                     # Debug print when value changes notably
-                    prev = car_log[-1]["allowed_kw"] if car_log else None
+                    prev = evse_log[-1]["allowed_kw"] if evse_log else None
                     if prev is None or abs(allowed_kw - prev) > 0.1:
                         print(f"[EVSE] time={sim_time} veh={vid} station={station_id} ramp_kw={ramp_kw:.2f} allowed_kw={allowed_kw:.2f}")
 
@@ -262,7 +274,21 @@ def main():
                         car_log.clear()
 
                 else:
+                    # Charging session ended
+                    if was_charging and vid in charging_start_time:
+                        soc_start = last_soc.get(vid, 0.0)
+                        soc_end = soc_val
+                        total_energy = charging_session_energy.get(vid, 0.0)
+                        kWh_delivered = total_energy
+
+                        log_charging_session_end(vid, prev_station, sim_time, total_energy, soc_start, soc_end)
+                        
+                        if total_energy > 0.01:
+                            print(f"[SESSION] veh={vid} station={prev_station} energy={total_energy:.3f} kWh soc:{soc_start:.2f}->{soc_end:.2f}")
+                    
                     charging_start_time.pop(vid, None)
+                    charging_session_energy.pop(vid, None)
+
 
                 x, y = traci.vehicle.getPosition(vid)
                 car_log.append({
@@ -274,7 +300,7 @@ def main():
                     "station": station_id,
                     "allowed_kw": allowed_kw,
                     "ramp_kw": ramp_kw,
-                    "energy": evse.energy_delivered_kWh,
+                    "energy": kWh_delivered,
                     "soc": ev.soc,
                     "edge_id": traci.vehicle.getRoadID(vid),
                     "is_charging": is_charging
@@ -285,9 +311,11 @@ def main():
             except traci.TraCIException:
                 ev_vehicles.discard(vid)
         
+        # NOW advance the simulation ONCE at the end
         traci.simulationStep()
         sim_time = traci.simulation.getTime()  # update sim_time after step
         step += 1
+
     # ----------------------------------------------------
     # FINISH
     # ----------------------------------------------------
@@ -297,8 +325,14 @@ def main():
     runtime = time.time() - start_time
     print("Simulation finished. Runtime:", runtime)
 
-    pd.DataFrame(car_log).to_csv(OUTPUT_CAR_LOG, index=False)
-    print("Model log written:", OUTPUT_CAR_LOG)
+    pd.DataFrame(car_log).to_csv(OUTPUT_CHARGING_LOG, index=False)
+    
+    if charging_sessions_log:
+        pd.DataFrame(charging_sessions_log).to_csv("generated_files/logs/charging_sessions.csv", index=False)
+        print("Charging sessions log written: generated_files/logs/charging_sessions.csv")
+
+    print("Model log written:", OUTPUT_CHARGING_LOG)
+
 
 if __name__ == "__main__":
     main()
