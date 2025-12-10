@@ -1,13 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <additional>
-  <!-- cs_0 at (766.3, 634.8) est_chargers=32 (no lane mapping) -->
-  <!-- cs_1 at (417.6, 480.4) est_chargers=30 (no lane mapping) -->
-  <!-- cs_2 at (685.8, 282.1) est_chargers=12 (no lane mapping) -->
-  <!-- cs_3 at (440.6, 258.0) est_chargers=10 (no lane mapping) -->
-  <!-- cs_4 at (811.8, 83.1) est_chargers=21 (no lane mapping) -->
-  <!-- cs_5 at (168.4, 455.7) est_chargers=14 (no lane mapping) -->
-  <!-- cs_6 at (713.1, 123.7) est_chargers=9 (no lane mapping) -->
-  <!-- cs_7 at (481.1, 341.3) est_chargers=5 (no lane mapping) -->
-  <!-- cs_8 at (382.2, 376.1) est_chargers=4 (no lane mapping) -->
-  <!-- cs_9 at (676.4, 348.6) est_chargers=2 (no lane mapping) -->
+  <!-- cs_0 at (777.5, 652.2) est_chargers=428 (no lane mapping) -->
+  <!-- cs_1 at (811.8, 83.1) est_chargers=20 (no lane mapping) -->
+  <!-- cs_2 at (168.6, 455.8) est_chargers=12 (no lane mapping) -->
+  <!-- cs_3 at (481.1, 341.3) est_chargers=2 (no lane mapping) -->
+  <!-- cs_4 at (676.4, 348.6) est_chargers=2 (no lane mapping) -->
 </additional>
