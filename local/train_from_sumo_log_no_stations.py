@@ -1,0 +1,224 @@
+def process_sumo_log_no_stations(default_log, out_csv, out_geojson, out_xml):
+    import os
+    import math
+    import json
+    from collections import defaultdict
+
+    import numpy as np
+    import pandas as pd
+    from sklearn.cluster import DBSCAN
+
+    try:
+        import sumolib
+        HAS_SUMOLIB = True
+    except Exception:
+        sumolib = None
+        HAS_SUMOLIB = False
+
+    SOC_THRESHOLD = 30.0      # percent
+    EPS_METERS = 50.0         # DBSCAN eps
+    MIN_SAMPLES = 3
+    BUFFER_MARGIN = 20.0      # meters added to cluster spread
+    POLY_POINTS = 32
+
+    # heuristics for charger estimation
+    AVG_SESSION_KWH = 20.0
+    CHARGER_KW = 50.0
+    UTILIZATION = 0.75
+
+    def read_log(path):
+        if not os.path.exists(path):
+            raise FileNotFoundError(path)
+        df = pd.read_csv(path)
+        # normalize column names for coordinates and soc
+        if "position_x" in df.columns and "position_y" in df.columns:
+            df = df.rename(columns={"position_x": "x", "position_y": "y"})
+        # enforce types
+        df["x"] = pd.to_numeric(df["x"], errors="coerce")
+        df["y"] = pd.to_numeric(df["y"], errors="coerce")
+        if "soc_percent" in df.columns:
+            df["soc_percent"] = pd.to_numeric(df["soc_percent"], errors="coerce")
+        elif "soc" in df.columns:
+            df["soc_percent"] = pd.to_numeric(df["soc"], errors="coerce")
+        else:
+            # if only absolute soc present, try to infer if it's 0..1 or already percent
+            df["soc_percent"] = pd.to_numeric(df.get("soc", 0), errors="coerce") * 100.0
+        # time numeric
+        if "time" in df.columns:
+            df["time"] = pd.to_numeric(df["time"], errors="coerce")
+        return df
+
+    def cluster_low_soc_points(coords, eps=EPS_METERS, min_samples=MIN_SAMPLES):
+        if len(coords) == 0:
+            return np.array([]), np.array([])
+        db = DBSCAN(eps=eps, min_samples=min_samples, metric="euclidean")
+        labels = db.fit_predict(coords)
+        return labels
+
+    def polygon_around_points(cx, cy, radius, n_points=POLY_POINTS):
+        pts = []
+        for i in range(n_points):
+            angle = 2 * math.pi * i / n_points
+            px = cx + radius * math.cos(angle)
+            py = cy + radius * math.sin(angle)
+            pts.append([px, py])
+        pts.append(pts[0])
+        return pts
+
+    def estimate_chargers(count_events, sim_hours, avg_session_kwh=AVG_SESSION_KWH, charger_kw=CHARGER_KW, utilization=UTILIZATION):
+        events_per_hour = count_events / sim_hours if sim_hours > 0 else count_events
+        energy_kwh_per_hour = events_per_hour * avg_session_kwh
+        capacity_kwh_per_hour_per_charger = charger_kw * utilization
+        if capacity_kwh_per_hour_per_charger <= 0:
+            return 1
+        n = math.ceil(energy_kwh_per_hour / capacity_kwh_per_hour_per_charger)
+        return max(1, n)
+
+    def find_nearest_lane_id(net, x, y):
+        if not HAS_SUMOLIB or net is None:
+            return None
+        try:
+            lane = net.getNearestLane((x, y))
+            return lane.getID() if lane else None
+        except Exception:
+            return None
+
+    df = read_log(default_log)
+    total_rows = len(df)
+    print(f"Read {total_rows} rows from {default_log}")
+
+    # detect if any charging stations were logged
+    has_station_col = "charging_station" in df.columns
+    stations_present = False
+    if has_station_col:
+        stations_present = df["charging_station"].notnull().astype(bool).any()
+    if stations_present:
+        print("NOTE: Some charging_station entries exist in the log. This script focuses on low-SOC hotspots when no stations are present.")
+        # We proceed but warn the user.
+
+    # select low-SOC rows
+    low_df = df[df["soc_percent"] <= SOC_THRESHOLD].copy()
+    if len(low_df) == 0:
+        print(f"No rows with soc_percent <= {SOC_THRESHOLD} found. Nothing to do.")
+        return
+    print(f"Low-SOC rows (<= {SOC_THRESHOLD}%): {len(low_df)}")
+
+    coords = low_df[["x","y"]].to_numpy()
+    # cluster
+    labels = cluster_low_soc_points(coords, eps=EPS_METERS, min_samples=MIN_SAMPLES)
+    low_df["cluster"] = labels
+
+    clusters = {}
+    for lbl in sorted(set(labels)):
+        if lbl == -1:
+            continue
+        subset = low_df[low_df["cluster"] == lbl]
+        cx = float(subset["x"].mean())
+        cy = float(subset["y"].mean())
+        count = len(subset)
+        mean_soc = float(subset["soc_percent"].mean())
+        # compute spread
+        dists = np.sqrt((subset["x"] - cx)**2 + (subset["y"] - cy)**2)
+        max_dist = float(dists.max()) if len(dists) > 0 else 0.0
+        radius = max(25.0, max_dist + BUFFER_MARGIN)
+        clusters[lbl] = {
+            "cluster": int(lbl),
+            "center_x": cx,
+            "center_y": cy,
+            "count": int(count),
+            "mean_soc": mean_soc,
+            "radius": radius,
+            "points": subset[["x","y","time","veh_id","soc_percent"]]
+        }
+
+    if not clusters:
+        print("No clusters found (all points considered noise). Consider reducing eps or min_samples.")
+        return
+
+    # estimate simulation hours from time column if provided
+    if "time" in df.columns:
+        tmin = df["time"].min()
+        tmax = df["time"].max()
+        sim_hours = max( (tmax - tmin) / 3600.0, 1.0/3600.0 )
+        print(f"Estimated sim duration: {sim_hours:.3f} hours (time range {tmin} .. {tmax})")
+    else:
+        sim_hours = 1.0
+        print("No time column found; assuming sim_hours=1.0")
+
+    # build CSV rows and GeoJSON features
+    csv_rows = []
+    features = []
+    # try load network if requested
+    net = None
+    if HAS_SUMOLIB:
+        try:
+            net = sumolib.net.readNet(default_log)
+            print("Loaded SUMO network:", default_log)
+        except Exception as e:
+            print("Could not load net:", e)
+            net = None
+
+    for i, c in enumerate(sorted(clusters.values(), key=lambda x: x["count"], reverse=True)):
+        est_chargers = estimate_chargers(c["count"], sim_hours, avg_session_kwh=AVG_SESSION_KWH,
+                                         charger_kw=CHARGER_KW, utilization=UTILIZATION)
+        csv_rows.append({
+            "cluster_id": c["cluster"],
+            "center_x": c["center_x"],
+            "center_y": c["center_y"],
+            "count_low_soc": c["count"],
+            "mean_soc": c["mean_soc"],
+            "radius_m": c["radius"],
+            "estimated_chargers": est_chargers
+        })
+        poly = polygon_around_points(c["center_x"], c["center_y"], c["radius"], n_points=POLY_POINTS)
+        prop = {
+            "cluster_id": c["cluster"],
+            "count_low_soc": c["count"],
+            "mean_soc": c["mean_soc"],
+            "estimated_chargers": est_chargers
+        }
+        features.append({
+            "type": "Feature",
+            "properties": prop,
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [poly]
+            }
+        })
+
+    # save CSV
+    out_df = pd.DataFrame(csv_rows)
+    os.makedirs(os.path.dirname(out_csv), exist_ok=True)
+    out_df.to_csv(out_csv, index=False)
+    print("Wrote CSV:", out_csv)
+
+    # save geojson
+    geo = {"type": "FeatureCollection", "features": features}
+    os.makedirs(os.path.dirname(out_geojson), exist_ok=True)
+    with open(out_geojson, "w", encoding="utf-8") as f:
+        json.dump(geo, f, indent=2)
+    print("Wrote GeoJSON:", out_geojson)
+
+    # write SUMO additional XML: if lane mapping possible, attach lane else write commented coords
+    with open(out_xml, "w", encoding="utf-8") as f:
+        f.write("<additional>\n")
+        for r in csv_rows:
+            cx = r["center_x"]
+            cy = r["center_y"]
+            radius = next(c["radius"] for c in clusters.values() if c["center_x"] == cx and c["center_y"] == cy)
+            # find lane id if possible
+            lane_id = None
+            if net:
+                lane_id = find_nearest_lane_id(net, cx, cy)
+            start_pos = 0.0
+            end_pos = 2.0
+            power_w = int(CHARGER_KW * 1000)
+            if lane_id:
+                f.write(f'  <chargingStation id="ns_cs_{r["cluster_id"]}" lane="{lane_id}" startPos="{start_pos:.2f}" endPos="{end_pos:.2f}" power="{power_w}" efficiency="0.95"/>\n')
+            else:
+                f.write(f'  <!-- ns_cs_{r["cluster_id"]} at ({cx:.1f},{cy:.1f}) r={radius:.1f} est_chargers={r["estimated_chargers"]} -->\n')
+        f.write("</additional>\n")
+    print("Wrote XML (or commented suggestions):", out_xml)
+
+    print("Done. Suggested clusters:", len(csv_rows))
+    print("Tip: visualize the geojson in QGIS / any GeoJSON viewer.")

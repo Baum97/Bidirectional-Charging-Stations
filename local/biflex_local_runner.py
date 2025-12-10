@@ -35,6 +35,9 @@ import xml.etree.ElementTree as ET
 import xml.etree.ElementTree as ET
 import re
 
+from convert_logs_to_csv import process_sumo_logs as convert_logs_to_csv
+from train_from_sumo_log_no_stations import process_sumo_log_no_stations as train_from_sumo_log_no_stations
+
 
 
 HOST = "127.0.0.1"
@@ -198,9 +201,17 @@ def create_sumo_config(net_file, trips_file, additional_files, base_dir):
         f"        <route-files value=\"{trips_file}\"/>\n"
         f"        <additional-files value=\"{additional_files}\"/>\n"
         "    </input>\n"
+        "    <output>\n"
+        "        <fcd-output value=\"fcd_output.xml.gz\"/>\n"
+        "        <battery-output value=\"battery_output.xml.gz\"/>\n"
+        "        <chargingstations-output value=\"chargingstations.xml\"/>\n"
+        "        <vehroute-output value=\"veh_routes.xml.gz\"/>\n"
+        "        <vehroute-output.write-unfinished value=\"true\"/>\n"  
+        "        <vehroute-output.sorted value=\"true\"/>\n"
+        "    </output>\n"
         "    <time>\n"
         "        <begin value=\"0\"/>\n"
-        "        <step-length value=\"1\"/>\n"
+        "        <step-length value=\"10\"/>\n"
         "    </time>\n"
         "    <processing>\n"
         "        <ignore-route-errors value=\"true\"/>\n"
@@ -496,6 +507,58 @@ def generate_synthetic_distribution(osm_file):
     }
 
 
+def extract_real_charging_stations(osm_file):
+    """
+    Extract real charging stations from an OSM file.
+
+    Args:
+        osm_file (str): Path to the OSM file.
+
+    Returns:
+        dict: GeoJSON FeatureCollection of charging stations.
+    """
+    tree = ET.parse(osm_file)
+    root = tree.getroot()
+
+    # Collect all nodes
+    nodes = {}
+    for n in root.findall("node"):
+        nid = n.get("id")
+        lat = float(n.get("lat"))
+        lon = float(n.get("lon"))
+        nodes[nid] = (lon, lat)  # GeoJSON expects [lon, lat]
+
+    features = []
+
+    # --- Charging stations ---
+    for n in root.findall("node"):
+        tags = {t.get("k"): t.get("v") for t in n.findall("tag")}
+        amenity = tags.get("amenity")
+        if amenity == "charging_station":
+            nid = n.get("id")
+            lon, lat = nodes[nid]
+            feature = {
+                "type": "Feature",
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [lon, lat],
+                },
+                "properties": {
+                    "osm_id": nid,
+                    "name": tags.get("name"),
+                    "operator": tags.get("operator"),
+                    "capacity": tags.get("capacity"),
+                },
+            }
+            features.append(feature)
+
+    return {
+        "type": "FeatureCollection",
+        "features": features,
+    }
+
+
+
 class Handler(BaseHTTPRequestHandler):
     def _set_cors(self):
         self.send_header("Access-Control-Allow-Origin", "http://localhost:8080")
@@ -521,6 +584,10 @@ class Handler(BaseHTTPRequestHandler):
                 # Step 1: Download OSM data -> returns full path to the file
                 osm_file = download_osm_data(bbox, scenario)
                 scen_dir = os.path.dirname(osm_file)
+
+                # Extract real already existing charging stations
+                real_charging_stations = extract_real_charging_stations(osm_file)
+                print(f"[INFO] Extracted real charging stations: {len(real_charging_stations['features'])} found")
 
                 # Real high-/medium-voltage grid from OSM
                 real_grid = extract_power_grid(osm_file)
@@ -564,6 +631,35 @@ class Handler(BaseHTTPRequestHandler):
                 # Step 8: Create sim.sumocfg
                 create_sumo_config(net_file, trips_file, "combined_additional.xml", scen_dir)
 
+                # Step 9: Run simulation to generate logs
+                print("[INFO] Running SUMO simulation...")
+                sumo_command = ["sumo", "-c", "sim.sumocfg"]
+                try:
+                    subprocess.run(sumo_command, check=True, cwd=scen_dir)
+                    print("[INFO] SUMO simulation completed successfully.")
+                except subprocess.CalledProcessError as e:
+                    raise RuntimeError(f"SUMO simulation failed: {e}")
+
+                # Step 10: convert logs to CSV (optional)
+                convert_logs_to_csv(
+                    os.path.join(scen_dir, "fcd_output.xml.gz"),
+                    os.path.join(scen_dir, "battery_output.xml.gz"),
+                    os.path.join(scen_dir, "combined_additional.xml"),
+                    os.path.join(scen_dir, "sumo_merged_output.csv")
+                )
+
+                print("[INFO] Logs converted to CSV successfully.")
+
+                # Step 11: generate stations from log
+                train_from_sumo_log_no_stations(
+                    os.path.join(scen_dir, "sumo_merged_output.csv"),
+                    os.path.join(scen_dir, "no_station_charging_suggestions.csv"),
+                    os.path.join(scen_dir, "no_station_areas.geojson"),
+                    os.path.join(scen_dir, "generated_charging_no_stations.add.xml")
+                )
+
+                heatmap_geojson = os.path.join(scen_dir, "no_station_areas.geojson")
+
                 # Respond with success
                 resp = {
                     "ok": True,
@@ -572,6 +668,8 @@ class Handler(BaseHTTPRequestHandler):
                     "networkFile": net_file,
                     "poiFiles": poi_files,
                     "powerGrid": power_grid,
+                    "realChargingStations": real_charging_stations,  # Added charging stations
+                    "heatmapGeoJSON": heatmap_geojson  # Added heatmap geojson
                 }
                 payload = json.dumps(resp).encode("utf-8")
                 self.send_response(200)

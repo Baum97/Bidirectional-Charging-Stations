@@ -5,22 +5,6 @@ import xml.etree.ElementTree as ET
 import sys
 import os
 
-"""
-1. Define User Groups and Trip Purposes
-Add enums or dictionaries to represent user groups (e.g., working persons, students) and trip purposes (e.g., work, shopping, leisure).
-
-2. Generate Trip Chains
-Replace the simple home-work-home logic with a method to generate trip chains. Each chain can include multiple stops with varying purposes, durations, and distances.
-
-3. Incorporate Stochastic Sampling
-Use cumulative distributions to sample trip parameters like departure times, distances, and stay durations. This ensures variability and realism.
-
-4. Enhance EV Modeling
-Add logic for EV-specific constraints, such as charging stops and battery levels.
-
-"""
-from enum import Enum
-
 def generate_trips(netfile, input_csvs, output_dir):
     """
     Generate trips based on POI edges and save them to an XML file.
@@ -39,30 +23,6 @@ def generate_trips(netfile, input_csvs, output_dir):
     work_duration = 8 * 3600  # 8 hrs in sec
     ev_share = 0.6  # part of electrical cars
     num_evs = int(num_persons * ev_share)
-
-    # Define trip purposes
-    class Purpose(Enum):
-        WORK = "work"
-        SHOPPING = "shopping"
-        LEISURE = "leisure"
-        HOME = "home"
-
-    # Define user groups
-    class UserGroup(Enum):
-        WORKING_PERSON = "working_person"
-        STUDENT = "student"
-        NON_WORKING_PERSON = "non_working_person"
-
-    # Define regional types
-    class RegionType(Enum):
-        URBAN = "urban"
-        RURAL = "rural"
-
-    # Define time categories
-    class TimeOfDay(Enum):
-        MORNING = "morning"
-        MIDDAY = "midday"
-        EVENING = "evening"
 
     # Load network and define edges
     def edge_allows_passenger(edge):
@@ -100,54 +60,21 @@ def generate_trips(netfile, input_csvs, output_dir):
     all_ids = [p['id'] for p in persons]
     ev_ids = set(random.sample(all_ids, num_evs))
 
-    # Function to generate trip chains
-    def generate_trip_chain(user_group, region_type):
-        trip_chain = []
-
-        # Define probabilities for trip purposes based on user group
-        if user_group == UserGroup.WORKING_PERSON:
-            purposes = [Purpose.HOME, Purpose.WORK, Purpose.SHOPPING, Purpose.HOME]
-        elif user_group == UserGroup.STUDENT:
-            purposes = [Purpose.HOME, Purpose.WORK, Purpose.LEISURE, Purpose.HOME]
-        else:
-            purposes = [Purpose.HOME, Purpose.SHOPPING, Purpose.LEISURE, Purpose.HOME]
-
-        # Generate trips with stochastic departure times
-        for i, purpose in enumerate(purposes):
-            if i == 0:
-                depart_time = random.uniform(6 * 3600, 9 * 3600)  # Morning departure
-            else:
-                depart_time += random.uniform(1 * 3600, 3 * 3600)  # Add random interval
-
-            trip_chain.append({
-                'purpose': purpose.value,
-                'depart_time': round(depart_time, 2),
-                'region': region_type.value
-            })
-
-        return trip_chain
-
-    # Define user groups and regions
-    user_groups = [UserGroup.WORKING_PERSON, UserGroup.STUDENT, UserGroup.NON_WORKING_PERSON]
-    region_types = [RegionType.URBAN, RegionType.RURAL]
-
-    # Generate trips for each user
-    all_trips = []
-    for i in range(1, num_persons + 1):
-        user_group = random.choice(user_groups)
-        region_type = random.choice(region_types)
-        trip_chain = generate_trip_chain(user_group, region_type)
-        all_trips.append(trip_chain)
-
-    # Use the generated trip chains to create vehicles
+    # Produce random route
     vehicles = []
-    for i, trip_chain in enumerate(all_trips):
-        veh_type = "veh_ev" if i < num_evs else "veh_passenger"
+    for p in persons:
+        depart_morning = round(random.uniform(*morning_depart_interval), 2)
+        veh_type = "veh_ev" if p['id'] in ev_ids else "veh_passenger"
         vehicles.append({
-            'id': f'person{i + 1}',
+            'id': p['id'],
             'type': veh_type,
-            'trips': trip_chain
+            'depart': depart_morning,
+            'route': [p['home'], p['work'], p['home']],
+            'stop_edge': p['work'],
+            'stop_duration': work_duration
         })
+
+    vehicles.sort(key=lambda v: v['depart'])
 
     # Create XML structure
     routes = ET.Element('routes')
