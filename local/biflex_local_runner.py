@@ -534,6 +534,8 @@ class Handler(BaseHTTPRequestHandler):
                     "features": real_grid["features"] + synthetic_grid["features"],
                 }
 
+                print(json.dumps(power_grid, indent=2))
+
                 # Step 2: Build SUMO network
                 net_file = build_sumo_network(osm_file, scenario)
 
