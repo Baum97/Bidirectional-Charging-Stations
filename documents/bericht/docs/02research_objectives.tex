@@ -1,0 +1,116 @@
+\section{Research Objectives}
+The continuous growth of e-mobility in urban areas presents city planners and grid operators with new challenges. While technologies such as \ac{V2G} open up new possibilities, they also require precise planning of locations.
+The following chapter outlines the overarching objectives of this work and breaks them down into successive phases. Technical implementation details will not be discussed yet.
+
+\subsection{Research goals}
+The goal of this research is to develop a framework that optimizes the location and validates the placement of bidirectional charging stations under realistic traffic conditions.
+
+\subsection{Research phases}
+\label{research_phases}
+The research is organized into seven phases, each with specific tasks and deliverables. The phases span from a foundational literature review and prototype development to \ac{V2G} integration, scalable deployment, and a final interactive dashboard.
+
+\begin{longtable}{|p{1\textwidth}|}
+\hline
+\rowcolor{gray!20}
+\textbf{Phase 1: Basics and literature review} \\
+\hline
+\begin{itemize}
+\item Derive functional \& non-functional requirements
+\item Define evaluation metrics (coverage, grid load, wait times)
+\item Research methods \& data sources:
+\begin{itemize}
+\item \ac{OSM}
+\item Simulation tools
+\item Traffic scenarios
+\item Charging behavior
+\item Grid models
+\item Charging Station Placement algorithms
+\item \ac{V2G} concepts
+\end{itemize}
+\end{itemize}
+\textbf{Deliverable:} requirements, concept (Workflow) \\
+\hline
+
+\rowcolor{gray!20}
+\textbf{Phase 2: Prototypical implementation} \\
+\hline
+\begin{itemize}
+\item Traffic scenario
+\item Algorithm to determine best locations
+\item Placement of first charging stations
+\end{itemize}
+\textbf{Deliverable:} example map with prototype algorithm \\
+\hline
+
+\rowcolor{gray!20}
+\textbf{Phase 3: Validation} \\
+\hline
+\begin{itemize}
+\item Iterative Validation
+\item Use defined metrics to evaluate placement of charging stations
+\end{itemize}
+\textbf{Deliverable:} report \\
+\hline
+
+\rowcolor{gray!20}
+\textbf{Phase 4: Vehicle-to-Grid Implementation} \\
+\hline
+\begin{itemize}
+\item Data sources
+\item Implementation into simulation + algorithm
+\end{itemize}
+\textbf{Deliverable:} example map with prototype algorithm + \ac{V2G} \\
+\hline
+
+\rowcolor{gray!20}
+\textbf{Phase 5: Generalization \& scaling} \\
+\hline
+\begin{itemize}
+\item Implement for arbitrary maps/ regions
+\item Optimize performance
+\end{itemize}
+\textbf{Deliverable:} application for arbitrary maps \\
+\hline
+
+\rowcolor{gray!20}
+\textbf{Phase 6: Web Application} \\
+\hline
+\begin{itemize}
+\item Frontend for map upload \& parameter selection
+\item Backend service for map handling and algorithm execution
+\end{itemize}
+\textbf{Deliverable:} working web application \\
+\hline
+
+\rowcolor{gray!20}
+\textbf{Phase 7: Dashboard} \\
+\hline
+\begin{itemize}
+\item Interactive dashboard (map + KPIs)
+\item Export options (CSV, GeoJSON)
+\end{itemize}
+\textbf{Deliverable:} app with live-dashboard \\
+\hline
+
+\end{longtable}
+
+The project is designed to span three semesters. Phases 1 and 3 are scheduled for the first semester. Phases 4 and 5 are planned for the second semester, and phases 6 and 7 are planned for the third and final semester.
+
+Although SUMO is not a mandatory requirement for creating a realistic traffic scenario or determining the locations for the charging stations, it will be used for running the simulation itself. For that reasons the workflow should incorporate it as much into the workflow as possible, especially to ensure backwards compatibility.
+
+\subsection{Underlying assumptions}
+The following assumptions form the basis for the modeling and simulation of traffic and charging processes.
+
+\begin{itemize}
+    \item \textbf{Homogeneous Fleet Parameters}: All electric vehicles do have the same charging power and battery capacity to reduce simulation complexity. This can change depending on the progress of this project.
+    \item \textbf{Data Quality}: OpenStreetMap geometries and the network data are sufficiently complete and error-free.
+\end{itemize}
+
+\newpage
+\subsection{Anticipated contributions}
+This section outlines the anticipated key contributions of this research:
+
+\begin{itemize}
+    \item \textbf{Web Application and Dashboard for planners}: intuitive map upload, fine-tuning of parameters, interactive visualization, and reporting.
+    \item \textbf{Concrete recommendations}: for city planners and grid operators regarding bidirectional charging infrastructure.
+\end{itemize}

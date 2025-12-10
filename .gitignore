@@ -2,4 +2,4 @@
 *.csv
 code/python/*.csv
 code/python/generated_files/logs/*.xml.gz
-
+.vs

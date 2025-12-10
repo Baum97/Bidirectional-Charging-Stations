@@ -1,0 +1,9 @@
+\thispagestyle{plain}
+\section*{Abstract}
+This work focuses on the research, development, and prototypical implementation of a simulation-based system for planning and optimizing electric vehicle (EV) charging infrastructure in urban environments. Despite recent advances in e-mobility and bidirectional charging, there remains a lack of data-driven tools for the strategic placement of charging stations.
+
+To address this gap, a flexible simulation workflow was designed using OpenStreetMap data and SUMO to generate realistic traffic flows and EV charging behaviors via custom Python scripts. An initial approach combining MATSim and SUMO was discarded due to technical challenges.
+
+The core of the system is an iterative optimization algorithm that evaluates real-time charging demand. Using TraCI, vehicle behavior and charging states are monitored and logged. Underused stations are systematically removed, leading to a more efficient spatial distribution of stations.
+
+The anticipated outcome is a web-based planning tool that helps urban planners and grid operators to simulate realistic scenarios, adjust parameters, and identify optimal locations for EV charging stations. In the future, the system may be expanded to support grid integrations and vehicle-to-grid (V2G) strategies in order to meet the demands of future mobility and energy infrastructures.
