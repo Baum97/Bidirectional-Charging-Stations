@@ -3,3 +3,4 @@
 code/python/*.csv
 code/python/generated_files/logs/*.xml.gz
 .vs
+/code/python/generated_files/logs

@@ -1,4 +1,3 @@
-# Bereinigte Version des Skripts
 # - Kein LabelEncoder mehr
 # - Edge-ID-Mapping wird aus CSV erzeugt und gespeichert
 # - Mapping wird beim Netz-Scan geladen
