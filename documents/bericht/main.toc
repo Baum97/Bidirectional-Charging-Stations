@@ -1,0 +1,61 @@
+\babel@toc {ngerman}{}\relax 
+\contentsline {section}{Abbildungsverzeichnis}{vi}{Doc-Start}%
+\contentsline {section}{List of Abbreviations}{vii}{Doc-Start}%
+\contentsline {section}{\numberline {1}Introduction}{1}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Motivation}{1}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Relevance}{1}{subsection.1.2}%
+\contentsline {section}{\numberline {2}Research Objectives}{3}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Research goals}{3}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Research phases}{3}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Underlying assumptions}{4}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}Anticipated contributions}{5}{subsection.2.4}%
+\contentsline {section}{\numberline {3}Methodology}{6}{section.3}%
+\contentsline {section}{\numberline {4}Requirements}{7}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Requirements}{7}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Success Criteria}{9}{subsection.4.2}%
+\contentsline {section}{\numberline {5}Research}{10}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Realistic Traffic Scenario Generation}{10}{subsection.5.1}%
+\contentsline {subsubsection}{\numberline {5.1.1}Requirements for Realistic Traffic Scenario Generation}{10}{subsubsection.5.1.1}%
+\contentsline {subsubsection}{\numberline {5.1.2}Presentation of relevant tools}{11}{subsubsection.5.1.2}%
+\contentsline {subsubsubsection}{SUMO}{11}{subsubsubsection*.4}%
+\contentsline {subsubsubsection}{TraCi}{12}{subsubsubsection*.5}%
+\contentsline {subsubsubsection}{SAGA}{12}{subsubsubsection*.6}%
+\contentsline {subsubsubsection}{MATSim}{13}{subsubsubsection*.7}%
+\contentsline {subsubsubsection}{BEAM}{13}{subsubsubsection*.8}%
+\contentsline {subsubsubsection}{JOSM}{14}{subsubsubsection*.9}%
+\contentsline {subsubsection}{\numberline {5.1.3}Combination of SUMO with different frameworks/ tools}{14}{subsubsection.5.1.3}%
+\contentsline {subsubsubsection}{Combination of SAGA and SUMO}{14}{subsubsubsection*.10}%
+\contentsline {subsubsubsection}{Combination of MATSim and SUMO}{15}{subsubsubsection*.11}%
+\contentsline {subsubsubsection}{Combination of BEAM and SUMO}{15}{subsubsubsection*.13}%
+\contentsline {subsubsection}{\numberline {5.1.4}Comparison of introduced concepts}{16}{subsubsection.5.1.4}%
+\contentsline {subsection}{\numberline {5.2}Charging Station Placement Algorithm}{19}{subsection.5.2}%
+\contentsline {subsubsection}{\numberline {5.2.1}Requirements for Charging Station Placement Algorithm}{19}{subsubsection.5.2.1}%
+\contentsline {subsubsection}{\numberline {5.2.2}Assumptions}{19}{subsubsection.5.2.2}%
+\contentsline {subsubsubsection}{Parking areas}{19}{subsubsubsection*.16}%
+\contentsline {subsubsubsection}{Points of Interests}{19}{subsubsubsection*.17}%
+\contentsline {subsubsection}{\numberline {5.2.3}Charging Station Algorithm}{20}{subsubsection.5.2.3}%
+\contentsline {subsection}{\numberline {5.3}Integration of Grid Models}{21}{subsection.5.3}%
+\contentsline {subsubsection}{\numberline {5.3.1}Requirements for Integration of Grid Models}{21}{subsubsection.5.3.1}%
+\contentsline {subsubsection}{\numberline {5.3.2}Approaches to integrate V2G functionality}{21}{subsubsection.5.3.2}%
+\contentsline {subsubsubsection}{Integration of Power Lines into Simulation Network}{21}{subsubsubsection*.19}%
+\contentsline {subsubsubsection}{Runtime Monitoring of Grid Loads}{21}{subsubsubsection*.20}%
+\contentsline {section}{\numberline {6}Decision and implementation}{23}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Decision}{23}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Implementation}{23}{subsection.6.2}%
+\contentsline {subsubsection}{\numberline {6.2.1}Prototyping}{23}{subsubsection.6.2.1}%
+\contentsline {subsubsection}{\numberline {6.2.2}Refactoring and technical learning}{24}{subsubsection.6.2.2}%
+\contentsline {subsubsection}{\numberline {6.2.3}Current implementation}{24}{subsubsection.6.2.3}%
+\contentsline {subsubsection}{\numberline {6.2.4}Overview of architecture and Dataflow}{25}{subsubsection.6.2.4}%
+\contentsline {subsubsubsection}{Population Generation}{26}{subsubsubsection*.24}%
+\contentsline {subsubsubsection}{Charging Station Generation}{28}{subsubsubsection*.26}%
+\contentsline {subsubsubsection}{Simulation}{29}{subsubsubsection*.28}%
+\contentsline {section}{\numberline {7}Results}{31}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Showcase}{31}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}Functionalities}{31}{subsection.7.2}%
+\contentsline {section}{\numberline {8}Discussion}{34}{section.8}%
+\contentsline {subsection}{\numberline {8.1}Interpretation of Results and Evaluation of Workflows}{34}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}Optimizing Charging Station Placement}{34}{subsection.8.2}%
+\contentsline {subsection}{\numberline {8.3}Challenges with Power Grid Integration}{35}{subsection.8.3}%
+\contentsline {subsection}{\numberline {8.4}Fulfillment of Research Objectives}{35}{subsection.8.4}%
+\contentsline {subsection}{\numberline {8.5}Further work}{35}{subsection.8.5}%
+\contentsfinish 

@@ -1,0 +1,22 @@
+\section{Methodology}
+The following section describes the methodological approach used to research and develop a system to evaluate and optimize the distribution of electric charging stations using traffic simulation. The aim was to optimize locations based on synthetic traffic data and different placement algorithms.
+
+Here, an exploratory approach was chosen with the goal of identifying and evaluating potential locations for charging stations in iterative test series. The central research questions were:
+\begin{itemize}
+    \item How can you simulate traffic as realistically as possible using SUMO?
+    \item What does an algorithm for optimizing the location of charging stations in urban traffic look like?
+    \item Which placement strategy (random vs. based on traffic volume) minimizes the number of empty loading cycles?
+    \item How can charging locations be evaluated?
+\end{itemize}
+
+Various OSM map areas of different sizes served as the basis for development. For the first steps, parameters such as people, daily schedules, and the number of initial charging stations were set arbitrarily. This initially served to develop a stable workflow.
+
+For the optimization algorithm itself an iterative development strategy was applied. Charging stations were initially placed based on heuristics (e.g. traffic density, lane length or randomly), and each simulation cycle logged charging behaviors. The results informed subsequent iterations, aiming to minimize empty charging cycles and improve station utilization.
+
+A variety of tools and frameworks were utilized throughout the course of this work to build, simulate, and evaluate traffic scenarios. The simulation regions were obtained using JSOM (v19369) and osmGet (provided by SUMO), both of which provide raw OSM data. These were then used as inputs and further processed by the following tools.
+
+SUMO (v1.24.0) was selected as the primary simulation framework due to its robust ecosystem of tools (e.g. \texttt{netconvert}, \texttt{duarouter}, \texttt{osmGet}, and \texttt{osmWebWizard}) and its support for detailed, customizable  traffic scenarios. Its visual interface and Python integration via TraCI (v1.24.0) allowed for real-time parameter adjustments and dynamic data collection.
+
+Initially, MATSim (v2024.0) was used for generating realistic daily schedules, particularly due to its strength in simulating detailed agent behavior. However, it was eventually phased out due to inconsistent outputs, unreliable conversion scripts, and lack of determinism. It was replaced by custom Python (v3.13.2) scripts, which provided greater reliability, transparency, and control over scenario generation.
+
+All configuration files and scripts were maintained under version control via Git and GitHub. A structured project board tracked ongoing, completed, and planned features. To minimize outliers and guarantee determinism, simulations were run multiple times.

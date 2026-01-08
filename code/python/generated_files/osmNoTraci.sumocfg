@@ -10,7 +10,7 @@
 
     <time>
         <begin value="10000"/>
-        <step-length value="10"/>
+        <step-length value="1"/>
     </time>
 
     <processing>
@@ -23,7 +23,6 @@
         <!-- Battery device for SOC tracking -->
         <device.battery.probability value="1"/>
         <device.battery.explicit value="veh_ev"/>
-        <device.battery.track-charging-stations value="true"/>
 
         <!-- Rerouting only for EVs -->
         <device.rerouting.probability value="1.0"/>
@@ -42,7 +41,7 @@
         <device.rerouting.adaptation-interval value="30"/>
         <device.rerouting.pre-period value="120"/>
         <device.rerouting.with-taz value="false"/>
-    </routing>
+    </routing> 
 
     <output>
         <!-- Position, Speed, Lane, Edge, etc. -->
@@ -50,6 +49,8 @@
 
         <!-- Battery data (SOC, max capacity, consumption, etc.) -->
         <battery-output value="logs/battery_output.xml.gz"/>
+
+        <chargingstations-output value="logs/chargingstations.xml"/>
 
         <!-- Route information -->
         <vehroute-output value="logs/veh_routes.xml.gz"/>

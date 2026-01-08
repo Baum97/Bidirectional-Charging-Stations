@@ -3,7 +3,7 @@
 The root dir shall not contain files necessary for development or documentation, so that orderly work habits can be guaranteed.
 
 - documents: papers, presentations, images 
-- files: fiels that offer information
+- files: files that offer information
 - code: code and logs
 - .github
 
@@ -21,4 +21,5 @@ are the only directories in root, along with .gitignore and README.md
  ## SUMO-GUI
 
  To execute the simulation WITH a Graphical User Interface, the 'sumo_cmd' variable has to contain "sumo-gui" as its first parameter. If the simulation is to be executed without graphical interface, only use "sumo" as the first parameter.
+
 
