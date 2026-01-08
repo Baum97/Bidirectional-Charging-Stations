@@ -1,0 +1,65 @@
+\usepackage{setspace}
+\usepackage{libertine}
+\usepackage{fancyhdr}
+\usepackage{wrapfig}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{array}
+\usepackage{etoolbox}
+\usepackage{tocloft}
+\usepackage{bookmark}
+\usepackage{hyperref}
+\usepackage{float}
+
+\hypersetup{
+  pdfborder = {0 0 0},       % keine Rahmen um Links
+  colorlinks = true,         % (alternativ) farbige Links statt Kästchen
+  linkcolor  = black,        % Link-Farbe schwarz
+  citecolor  = black,
+  urlcolor   = black
+}
+
+% Fonts
+\usepackage{helvet}
+\renewcommand{\rmdefault}{\sfdefault}
+
+% Seitenränder
+\usepackage[
+  left=3cm,
+  right=3cm,
+  top=2cm,
+  bottom=2cm
+]{geometry}
+
+% Text-Color
+\usepackage{xcolor}
+
+% Quellen
+\usepackage[style=ieee, backend=biber]{biblatex}
+\addbibresource{sources/sources_00.bib}
+\AtBeginBibliography{\sloppy}
+
+% Tabellen
+\usepackage{longtable}
+\usepackage{geometry}
+\usepackage{enumitem}
+\geometry{margin=1in}
+\usepackage{colortbl}
+
+\setlist[itemize]{itemsep=0pt, parsep=0pt, topsep=0pt}
+
+% Gegen Indents
+\usepackage{parskip}
+
+\usepackage{pdflscape}
+\usepackage{booktabs}
+\usepackage{amssymb}
+
+\usepackage{pdflscape}    % rotates page and PDF view
+\usepackage{tabularx}     % for X-columns that flexibly wrap
+\usepackage{xcolor}       % for \textcolor
+\usepackage{amssymb}      % for \checkmark
+
+\usepackage[printonlyused]{acronym}
+
+\usepackage{subcaption}

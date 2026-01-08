@@ -1,0 +1,106 @@
+
+\section{Requirements}
+In the context of software, requirements state boundaries or necessities of specific circumstances or events that occur, so that the software is still able to run without any inconvenience. Requirements in the field of product ownership generally means what exactly the software does and what not. The requirements get communicated mainly with the customers and the product owner, who is trained to figure out the exact needs for the software.
+Below, the general requirements for the system are first defined in functional and non-functional terms. Then, the specific requirements for the core components are presented in detail.
+
+\subsection{Requirements}
+
+\renewcommand{\arraystretch}{1.3}
+% Flattersatz für p{}-Spalten
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+\begin{longtable}{|P{1.5cm}|P{4cm}|P{8cm}|P{2cm}|}
+\hline
+\rowcolor{gray!20}
+\multicolumn{4}{|l|}{\textbf{1. Overall System Requirements}} \\
+\hline
+\textbf{ID} & \textbf{Name} & \textbf{Description} & \textbf{Priority} \\
+\hline
+R1.1 & OSM-Integration & The system must be able to integrate maps from OpenStreetMap. & High \\
+\hline
+R1.2 & Automation & The system must enable the developed workflow (network \& traffic generation, simulation, analysis, output) to be automated and script-controlled. & High \\
+\hline
+R1.3 & Configurable Parameters & Users have to be able to set parameters like charging power, number of charging stations and agents, mobility patterns, charging behavior profiles and optionally power grid data. & Medium \\
+\hline
+R1.4 & Modularity & The system should have a modular structure so that components such as simulation, traffic generation and visualization can be processed independently. & Low \\
+\hline
+R1.5 & Extensibility & The system architecture should support future extensions (e.g. new optimization algorithms, data inputs). & Low \\
+\hline
+R1.6 & Performance & The system should handle large geographic areas and thousands of agents in $<$ 10  minutes. & High \\
+\hline
+R1.7 & Usability & The web UI should be intuitive, with real-time feedback and helpful defaults. & Medium \\
+\hline
+R1.8 & Reproducibility & The system must allow reproducibility via random seeds, logs, and versioning. & High \\
+\hline
+\rowcolor{gray!20}
+\multicolumn{4}{|l|}{\textbf{2. Traffic and Charging Behavior}} \\
+\hline
+R2.1 & EVs with Charging Profiles & The system must simulate electric vehicles with energy-related behavior (SOC, charging-demand, consumption). & High \\
+\hline
+R2.2 & Charging Station Placement & It must be possible to define charging points in the network via script and independently of main traffic. & High \\
+\hline
+R2.3 & Bottleneck Detection & The system should detect bottlenecks at charging points. & Medium \\
+\hline
+R2.4 & Traffic Agent Generation & The system should generate realistic agents with daily routines (e.g. work-home-leisure), including rush hours. & High \\
+\hline
+R2.5 & Vehicle Configuration & It must support agent density, battery sizes, vehicle types. & Medium \\
+\hline
+\rowcolor{gray!20}
+\multicolumn{4}{|l|}{\textbf{3. Location Analysis and Optimization}} \\
+\hline
+R3.1 & Clustering Analysis & Hotspot analysis for EV charging demand. & High \\
+\hline
+R3.2 & New Charging Point Proposals & Automatic suggestion of new charging locations. & High \\
+\hline
+R3.3 & Data Export & Export of results (GeoJSON, XML). & Medium \\
+\hline
+R3.4 & Multi-Criteria Optimization & Optimize locations based on traffic flow, accessibility, grid capacity. & High \\
+\hline
+R3.5 & Optimization Goals & Support goals like maximizing coverage or minimizing average distance. & Medium \\
+\hline
+R3.6 & Result Scoring & Provide ranked list of candidate sites with scores. & Medium \\
+\hline
+R3.7 & Logs & Maintain detailed logs for all optimization runs. & Medium \\
+\hline
+\rowcolor{gray!20}
+\multicolumn{4}{|l|}{\textbf{4. Network Modeling and Geo-data Processing}} \\
+\hline
+R4.1 & Automatic conversion & Convert OpenStreetMap into simulation-ready format. & High \\
+\hline
+R4.2 & POIs & Automatically detect POIs from OSM data. & High \\
+\hline
+R4.3 & Network & Automatically generate simulation-ready network (.xml). & High \\
+\hline
+R4.4 & Grid Data Support & Optionally integrate power grid data into optimization. & Medium \\
+\hline
+\rowcolor{gray!20}
+\multicolumn{4}{|l|}{\textbf{5. Population Behavior}} \\
+\hline
+R5.1 & Daily Patterns & The population must follow a reasonable daily pattern (home-work-leisure-home-patterns). & High \\
+\hline
+R5.2 & Temporal Variation & Include stochastic variation in departure/arrival times. & Medium \\
+\hline
+R5.3 & Population & Automatically generate simulation-ready population (\texttt{.pop}). & High \\
+\hline
+\rowcolor{gray!20}
+\multicolumn{4}{|l|}{\textbf{6. Visualization and Validation}} \\
+\hline
+R6.1 & SUMO Integration & Calculated stations must be integrated in SUMO for validation. & High \\
+\hline
+R6.2 & Simulation Metrics & Collect charging behavior, grid load, waiting times. & High \\
+\hline
+R6.3 & Interactive Dashboard & Display station locations, KPIs, simulation results, export (CSV, GeoJSON). & Medium \\
+\hline
+\end{longtable}
+
+\subsection{Success Criteria}
+
+The system is successful if users can:
+\begin{enumerate}
+    \item Import arbitrary OSM data and configure parameters easily.
+    \item Generate realistic traffic patterns with configurable parameters.
+    \item Find charging station locations that perform well in simulation.
+    \item Reproduce results consistently across multiple runs.
+\end{enumerate}
+
+The ultimate goal is providing a reliable research and planning tool that helps optimizing EV charging infrastructure placement through data-driven simulation and analysis.
