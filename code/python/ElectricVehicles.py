@@ -25,6 +25,11 @@ class ElectricVehicles:
         self.packpower = 0.0          # instantaneous pack power (W)
         self.readytocharge = True
         self.target_soc = 0.95
+        
+        # Home charging station support (V2G)
+        self.home_station_id = None   # ID of home charging station (if any)
+        self.start_position = None    # (x, y) tuple for home location
+        self.is_at_home = False       # whether currently at home location
 
     def update_soc_from_sumo(self, actual, maximum):
         """
@@ -82,6 +87,36 @@ class ElectricVehicles:
                 self.soc = 0.0
 
             return energy_added_wh
+        except Exception:
+            return 0.0
+
+    def dischargevehicle(self, simulationtime, dt=1.0, kw=0.0):
+        """
+        Apply discharging energy for `dt` seconds at `kw` kW (delivered FROM vehicle to grid).
+        Updates `actualBatteryCapacity`, `packpower` and `soc`.
+        Respects minimum SOC of 20% (vehicle stays operational).
+        """
+        try:
+            power_w = float(kw) * 1000.0
+            # energy removed in Wh
+            energy_removed_wh = power_w * float(dt) / 3600.0
+
+            # do not discharge below 20% SOC
+            cap_wh = max(0.0, self.batterycapacity_kWh * 1000.0)
+            min_allowed = 0.2 * cap_wh
+            new_energy = self.actualBatteryCapacity - energy_removed_wh
+            if new_energy < min_allowed:
+                energy_removed_wh = max(0.0, self.actualBatteryCapacity - min_allowed)
+                new_energy = self.actualBatteryCapacity - energy_removed_wh
+
+            self.actualBatteryCapacity = new_energy
+            self.packpower = -power_w  # negative for discharge
+            if cap_wh > 0:
+                self.soc = max(self.actualBatteryCapacity / cap_wh, 0.0)
+            else:
+                self.soc = 0.0
+
+            return energy_removed_wh
         except Exception:
             return 0.0
 
