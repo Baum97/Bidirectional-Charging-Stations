@@ -1,9 +1,14 @@
 class EVSE_class():
-    def __init__(self, efficiency, Prated_kW, evse_id, energy_pool=None):
+    def __init__(self, efficiency, Prated_kW, evse_id, energy_pool=None, is_private=False, allowed_vehicle_id=None):
         self.efficiency = efficiency
         self.Prated_kW  = Prated_kW
         self.evse_id   = evse_id
         self.energy_pool = energy_pool  # reference to global energy pool
+        
+        # Private home charging station support
+        self.is_private = is_private                    # True if this is a private home station
+        self.allowed_vehicle_id = allowed_vehicle_id    # only this vehicle can use it
+        self.supports_v2g = is_private                  # V2G only for private home stations
 
         self.ev_voltage = 0.0
         self.ev_power   = 0.0
@@ -12,6 +17,7 @@ class EVSE_class():
         self.state      = 'A'
 
         self.server_setpoint = 0.0
+        self.is_discharging = False    # V2G mode flag
 
        
     def receive_from_ev(self, Vbatt, Pbatt_kW, soc, plugged, ready):
@@ -32,12 +38,16 @@ class EVSE_class():
 
     def send_to_ev(self):
         if self.ev_ready:
-            # Get power limit from energy pool (if exists)
-            available_power = self.server_setpoint
-            if self.energy_pool:
-                available_power = self.energy_pool.get_available_power_for_station(self.evse_id, self.server_setpoint)
-            
-            Pmax = min(available_power, self.Prated_kW) * self.efficiency
+            if not self.is_discharging:
+                # Charging mode: get power from grid
+                available_power = self.server_setpoint
+                if self.energy_pool:
+                    available_power = self.energy_pool.get_available_power_for_station(self.evse_id, self.server_setpoint)
+                
+                Pmax = min(available_power, self.Prated_kW) * self.efficiency
+            else:
+                # V2G mode: request discharge power
+                Pmax = -min(self.server_setpoint, self.Prated_kW) * self.efficiency  # negative = discharge
         else:
             Pmax = 0.0
 
@@ -47,6 +57,14 @@ class EVSE_class():
 
     def receive_from_server(self, setpoint_kW):
         self.server_setpoint = setpoint_kW
+
+
+    def set_discharge_mode(self, enabled):
+        """
+        Enable or disable V2G (discharge) mode for this station.
+        """
+        if self.supports_v2g:
+            self.is_discharging = enabled
 
 
     def send_to_server(self):
