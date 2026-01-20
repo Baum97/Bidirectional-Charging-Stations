@@ -5,7 +5,7 @@ import xml.etree.ElementTree as ET
 import pandas as pd
 
 from ElectricVehicles import ElectricVehicles
-from evse_class import EVSE_class
+from evse_class import EVSE_class, EnergyPool
 
 
 # ----------------------------------------------------
@@ -19,6 +19,9 @@ MAX_CHARGING_POWER_KW = 200               # kW (server default)
 POSITION_TOLERANCE = 1.0
 SOC_CHANGE_THRESHOLD = 0.05               # detect charging
 EV_TYPES = ["veh_ev"]
+
+# Global energy pool configuration
+MAX_TOTAL_GRID_POWER_KW = 500             # Total available power from grid/source
 
 OUTPUT_CHARGING_LOG = "generated_files/logs/model_log_data.csv"
 OUTPUT_EVSE_LOG = "generated_files/logs/evse_log_data.csv"
@@ -35,6 +38,9 @@ TRACK_CHARGING_SESSIONS = True
 # ----------------------------------------------------
 # INTERNAL STATE
 # ----------------------------------------------------
+
+# Global energy pool instance
+energy_pool = EnergyPool(max_total_power_kw=MAX_TOTAL_GRID_POWER_KW)
 
 ev_objects = {}                 # veh_id -> ElectricVehicles()
 evse_objects = {}               # station_id -> EVSE_class()
@@ -154,6 +160,9 @@ def main():
 
         sim_time = traci.simulation.getTime()
 
+        # Reset energy pool requests at the start of each step
+        energy_pool.reset_requests()
+
         # detect EVs
         if step % 10 == 0:
             current_vehicles = set(traci.vehicle.getIDList())
@@ -165,7 +174,10 @@ def main():
         # count time
         if step % 1000 == 0:
             elapsed = time.time() - start_time
+            total_demand = energy_pool.get_total_requested_power()
+            total_usage = energy_pool.get_total_power_usage()
             print(f"Sim time: {sim_time:.1f}s, Elapsed real time: {elapsed:.1f}s")
+            print(f"  Energy Pool: Requested={total_demand:.1f}kW, Usage={total_usage:.1f}kW, Limit={MAX_TOTAL_GRID_POWER_KW}kW")
 
         # MAIN LOOP FOR EV VEHICLES
         for vid in list(ev_vehicles):
@@ -225,7 +237,8 @@ def main():
                         evse_objects[station_id] = EVSE_class(
                             efficiency=0.95,
                             Prated_kW=MAX_CHARGING_POWER_KW,
-                            evse_id=station_id
+                            evse_id=station_id,
+                            energy_pool=energy_pool  # Pass global energy pool
                         )
 
                     evse = evse_objects[station_id]
@@ -235,6 +248,9 @@ def main():
                         charging_start_time[vid] = sim_time
                         charging_session_energy[vid] = 0.0
                     ramp_kw = compute_rampup_power(sim_time, charging_start_time[vid], evse.Prated_kW)
+
+                    # Register this station's request with the energy pool
+                    energy_pool.register_station_request(station_id, ramp_kw)
 
                     # inform EVSE from server (server_setpoint will be ramped)
                     evse.receive_from_server(ramp_kw)
@@ -251,6 +267,9 @@ def main():
                     # EVSE gives allowed power (kW)
                     allowed_kw = evse.send_to_ev()
 
+                    # Update energy pool with actual usage
+                    energy_pool.update_station_power_usage(station_id, allowed_kw)
+
                     # charge EV in Python model with allowed power
                     ev.chargevehicle(simulationtime=sim_time, dt=1, kw=allowed_kw)
 
@@ -265,7 +284,11 @@ def main():
                     # Debug print when value changes notably
                     prev = evse_log[-1]["allowed_kw"] if evse_log else None
                     if prev is None or abs(allowed_kw - prev) > 0.1:
-                        print(f"[EVSE] time={sim_time} veh={vid} station={station_id} ramp_kw={ramp_kw:.2f} allowed_kw={allowed_kw:.2f}")
+                        total_requested = energy_pool.get_total_requested_power()
+                        if total_requested > MAX_TOTAL_GRID_POWER_KW:
+                            print(f"[EVSE] time={sim_time} veh={vid} station={station_id} ramp_kw={ramp_kw:.2f} allowed_kw={allowed_kw:.2f} (limited by pool: {total_requested:.1f}kW > {MAX_TOTAL_GRID_POWER_KW}kW)")
+                        else:
+                            print(f"[EVSE] time={sim_time} veh={vid} station={station_id} ramp_kw={ramp_kw:.2f} allowed_kw={allowed_kw:.2f}")
 
                     # periodically flush evse_log to disk
                     if EVSE_LOG_FLUSH_INTERVAL and (step % EVSE_LOG_FLUSH_INTERVAL == 0):

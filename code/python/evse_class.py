@@ -1,8 +1,9 @@
 class EVSE_class():
-    def __init__(self, efficiency, Prated_kW, evse_id):
+    def __init__(self, efficiency, Prated_kW, evse_id, energy_pool=None):
         self.efficiency = efficiency
         self.Prated_kW  = Prated_kW
         self.evse_id   = evse_id
+        self.energy_pool = energy_pool  # reference to global energy pool
 
         self.ev_voltage = 0.0
         self.ev_power   = 0.0
@@ -31,7 +32,12 @@ class EVSE_class():
 
     def send_to_ev(self):
         if self.ev_ready:
-            Pmax = min(self.server_setpoint, self.Prated_kW)*self.efficiency
+            # Get power limit from energy pool (if exists)
+            available_power = self.server_setpoint
+            if self.energy_pool:
+                available_power = self.energy_pool.get_available_power_for_station(self.evse_id, self.server_setpoint)
+            
+            Pmax = min(available_power, self.Prated_kW) * self.efficiency
         else:
             Pmax = 0.0
 
@@ -50,3 +56,74 @@ class EVSE_class():
         
         return [Vbatt, Pbatt_kW, soc]
 
+
+class EnergyPool:
+    """
+    Global energy pool that manages total available power for all charging stations.
+    Limits the total power draw when too many vehicles are charging.
+    """
+    def __init__(self, max_total_power_kw):
+        """
+        Args:
+            max_total_power_kw: Maximum total power available from the grid/source (in kW)
+        """
+        self.max_total_power_kw = max_total_power_kw
+        self.station_requests = {}  # station_id -> requested_power_kw
+        self.station_setpoints = {}  # station_id -> currently allocated power_kw
+    
+    def register_station_request(self, station_id, requested_power_kw):
+        """
+        Register a station's power request. Called before calculating distribution.
+        """
+        self.station_requests[station_id] = max(0.0, requested_power_kw)
+    
+    def get_available_power_for_station(self, station_id, requested_power_kw):
+        """
+        Calculate available power for a station based on total demand.
+        Uses fair distribution: if total demand exceeds max, scale proportionally.
+        
+        Args:
+            station_id: ID of the charging station
+            requested_power_kw: Power requested by this station (kW)
+        
+        Returns:
+            Available power for this station (kW)
+        """
+        requested_power_kw = max(0.0, requested_power_kw)
+        
+        # Calculate total requested power from all active stations
+        total_requested = sum(self.station_requests.values())
+        
+        # If no demand or within limits, grant full request
+        if total_requested <= self.max_total_power_kw:
+            return requested_power_kw
+        
+        # Power is limited: scale proportionally
+        scale_factor = self.max_total_power_kw / total_requested
+        available = requested_power_kw * scale_factor
+        
+        return available
+    
+    def reset_requests(self):
+        """
+        Clear all station requests at the start of each time step.
+        """
+        self.station_requests.clear()
+    
+    def get_total_power_usage(self):
+        """
+        Returns the total power currently being used (sum of all station setpoints).
+        """
+        return sum(self.station_setpoints.values())
+    
+    def get_total_requested_power(self):
+        """
+        Returns the total power currently being requested.
+        """
+        return sum(self.station_requests.values())
+    
+    def update_station_power_usage(self, station_id, actual_power_kw):
+        """
+        Update actual power usage for a station (for monitoring).
+        """
+        self.station_setpoints[station_id] = max(0.0, actual_power_kw)
