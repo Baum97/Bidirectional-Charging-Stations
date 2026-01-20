@@ -58,4 +58,5 @@
 \contentsline {subsection}{\numberline {8.3}Challenges with Power Grid Integration}{35}{subsection.8.3}%
 \contentsline {subsection}{\numberline {8.4}Fulfillment of Research Objectives}{35}{subsection.8.4}%
 \contentsline {subsection}{\numberline {8.5}Further work}{35}{subsection.8.5}%
+\contentsline {section}{Literatur}{37}{subsection.8.5}%
 \contentsfinish 

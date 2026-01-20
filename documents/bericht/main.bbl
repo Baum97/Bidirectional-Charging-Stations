@@ -1,0 +1,581 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{none/global//global/global/global}
+    \entry{noauthor_elektroauto-statistiken_nodate}{misc}{}{}
+      \list{language}{1}{%
+        {de-DE}%
+      }
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{Statistiken rund um Elektroautos: Aktuelle Zulassungszahlen in Deutschland, Anzahl von Ladesäulen, Fahrzeug-Reichweiten und mehr.}
+      \field{journaltitle}{Allianz Direct}
+      \field{shorttitle}{Elektroauto-{Statistiken} (Übersicht)}
+      \field{title}{Elektroauto-{Statistiken} (Übersicht): {Zulassungszahlen} \& mehr}
+      \field{urlday}{17}
+      \field{urlmonth}{7}
+      \field{urlyear}{2025}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb Snapshot:files/2/elektroauto-statistiken.html:text/html
+      \endverb
+      \verb{urlraw}
+      \verb https://www.allianzdirect.de/zahlen-daten-fakten/elektroauto-statistiken/
+      \endverb
+      \verb{url}
+      \verb https://www.allianzdirect.de/zahlen-daten-fakten/elektroauto-statistiken/
+      \endverb
+    \endentry
+    \entry{klimaschutz_rahmenbedingungen_nodate}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=9dc7a65dc2c0217df675902ac1fc48c1}{%
+           family={Klimaschutz},
+           familyi={K\bibinitperiod},
+           given={BMWK-Bundesministerium\bibnamedelimb für\bibnamedelimb Wirtschaft\bibnamedelima und},
+           giveni={B\bibinithyphendelim B\bibinitperiod\bibinitdelim f\bibinitperiod\bibinitdelim W\bibinitperiod\bibinitdelim u\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {de}%
+      }
+      \strng{namehash}{9dc7a65dc2c0217df675902ac1fc48c1}
+      \strng{fullhash}{9dc7a65dc2c0217df675902ac1fc48c1}
+      \strng{fullhashraw}{9dc7a65dc2c0217df675902ac1fc48c1}
+      \strng{bibnamehash}{9dc7a65dc2c0217df675902ac1fc48c1}
+      \strng{authorbibnamehash}{9dc7a65dc2c0217df675902ac1fc48c1}
+      \strng{authornamehash}{9dc7a65dc2c0217df675902ac1fc48c1}
+      \strng{authorfullhash}{9dc7a65dc2c0217df675902ac1fc48c1}
+      \strng{authorfullhashraw}{9dc7a65dc2c0217df675902ac1fc48c1}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Erfahren Sie mehr über die Rahmenbedingungen und Anreize für Elektrofahrzeuge und die Ladeinfrastruktur in Deutschland!}
+      \field{title}{Rahmenbedingungen und {Anreize} für {Elektrofahrzeuge} und {Ladeinfrastruktur}}
+      \field{urlday}{17}
+      \field{urlmonth}{7}
+      \field{urlyear}{2025}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb Snapshot:files/8/rahmenbedingungen-und-anreize-fuer-elektrofahrzeuge.html:text/html
+      \endverb
+      \verb{urlraw}
+      \verb https://www.bundeswirtschaftsministerium.de/Redaktion/DE/Artikel/Industrie/rahmenbedingungen-und-anreize-fuer-elektrofahrzeuge.html
+      \endverb
+      \verb{url}
+      \verb https://www.bundeswirtschaftsministerium.de/Redaktion/DE/Artikel/Industrie/rahmenbedingungen-und-anreize-fuer-elektrofahrzeuge.html
+      \endverb
+    \endentry
+    \entry{noauthor_sumo_nodate}{misc}{}{}
+      \list{language}{1}{%
+        {en}%
+      }
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labeltitlesource}{title}
+      \field{abstract}{SUMO Documentation}
+      \field{title}{{SUMO} {Documentation}}
+      \field{urlday}{30}
+      \field{urlmonth}{7}
+      \field{urlyear}{2025}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb Snapshot:files/13/index.html:text/html
+      \endverb
+      \verb{urlraw}
+      \verb https://sumo.dlr.de/docs/index.html
+      \endverb
+      \verb{url}
+      \verb https://sumo.dlr.de/docs/index.html
+      \endverb
+    \endentry
+    \entry{noauthor_eclipse_nodate}{misc}{}{}
+      \list{language}{1}{%
+        {en}%
+      }
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Open source, microscopic and continuous multi-modal traffic simulation package}
+      \field{journaltitle}{Eclipse SUMO - Simulation of Urban MObility}
+      \field{title}{Eclipse {SUMO} - {Simulation} of {Urban} {MObility}}
+      \field{urlday}{30}
+      \field{urlmonth}{7}
+      \field{urlyear}{2025}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb Snapshot:files/14/sumo.html:text/html
+      \endverb
+      \verb{urlraw}
+      \verb https://eclipse.dev/sumo/
+      \endverb
+      \verb{url}
+      \verb https://eclipse.dev/sumo/
+      \endverb
+    \endentry
+    \entry{noauthor_osmwebwizard_nodate}{misc}{}{}
+      \list{language}{1}{%
+        {en}%
+      }
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labeltitlesource}{title}
+      \field{title}{{OSMWebWizard} - {SUMO} {Documentation}}
+      \field{urlday}{30}
+      \field{urlmonth}{7}
+      \field{urlyear}{2025}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb Snapshot:files/16/OSMWebWizard.html:text/html
+      \endverb
+      \verb{urlraw}
+      \verb https://sumo.dlr.de/docs/Tutorials/OSMWebWizard.html
+      \endverb
+      \verb{url}
+      \verb https://sumo.dlr.de/docs/Tutorials/OSMWebWizard.html
+      \endverb
+    \endentry
+    \entry{noauthor_trip_nodate}{misc}{}{}
+      \list{language}{1}{%
+        {en}%
+      }
+      \field{sortinit}{9}
+      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
+      \field{labeltitlesource}{title}
+      \field{title}{Trip - {SUMO} {Documentation}}
+      \field{urlday}{30}
+      \field{urlmonth}{7}
+      \field{urlyear}{2025}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb Snapshot:files/18/Trip.html:text/html
+      \endverb
+      \verb{urlraw}
+      \verb https://sumo.dlr.de/docs/Tools/Trip.html
+      \endverb
+      \verb{url}
+      \verb https://sumo.dlr.de/docs/Tools/Trip.html
+      \endverb
+    \endentry
+    \entry{noauthor_traci_nodate}{misc}{}{}
+      \list{language}{1}{%
+        {en}%
+      }
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labeltitlesource}{title}
+      \field{title}{{TraCI} - {SUMO} {Documentation}}
+      \field{urlday}{30}
+      \field{urlmonth}{7}
+      \field{urlyear}{2025}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb Snapshot:files/20/TraCI.html:text/html
+      \endverb
+      \verb{urlraw}
+      \verb https://sumo.dlr.de/docs/TraCI.html
+      \endverb
+      \verb{url}
+      \verb https://sumo.dlr.de/docs/TraCI.html
+      \endverb
+    \endentry
+    \entry{codeca_saga_2022}{article}{}{}
+      \name{author}{4}{}{%
+        {{hash=eee73669323bc6b3335e4f1c904121ae}{%
+           family={Codeca},
+           familyi={C\bibinitperiod},
+           given={Lara},
+           giveni={L\bibinitperiod}}}%
+        {{hash=21954db023c67146c819082fe0f407e3}{%
+           family={{Jakob Erdmann}},
+           familyi={J\bibinitperiod}}}%
+        {{hash=8d05b090d75b77b52fffc265e39340af}{%
+           family={{Vinny Cahill}},
+           familyi={V\bibinitperiod}}}%
+        {{hash=ef45707f83a90ca89d0a84f001f59a6c}{%
+           family={{Jerome Haerri}},
+           familyi={J\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {en}%
+      }
+      \strng{namehash}{da107811dc22dc9ee221bfee13d758d2}
+      \strng{fullhash}{53bee57177af760fb3fb53b8c044d27d}
+      \strng{fullhashraw}{53bee57177af760fb3fb53b8c044d27d}
+      \strng{bibnamehash}{53bee57177af760fb3fb53b8c044d27d}
+      \strng{authorbibnamehash}{53bee57177af760fb3fb53b8c044d27d}
+      \strng{authornamehash}{da107811dc22dc9ee221bfee13d758d2}
+      \strng{authorfullhash}{53bee57177af760fb3fb53b8c044d27d}
+      \strng{authorfullhashraw}{53bee57177af760fb3fb53b8c044d27d}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{In this paper, we deﬁne a workﬂow and a toolchain to support fast mobility scenario prototyping based on open data and open-source software. SAGA is an activity-based multi-modal mobility scenario generator for the Simulation of Urban MObiltiy (SUMO). Starting from an OpenStreetMap (OSM) ﬁle, SAGA extracts the data required to build a multi-modal scenario, and in a step-by-step fashion, generates the conﬁgurations needed to execute it, including the intermediate steps required to reﬁne the scenario with additional data, allowing the iterative improvement of realism and representativeness.}
+      \field{issn}{2750-4425}
+      \field{journaltitle}{SUMO Conference Proceedings}
+      \field{month}{6}
+      \field{shorttitle}{{SAGA}}
+      \field{title}{{SAGA}: {An} {Activity}-based {Multi}-modal {Mobility} {ScenarioGenerator} for {SUMO}}
+      \field{urlday}{30}
+      \field{urlmonth}{7}
+      \field{urlyear}{2025}
+      \field{volume}{1}
+      \field{year}{2022}
+      \field{urldateera}{ce}
+      \field{pages}{39\bibrangedash 58}
+      \range{pages}{20}
+      \verb{doi}
+      \verb 10.52825/scp.v1i.99
+      \endverb
+      \verb{file}
+      \verb PDF:files/21/Codeca et al. - 2022 - SAGA An Activity-based Multi-modal Mobility ScenarioGenerator for SUMO.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb https://www.tib-op.org/ojs/index.php/scp/article/view/99
+      \endverb
+      \verb{url}
+      \verb https://www.tib-op.org/ojs/index.php/scp/article/view/99
+      \endverb
+    \endentry
+    \entry{community_matsim_2025}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=a9748bb1a928f2363d4fb5690e837053}{%
+           family={Community},
+           familyi={C\bibinitperiod},
+           given={MATSim},
+           giveni={M\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {en}%
+      }
+      \strng{namehash}{a9748bb1a928f2363d4fb5690e837053}
+      \strng{fullhash}{a9748bb1a928f2363d4fb5690e837053}
+      \strng{fullhashraw}{a9748bb1a928f2363d4fb5690e837053}
+      \strng{bibnamehash}{a9748bb1a928f2363d4fb5690e837053}
+      \strng{authorbibnamehash}{a9748bb1a928f2363d4fb5690e837053}
+      \strng{authornamehash}{a9748bb1a928f2363d4fb5690e837053}
+      \strng{authorfullhash}{a9748bb1a928f2363d4fb5690e837053}
+      \strng{authorfullhashraw}{a9748bb1a928f2363d4fb5690e837053}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{MATSim is the leading open-source agent-based transport simulation software.}
+      \field{journaltitle}{MATSim}
+      \field{month}{7}
+      \field{title}{{MATSim}}
+      \field{urlday}{30}
+      \field{urlmonth}{7}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb Snapshot:files/24/matsim.org.html:text/html
+      \endverb
+      \verb{urlraw}
+      \verb https://matsim.org/
+      \endverb
+      \verb{url}
+      \verb https://matsim.org/
+      \endverb
+    \endentry
+    \entry{noauthor_beamdocsaboutrst_nodate}{misc}{}{}
+      \list{language}{1}{%
+        {en}%
+      }
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labeltitlesource}{title}
+      \field{abstract}{The Framework for Modeling Behavior, Energy, Autonomy, and Mobility in Transportation Systems - LBNL-UCB-STI/beam}
+      \field{journaltitle}{GitHub}
+      \field{title}{beam/docs/about.rst at develop · {LBNL}-{UCB}-{STI}/beam}
+      \field{urlday}{30}
+      \field{urlmonth}{7}
+      \field{urlyear}{2025}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb Snapshot:files/31/about.html:text/html
+      \endverb
+      \verb{urlraw}
+      \verb https://github.com/LBNL-UCB-STI/beam/blob/develop/docs/about.rst
+      \endverb
+      \verb{url}
+      \verb https://github.com/LBNL-UCB-STI/beam/blob/develop/docs/about.rst
+      \endverb
+    \endentry
+    \entry{noauthor_josm_nodate}{misc}{}{}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labeltitlesource}{title}
+      \field{title}{{JOSM}}
+      \field{urlday}{30}
+      \field{urlmonth}{7}
+      \field{urlyear}{2025}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb JOSM:files/26/josm.openstreetmap.de.html:text/html
+      \endverb
+      \verb{urlraw}
+      \verb https://josm.openstreetmap.de/
+      \endverb
+      \verb{url}
+      \verb https://josm.openstreetmap.de/
+      \endverb
+    \endentry
+    \entry{ev_cs_planning_with_dyn_pred}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=4002c9a39f655a3c13c3a1523009e65b}{%
+           family={Bai},
+           familyi={B\bibinitperiod},
+           given={X.\bibnamedelimi et\bibnamedelima al},
+           giveni={X\bibinitperiod\bibinitdelim e\bibinitperiod\bibinitdelim a\bibinitperiod}}}%
+      }
+      \strng{namehash}{4002c9a39f655a3c13c3a1523009e65b}
+      \strng{fullhash}{4002c9a39f655a3c13c3a1523009e65b}
+      \strng{fullhashraw}{4002c9a39f655a3c13c3a1523009e65b}
+      \strng{bibnamehash}{4002c9a39f655a3c13c3a1523009e65b}
+      \strng{authorbibnamehash}{4002c9a39f655a3c13c3a1523009e65b}
+      \strng{authornamehash}{4002c9a39f655a3c13c3a1523009e65b}
+      \strng{authorfullhash}{4002c9a39f655a3c13c3a1523009e65b}
+      \strng{authorfullhashraw}{4002c9a39f655a3c13c3a1523009e65b}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Electric vehicle charging station planning with dynamic prediction of elastic charging demand: a hybrid particle swarm optimization algorithm}
+      \field{urlday}{30}
+      \field{urlmonth}{7}
+      \field{urlyear}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://doi.org/10.1007/s40747-021-00575-8
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1007/s40747-021-00575-8
+      \endverb
+    \endentry
+    \entry{cs_ev_in_SUMO_impact_on_traffic_flow}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=2814c0d73d1905ef4d102f475c313926}{%
+           family={Spachtholz},
+           familyi={S\bibinitperiod},
+           given={E.\bibnamedelimi et\bibnamedelima al},
+           giveni={E\bibinitperiod\bibinitdelim e\bibinitperiod\bibinitdelim a\bibinitperiod}}}%
+      }
+      \strng{namehash}{2814c0d73d1905ef4d102f475c313926}
+      \strng{fullhash}{2814c0d73d1905ef4d102f475c313926}
+      \strng{fullhashraw}{2814c0d73d1905ef4d102f475c313926}
+      \strng{bibnamehash}{2814c0d73d1905ef4d102f475c313926}
+      \strng{authorbibnamehash}{2814c0d73d1905ef4d102f475c313926}
+      \strng{authornamehash}{2814c0d73d1905ef4d102f475c313926}
+      \strng{authorfullhash}{2814c0d73d1905ef4d102f475c313926}
+      \strng{authorfullhashraw}{2814c0d73d1905ef4d102f475c313926}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Electric vehicle charging station planning with dynamic prediction of elastic charging demand: a hybrid particle swarm optimization algorithm}
+      \field{urlday}{30}
+      \field{urlmonth}{7}
+      \field{urlyear}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://doi.org/10.1007/978-3-031-70392-8_43
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1007/978-3-031-70392-8_43
+      \endverb
+    \endentry
+    \entry{wevj14020040}{article}{}{}
+      \name{author}{5}{}{%
+        {{hash=ac84e18bdd3bf527a9a5cd066cf5c1cd}{%
+           family={Farhani},
+           familyi={F\bibinitperiod},
+           given={Riham},
+           giveni={R\bibinitperiod}}}%
+        {{hash=7435983b2fc23842e43e05451818f0b4}{%
+           family={El\bibnamedelima Hillali},
+           familyi={E\bibinitperiod\bibinitdelim H\bibinitperiod},
+           given={Yassin},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=561f4519bfcf2a7525d374f8b28fb498}{%
+           family={Rivenq},
+           familyi={R\bibinitperiod},
+           given={Atika},
+           giveni={A\bibinitperiod}}}%
+        {{hash=92196272bf6c40803a921ff9871f3c94}{%
+           family={Boughaleb},
+           familyi={B\bibinitperiod},
+           given={Yahia},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=e15824241f2b3d601dd9021a3b9d46c2}{%
+           family={Hajjaji},
+           familyi={H\bibinitperiod},
+           given={Abdelowahed},
+           giveni={A\bibinitperiod}}}%
+      }
+      \strng{namehash}{1b416679d056cc86975b019db97c0646}
+      \strng{fullhash}{5d4db5abfdeeb4f9810289abc907be1d}
+      \strng{fullhashraw}{5d4db5abfdeeb4f9810289abc907be1d}
+      \strng{bibnamehash}{5d4db5abfdeeb4f9810289abc907be1d}
+      \strng{authorbibnamehash}{5d4db5abfdeeb4f9810289abc907be1d}
+      \strng{authornamehash}{1b416679d056cc86975b019db97c0646}
+      \strng{authorfullhash}{5d4db5abfdeeb4f9810289abc907be1d}
+      \strng{authorfullhashraw}{5d4db5abfdeeb4f9810289abc907be1d}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{2032-6653}
+      \field{journaltitle}{World Electric Vehicle Journal}
+      \field{number}{2}
+      \field{title}{Assignment Approach for Electric Vehicle Charging Using Traffic Data Collected by SUMO}
+      \field{volume}{14}
+      \field{year}{2023}
+      \verb{doi}
+      \verb 10.3390/wevj14020040
+      \endverb
+      \verb{urlraw}
+      \verb https://www.mdpi.com/2032-6653/14/2/40
+      \endverb
+      \verb{url}
+      \verb https://www.mdpi.com/2032-6653/14/2/40
+      \endverb
+    \endentry
+    \entry{sumo_shapes}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=f30a3cfb89966d23efca40f849b9cb2b}{%
+           family={{Eclipse SUMO Project}},
+           familyi={E\bibinitperiod}}}%
+      }
+      \strng{namehash}{f30a3cfb89966d23efca40f849b9cb2b}
+      \strng{fullhash}{f30a3cfb89966d23efca40f849b9cb2b}
+      \strng{fullhashraw}{f30a3cfb89966d23efca40f849b9cb2b}
+      \strng{bibnamehash}{f30a3cfb89966d23efca40f849b9cb2b}
+      \strng{authorbibnamehash}{f30a3cfb89966d23efca40f849b9cb2b}
+      \strng{authornamehash}{f30a3cfb89966d23efca40f849b9cb2b}
+      \strng{authorfullhash}{f30a3cfb89966d23efca40f849b9cb2b}
+      \strng{authorfullhashraw}{f30a3cfb89966d23efca40f849b9cb2b}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{\url{https://sumo.dlr.de/docs/Simulation/Shapes.html}}
+      \field{note}{Accessed: 2025-07-30}
+      \field{title}{{SUMO - Simulation of Urban MObility: Shapes (POIs and Polygons)}}
+      \field{year}{2024}
+    \endentry
+    \entry{vazifeh2015optimizing}{report}{}{}
+      \name{author}{4}{}{%
+        {{hash=70f862d3b1ccdb801e32abe489327b5b}{%
+           family={Vazifeh},
+           familyi={V\bibinitperiod},
+           given={Mohammad\bibnamedelima M.},
+           giveni={M\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+        {{hash=bd3640aed41c3e8de0418bde3ef083c8}{%
+           family={Zhang},
+           familyi={Z\bibinitperiod},
+           given={Hongmou},
+           giveni={H\bibinitperiod}}}%
+        {{hash=f70201a3b3859fca365a379a2af7d9f9}{%
+           family={Santi},
+           familyi={S\bibinitperiod},
+           given={Paolo},
+           giveni={P\bibinitperiod}}}%
+        {{hash=aeb05a80989b576d5948e4cbf97421cc}{%
+           family={Ratti},
+           familyi={R\bibinitperiod},
+           given={Carlo},
+           giveni={C\bibinitperiod}}}%
+      }
+      \list{institution}{1}{%
+        {arXiv}%
+      }
+      \strng{namehash}{4e0f39960c74423557806dd5d22b07d2}
+      \strng{fullhash}{e5eb27cd130cc6c77c41ad9278b98ecb}
+      \strng{fullhashraw}{e5eb27cd130cc6c77c41ad9278b98ecb}
+      \strng{bibnamehash}{e5eb27cd130cc6c77c41ad9278b98ecb}
+      \strng{authorbibnamehash}{e5eb27cd130cc6c77c41ad9278b98ecb}
+      \strng{authornamehash}{4e0f39960c74423557806dd5d22b07d2}
+      \strng{authorfullhash}{e5eb27cd130cc6c77c41ad9278b98ecb}
+      \strng{authorfullhashraw}{e5eb27cd130cc6c77c41ad9278b98ecb}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{number}{arXiv:1511.00615}
+      \field{title}{{Optimizing the Deployment of Electric Vehicle Charging Stations Using Pervasive Mobility Data}}
+      \field{type}{techreport}
+      \field{year}{2015}
+      \verb{urlraw}
+      \verb https://doi.org/10.48550/arXiv.1511.00615
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.48550/arXiv.1511.00615
+      \endverb
+    \endentry
+    \entry{noauthor_pandapower_nodate}{misc}{}{}
+      \list{language}{1}{%
+        {en}%
+      }
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labeltitlesource}{title}
+      \field{abstract}{An easy to use open source tool for power system modeling, analysis and optimization with a high degree of automation.}
+      \field{journaltitle}{pandapower}
+      \field{title}{pandapower}
+      \field{urlday}{1}
+      \field{urlmonth}{8}
+      \field{urlyear}{2025}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb Snapshot:files/35/www.pandapower.org.html:text/html
+      \endverb
+      \verb{urlraw}
+      \verb https://www.pandapower.org/
+      \endverb
+      \verb{url}
+      \verb https://www.pandapower.org/
+      \endverb
+    \endentry
+    \entry{noauthor_about_nodate}{misc}{}{}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labeltitlesource}{title}
+      \field{title}{About pandapower — pandapower 3.1.3 documentation}
+      \field{urlday}{1}
+      \field{urlmonth}{8}
+      \field{urlyear}{2025}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb About pandapower — pandapower 3.1.3 documentation:files/34/about.html:text/html
+      \endverb
+      \verb{urlraw}
+      \verb https://pandapower.readthedocs.io/en/latest/about.html
+      \endverb
+      \verb{url}
+      \verb https://pandapower.readthedocs.io/en/latest/about.html
+      \endverb
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+
