@@ -23,6 +23,12 @@ EV_TYPES = ["veh_ev"]
 # Global energy pool configuration
 MAX_TOTAL_GRID_POWER_KW = 500             # Total available power from grid/source
 
+# Home charging station configuration
+HOME_CHARGING_PERCENTAGE = 0.05           # 5% of EVs have home charging
+V2G_SOC_THRESHOLD = 0.50                  # Discharge if SOC > 50%
+V2G_DISCHARGE_POWER_KW = 50               # Max discharge power per vehicle
+GRID_CAPACITY_WARNING_THRESHOLD = 0.90    # Trigger V2G if grid at 90% capacity
+
 OUTPUT_CHARGING_LOG = "generated_files/logs/model_log_data.csv"
 OUTPUT_EVSE_LOG = "generated_files/logs/evse_log_data.csv"
 
@@ -44,10 +50,12 @@ energy_pool = EnergyPool(max_total_power_kw=MAX_TOTAL_GRID_POWER_KW)
 
 ev_objects = {}                 # veh_id -> ElectricVehicles()
 evse_objects = {}               # station_id -> EVSE_class()
+home_stations = {}              # veh_id -> station_id (for vehicles with home charging)
 charging_start_time = {}        # veh_id -> timestamp when charging started
 charging_status = {}            # veh_id -> (is_charging, station)
 last_soc = {}
 charging_session_energy = {}    # veh_id -> accumulated energy in kWh during current session
+v2g_session_energy = {}         # veh_id -> accumulated energy in kWh during V2G session
 
 charging_stations_cache = {}    # lane_id -> [(cs_id, start, end)]
 ev_vehicles = set()
@@ -110,6 +118,30 @@ def find_station(veh_id):
                 for cs_id, start, end in entries:
                     if (start - POSITION_TOLERANCE) <= pos <= (end + POSITION_TOLERANCE):
                         return cs_id
+    except traci.TraCIException:
+        return None
+    
+def find_station(veh_id):
+    """Lane-based cache with prefix/fallback matching."""
+    try:
+        lane = traci.vehicle.getLaneID(veh_id)
+        if not lane:
+            return None
+
+        pos = traci.vehicle.getLanePosition(veh_id)
+
+        # direct match
+        if lane in charging_stations_cache:
+            for cs_id, start, end in charging_stations_cache[lane]:
+                if (start - POSITION_TOLERANCE) <= pos <= (end + POSITION_TOLERANCE):
+                    return cs_id
+
+        # prefix match (e.g. cs lane 'edge_0' matches vehicle 'edge_0_0')
+        for cs_lane, entries in charging_stations_cache.items():
+            if lane.startswith(cs_lane) or cs_lane.startswith(lane):
+                for cs_id, start, end in entries:
+                    if (start - POSITION_TOLERANCE) <= pos <= (end + POSITION_TOLERANCE):
+                        return cs_id
 
         # fallback: check all stations regardless of lane
         for entries in charging_stations_cache.values():
@@ -121,6 +153,66 @@ def find_station(veh_id):
         return None
 
     return None
+
+
+def get_distance_to_position(veh_id, target_pos):
+    """Calculate Euclidean distance from vehicle to target position."""
+    try:
+        veh_x, veh_y = traci.vehicle.getPosition(veh_id)
+        target_x, target_y = target_pos
+        dist = ((veh_x - target_x) ** 2 + (veh_y - target_y) ** 2) ** 0.5
+        return dist
+    except:
+        return float('inf')
+
+
+def is_vehicle_at_home(veh_id, home_position, tolerance=10.0):
+    """Check if vehicle is at its home position (within tolerance)."""
+    dist = get_distance_to_position(veh_id, home_position)
+    return dist <= tolerance
+
+
+def assign_home_charging_stations():
+    """
+    Select 5% of EV vehicles and assign them a private home charging station.
+    Creates EVSE objects for these private stations.
+    """
+    global home_stations
+    
+    try:
+        all_vehicles = traci.vehicle.getIDList()
+        ev_vehicles_list = [vid for vid in all_vehicles if traci.vehicle.getTypeID(vid) in EV_TYPES]
+        
+        num_home_vehicles = max(1, int(len(ev_vehicles_list) * HOME_CHARGING_PERCENTAGE))
+        home_vehicles = ev_vehicles_list[:num_home_vehicles]
+        
+        print(f"[HOME_CHARGING] Assigning home charging to {num_home_vehicles} of {len(ev_vehicles_list)} EVs")
+        
+        for idx, vid in enumerate(home_vehicles):
+            if vid in ev_objects:
+                ev = ev_objects[vid]
+                start_x, start_y = traci.vehicle.getPosition(vid)
+                ev.start_position = (start_x, start_y)
+                
+                # Create private home station
+                station_id = f"home_{vid}"
+                home_stations[vid] = station_id
+                
+                # Create EVSE object for home station
+                evse_objects[station_id] = EVSE_class(
+                    efficiency=0.95,
+                    Prated_kW=MAX_CHARGING_POWER_KW,
+                    evse_id=station_id,
+                    energy_pool=energy_pool,
+                    is_private=True,
+                    allowed_vehicle_id=vid
+                )
+                
+                if idx < 5:  # Log first 5
+                    print(f"  {vid} -> home station {station_id} at ({start_x:.1f}, {start_y:.1f})")
+    
+    except Exception as e:
+        print(f"ERROR in assign_home_charging_stations: {e}")
 
 
 def log_charging_session_end(veh_id, station_id, end_time, energy_kwh, soc_start, soc_end):
@@ -154,11 +246,17 @@ def main():
     start_time = time.time()
 
     step = 0
+    home_charging_assigned = False
 
     while traci.simulation.getMinExpectedNumber() > 0:
         # DO NOT call traci.simulationStep() here — we'll do it at the end
 
         sim_time = traci.simulation.getTime()
+
+        # Assign home charging stations on first step with vehicles
+        if not home_charging_assigned and step == 100:
+            assign_home_charging_stations()
+            home_charging_assigned = True
 
         # Reset energy pool requests at the start of each step
         energy_pool.reset_requests()
@@ -312,6 +410,69 @@ def main():
                     charging_start_time.pop(vid, None)
                     charging_session_energy.pop(vid, None)
 
+                # ========== V2G LOGIC FOR HOME CHARGING STATIONS ==========
+                v2g_discharge_kw = 0.0
+                if vid in home_stations:
+                    home_station_id = home_stations[vid]
+                    ev_is_at_home = is_vehicle_at_home(vid, ev.start_position) if ev.start_position else False
+                    
+                    if ev_is_at_home and speed < 0.2:
+                        # Vehicle is at home and stationary
+                        grid_usage_percent = (energy_pool.get_total_power_usage() / MAX_TOTAL_GRID_POWER_KW) * 100
+                        
+                        # Check if V2G should be activated
+                        if soc_val >= V2G_SOC_THRESHOLD and grid_usage_percent >= GRID_CAPACITY_WARNING_THRESHOLD * 100:
+                            # Vehicle supports the grid (V2G mode)
+                            home_evse = evse_objects[home_station_id]
+                            home_evse.set_discharge_mode(True)
+                            
+                            # Calculate discharge power (scaled by grid demand)
+                            v2g_discharge_kw = min(V2G_DISCHARGE_POWER_KW, soc_val * ev.batterycapacity_kWh / 60)
+                            
+                            # Inform EVSE for V2G
+                            home_evse.receive_from_server(v2g_discharge_kw)
+                            home_evse.receive_from_ev(
+                                Vbatt=ev.packvoltage,
+                                Pbatt_kW=ev.packpower / 1000,
+                                soc=ev.soc,
+                                plugged=True,
+                                ready=True
+                            )
+                            
+                            v2g_power_kw = home_evse.send_to_ev()
+                            if v2g_power_kw < 0:  # Negative = discharge
+                                # Apply discharge to EV
+                                energy_removed = ev.dischargevehicle(simulationtime=sim_time, dt=1, kw=abs(v2g_power_kw))
+                                v2g_session_energy[vid] = v2g_session_energy.get(vid, 0.0) + energy_removed / 3600.0
+                                
+                                # Update energy pool (discharge reduces grid demand)
+                                energy_pool.update_station_power_usage(home_station_id, v2g_power_kw)
+                                
+                                if step % 100 == 0 and energy_removed > 0:
+                                    print(f"[V2G] veh={vid} at_home discharge={abs(v2g_power_kw):.1f}kW soc={soc_val:.2f} grid={grid_usage_percent:.1f}%")
+                        else:
+                            # Normal charging at home (if below threshold or low grid usage)
+                            home_evse = evse_objects[home_station_id]
+                            home_evse.set_discharge_mode(False)
+                            
+                            if soc_val < 0.95:  # Can still charge
+                                ramp_kw = compute_rampup_power(sim_time, charging_start_time.get(vid, sim_time), evse.Prated_kW)
+                                energy_pool.register_station_request(home_station_id, ramp_kw)
+                                
+                                home_evse.receive_from_server(ramp_kw)
+                                home_evse.receive_from_ev(
+                                    Vbatt=ev.packvoltage,
+                                    Pbatt_kW=ev.packpower / 1000,
+                                    soc=ev.soc,
+                                    plugged=True,
+                                    ready=ev.readytocharge
+                                )
+                                
+                                home_charge_kw = home_evse.send_to_ev()
+                                if home_charge_kw > 0:
+                                    ev.chargevehicle(simulationtime=sim_time, dt=1, kw=home_charge_kw)
+                                    energy_pool.update_station_power_usage(home_station_id, home_charge_kw)
+                                    charging_session_energy[vid] = charging_session_energy.get(vid, 0.0) + home_charge_kw / 3600.0
 
                 x, y = traci.vehicle.getPosition(vid)
                 car_log.append({
