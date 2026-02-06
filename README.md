@@ -1,3 +1,5 @@
+# DEPRECATED!
+
 # Biflex Static Website + WebSocket (Dockerized)
 
 This repo provides a minimal static website with a Node.js WebSocket backend, packaged for Docker. It sets a foundation for later integrating SUMO tooling (e.g., osmWebWizard) behind the WebSocket.
