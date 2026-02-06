@@ -23,6 +23,31 @@
     <div id="map"></div>
     <canvas id="selectionCanvas" style="display:none"></canvas>
 
+    <!-- Layer Control Panel -->
+    <div id="layerControl">
+      <h4>Map Layers</h4>
+      <label class="layer-checkbox">
+        <input type="checkbox" id="toggleChargingStations" checked>
+        <span>Real Charging Stations</span>
+      </label>
+      <label class="layer-checkbox">
+        <input type="checkbox" id="toggleCircles" checked>
+        <span>Suggested Zones (Circles)</span>
+      </label>
+      <label class="layer-checkbox">
+        <input type="checkbox" id="toggleTrafficHeatmap" checked>
+        <span>Traffic Heatmap</span>
+      </label>
+      <label class="layer-checkbox">
+        <input type="checkbox" id="toggleSocHeatmap" checked>
+        <span>Low SOC Heatmap</span>
+      </label>
+      <label class="layer-checkbox">
+        <input type="checkbox" id="togglePowerGrid" checked>
+        <span>Power Grid</span>
+      </label>
+    </div>
+
     <div id="side">
       <div id="tabs">
         <div class="tab" title="Options"><img src="/webWizard_example/images/generate.png" /></div>

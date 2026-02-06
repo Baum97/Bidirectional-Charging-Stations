@@ -40,7 +40,14 @@ const scenarioEl = document.getElementById('scenario');
 const canvasToggle = document.getElementById('canvas-toggle');
 const selectionCanvas = document.getElementById('selectionCanvas');
 
-let powerLayer = null;
+// Layer storage for toggling
+const layers = {
+  chargingStations: null,
+  circles: null,
+  trafficHeatmap: null,
+  socHeatmap: null,
+  powerGrid: null
+};
 
 // --- Helpers to derive voltage and colors ---
 
@@ -75,18 +82,18 @@ function colorForVoltageKv(v) {
 function showPowerGrid(geojson) {
   if (!geojson || !geojson.features || !geojson.features.length) {
     console.log('No power grid features in this area');
-    if (powerLayer) {
-      map.removeLayer(powerLayer);
-      powerLayer = null;
+    if (layers.powerGrid) {
+      map.removeLayer(layers.powerGrid);
+      layers.powerGrid = null;
     }
     return;
   }
 
-  if (powerLayer) {
-    map.removeLayer(powerLayer);
+  if (layers.powerGrid) {
+    map.removeLayer(layers.powerGrid);
   }
 
-  powerLayer = L.geoJSON(geojson, {
+  const powerLayer = L.geoJSON(geojson, {
     style: function (feature) {
       const kv = getFeatureVoltageKv(feature);
       const color = colorForVoltageKv(kv);
@@ -140,6 +147,7 @@ function showPowerGrid(geojson) {
       if (lines.length) layer.bindPopup(lines.join('<br>'));
     }
   }).addTo(map);
+  layers.powerGrid = powerLayer;
 }
 
 // Function to display charging stations on the map
@@ -171,6 +179,11 @@ function showChargingStations(geojson) {
     popupAnchor: [0, -32]
   });
 
+  // Remove old layer if exists
+  if (layers.chargingStations) {
+    map.removeLayer(layers.chargingStations);
+  }
+
   const chargingStationLayer = L.geoJSON(geojson, {
     pointToLayer: function (feature, latlng) {
       return L.marker(latlng, { icon: chargingIcon });
@@ -184,6 +197,7 @@ function showChargingStations(geojson) {
   });
 
   chargingStationLayer.addTo(map);
+  layers.chargingStations = chargingStationLayer;
 }
 
 // Function to display GeoJSON areas on the map
@@ -196,6 +210,11 @@ function showGeoJsonAreas(geojson) {
   }
 
   console.log(`Displaying ${geojson.features.length} areas on the map.`);
+
+  // Remove old layer if exists
+  if (layers.circles) {
+    map.removeLayer(layers.circles);
+  }
 
   // Add the GeoJSON layer to the map
   const geoJsonLayer = L.geoJSON(geojson, {
@@ -226,10 +245,8 @@ function showGeoJsonAreas(geojson) {
 
   // Add the layer to the map
   geoJsonLayer.addTo(map);
+  layers.circles = geoJsonLayer;
 }
-
-let heatmapLayer = null;
-let trafficHeatmapLayer = null;
 
 // Function to display a heatmap of low-SOC points
 function showHeatmap(heatmapData) {
@@ -243,13 +260,13 @@ function showHeatmap(heatmapData) {
   console.log(`Displaying heatmap with ${heatmapData.length} points.`);
 
   // Remove existing heatmap layer if present
-  if (heatmapLayer) {
-    map.removeLayer(heatmapLayer);
+  if (layers.socHeatmap) {
+    map.removeLayer(layers.socHeatmap);
   }
 
   // Create heatmap layer with intensity gradient
   // Data format: [[lat, lon, intensity], ...]
-  heatmapLayer = L.heatLayer(heatmapData, {
+  const heatmapLayer = L.heatLayer(heatmapData, {
     radius: 25,           // Radius of each data point
     blur: 15,             // Amount of blur
     maxZoom: 17,          // Max zoom to aggregate points on
@@ -262,6 +279,7 @@ function showHeatmap(heatmapData) {
       1.0: '#ff0000'
     }
   }).addTo(map);
+  layers.socHeatmap = heatmapLayer;
 }
 
 // Function to display traffic heatmap
@@ -276,13 +294,13 @@ function showTrafficHeatmap(trafficData) {
   console.log(`Displaying traffic heatmap with ${trafficData.length} points.`);
 
   // Remove existing traffic heatmap layer if present
-  if (trafficHeatmapLayer) {
-    map.removeLayer(trafficHeatmapLayer);
+  if (layers.trafficHeatmap) {
+    map.removeLayer(layers.trafficHeatmap);
   }
 
   // Create traffic heatmap layer with blue-purple gradient
   // Data format: [[lat, lon, intensity], ...]
-  trafficHeatmapLayer = L.heatLayer(trafficData, {
+  const trafficHeatmapLayer = L.heatLayer(trafficData, {
     radius: 20,           // Radius of each data point
     blur: 12,             // Amount of blur
     maxZoom: 17,          // Max zoom to aggregate points on
@@ -295,6 +313,7 @@ function showTrafficHeatmap(trafficData) {
       1.0: '#ff00ff'
     }
   }).addTo(map);
+  layers.trafficHeatmap = trafficHeatmapLayer;
 }
 
 function formatBbox(bounds) {
@@ -570,41 +589,45 @@ const pingBtn = document.getElementById('ping');
 const clearBtn = document.getElementById('clear');
 
 function log(msg, dir = 'in') {
+  if (!logEl) return;
   const ts = new Date().toISOString();
   logEl.textContent += `\n[${ts}] ${dir === 'out' ? '>>' : '<<'} ${msg}`;
   logEl.scrollTop = logEl.scrollHeight;
 }
 
-const wsProto = location.protocol === 'https:' ? 'wss' : 'ws';
-const WS_PATH = (window.__WS_PATH__ || '/ws');
-let ws = new WebSocket(`${wsProto}://${location.host}${WS_PATH}`);
+// Only initialize WebSocket if elements exist
+if (statusEl && logEl && msgEl && sendBtn && pingBtn && clearBtn) {
+  const wsProto = location.protocol === 'https:' ? 'wss' : 'ws';
+  const WS_PATH = (window.__WS_PATH__ || '/ws');
+  let ws = new WebSocket(`${wsProto}://${location.host}${WS_PATH}`);
 
-ws.addEventListener('open', () => {
-  statusEl.textContent = 'WebSocket: connected';
-});
+  ws.addEventListener('open', () => {
+    statusEl.textContent = 'WebSocket: connected';
+  });
 
-ws.addEventListener('close', () => {
-  statusEl.textContent = 'WebSocket: disconnected';
-});
+  ws.addEventListener('close', () => {
+    statusEl.textContent = 'WebSocket: disconnected';
+  });
 
-ws.addEventListener('message', (ev) => {
-  log(ev.data);
-});
+  ws.addEventListener('message', (ev) => {
+    log(ev.data);
+  });
 
-sendBtn.addEventListener('click', () => {
-  const value = msgEl.value || 'Hello from browser!';
-  ws.send(JSON.stringify({ type: 'message', value }));
-  log(JSON.stringify({ type: 'message', value }), 'out');
-});
+  sendBtn.addEventListener('click', () => {
+    const value = msgEl.value || 'Hello from browser!';
+    ws.send(JSON.stringify({ type: 'message', value }));
+    log(JSON.stringify({ type: 'message', value }), 'out');
+  });
 
-pingBtn.addEventListener('click', () => {
-  ws.send(JSON.stringify({ type: 'ping' }));
-  log(JSON.stringify({ type: 'ping' }), 'out');
-});
+  pingBtn.addEventListener('click', () => {
+    ws.send(JSON.stringify({ type: 'ping' }));
+    log(JSON.stringify({ type: 'ping' }), 'out');
+  });
 
-clearBtn.addEventListener('click', () => {
-  logEl.textContent = '';
-});
+  clearBtn.addEventListener('click', () => {
+    logEl.textContent = '';
+  });
+}
 
 // ===== Position search and geolocation =====
 const latLonEl = document.getElementById('lat_lon');
@@ -656,3 +679,54 @@ document.getElementById('export-button').addEventListener('click', async () => {
 
 document.getElementById('startSimulation').addEventListener('click', startSimulation);
 document.getElementById('generateTrips').addEventListener('click', generateTrips);
+
+// ===== Layer Control Toggle Functions =====
+function toggleLayer(layerName, show) {
+  const layer = layers[layerName];
+  console.log(`Toggle ${layerName}: ${show ? 'show' : 'hide'}`, layer);
+  
+  if (!layer) {
+    console.log(`Layer ${layerName} not available yet`);
+    return;
+  }
+  
+  if (show) {
+    if (!map.hasLayer(layer)) {
+      map.addLayer(layer);
+      console.log(`Added layer ${layerName} to map`);
+    }
+  } else {
+    if (map.hasLayer(layer)) {
+      map.removeLayer(layer);
+      console.log(`Removed layer ${layerName} from map`);
+    }
+  }
+}
+
+// Event listeners for layer toggles
+console.log('Setting up layer control event listeners...');
+
+const setupLayerControls = () => {
+  const controls = {
+    'toggleChargingStations': 'chargingStations',
+    'toggleCircles': 'circles',
+    'toggleTrafficHeatmap': 'trafficHeatmap',
+    'toggleSocHeatmap': 'socHeatmap',
+    'togglePowerGrid': 'powerGrid'
+  };
+
+  for (const [elementId, layerName] of Object.entries(controls)) {
+    const element = document.getElementById(elementId);
+    if (element) {
+      console.log(`Found element ${elementId}, attaching listener for ${layerName}`);
+      element.addEventListener('change', (e) => {
+        console.log(`Checkbox ${elementId} changed to ${e.target.checked}`);
+        toggleLayer(layerName, e.target.checked);
+      });
+    } else {
+      console.error(`Element ${elementId} not found!`);
+    }
+  }
+};
+
+setupLayerControls();
