@@ -664,10 +664,18 @@ class Handler(BaseHTTPRequestHandler):
                     os.path.join(scen_dir, "sumo_merged_output.csv"),
                     os.path.join(scen_dir, "no_station_charging_suggestions.csv"),
                     os.path.join(scen_dir, "no_station_areas.geojson"),
-                    os.path.join(scen_dir, "suggested_charging_stations.add.xml")
+                    os.path.join(scen_dir, "suggested_charging_stations.add.xml"),
+                    net_file  # Pass network file for coordinate conversion
                 )
 
-                heatmap_geojson = os.path.join(scen_dir, "no_station_areas.geojson")
+                heatmap_geojson_file = os.path.join(scen_dir, "no_station_areas.geojson")
+                
+                # Read the actual GeoJSON content
+                heatmap_geojson = None
+                if os.path.exists(heatmap_geojson_file):
+                    with open(heatmap_geojson_file, 'r', encoding='utf-8') as f:
+                        heatmap_geojson = json.load(f)
+                    print(f"[INFO] Loaded heatmap GeoJSON with {len(heatmap_geojson.get('features', []))} features")
 
                 # Respond with success
                 resp = {
@@ -680,6 +688,7 @@ class Handler(BaseHTTPRequestHandler):
                     "realChargingStations": real_charging_stations,  # Added charging stations
                     "heatmapGeoJSON": heatmap_geojson  # Added heatmap geojson, Polygons
                 }
+                print(f"Response: {json.dumps(resp, indent=2)}")
                 payload = json.dumps(resp).encode("utf-8")
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json")

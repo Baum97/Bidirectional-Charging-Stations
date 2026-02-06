@@ -156,16 +156,24 @@ function showChargingStations(geojson) {
   const bounds = L.geoJSON(geojson).getBounds();
   map.fitBounds(bounds); // Automatically zoom to the area of the charging stations
 
+  // Custom charging station icon using SVG
+  const chargingIcon = L.divIcon({
+    className: 'charging-station-icon',
+    html: `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="6" y="2" width="12" height="20" rx="2" fill="#4CAF50" stroke="#2E7D32" stroke-width="1.5"/>
+      <path d="M9 6 L12 10 L10.5 10 L13 14" stroke="#FFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <circle cx="9" cy="18" r="1" fill="#FFF"/>
+      <circle cx="15" cy="18" r="1" fill="#FFF"/>
+      <path d="M18 8 L20 6 M20 6 L20 12 M20 6 L22 8" stroke="#2E7D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`,
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+    popupAnchor: [0, -32]
+  });
+
   const chargingStationLayer = L.geoJSON(geojson, {
     pointToLayer: function (feature, latlng) {
-      return L.circleMarker(latlng, {
-        radius: 26,
-        fillColor: "#ff7800",
-        color: "#000",
-        weight: 1,
-        opacity: 1,
-        fillOpacity: 0.8,
-      });
+      return L.marker(latlng, { icon: chargingIcon });
     },
     onEachFeature: function (feature, layer) {
       const props = feature.properties || {};
@@ -260,6 +268,7 @@ function enableSelection(enabled) {
     }
   });
 }
+
 canvasToggle?.addEventListener('change', (e) => enableSelection(e.target.checked));
 enableSelection(false);
 
@@ -341,25 +350,6 @@ async function sendToLocal(bounds, scenario) {
   }
 }
 
-/*
-async function downloadOSMData(bounds, scenario) {
-  const body = { bbox: getBboxArray(bounds), scenario };
-  statusEl2.textContent = 'Downloading OSM data...';
-  try {
-    const res = await fetch('http://127.0.0.1:8787/build', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const j = await res.json();
-    statusEl2.textContent = `OSM data downloaded: ${j.message || ''}`;
-    lastScenarioDir = j.scenarioDir; // <-- store for simulation
-  } catch (err) {
-    statusEl2.textContent = 'Failed to download OSM data: ' + err;
-  }
-}
-*/
 
 async function downloadOSMData(bounds, scenario) {
   const body = { bbox: getBboxArray(bounds), scenario };
@@ -387,6 +377,16 @@ async function downloadOSMData(bounds, scenario) {
     } else {
       console.error("No realChargingStations data in the response.");
     }
+
+    // Visualize heatmap GeoJSON areas (clusters where charging is needed)
+    if (j.heatmapGeoJSON) {
+      console.log("Calling showGeoJsonAreas with data:", j.heatmapGeoJSON);
+      showGeoJsonAreas(j.heatmapGeoJSON);
+    } else {
+      console.error("No heatmapGeoJSON data in the response.");
+    }
+
+
   } catch (err) {
     statusEl2.textContent = 'Failed to download OSM data: ' + err;
     console.error(err);

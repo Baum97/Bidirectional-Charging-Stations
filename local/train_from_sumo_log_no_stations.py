@@ -1,4 +1,4 @@
-def process_sumo_log_no_stations(default_log, out_csv, out_geojson, out_xml):
+def process_sumo_log_no_stations(default_log, out_csv, out_geojson, out_xml, net_file=None):
     import os
     import math
     import json
@@ -148,14 +148,14 @@ def process_sumo_log_no_stations(default_log, out_csv, out_geojson, out_xml):
     # build CSV rows and GeoJSON features
     csv_rows = []
     features = []
-    # try load network if requested
+    # try load network for coordinate conversion
     net = None
-    if HAS_SUMOLIB:
+    if HAS_SUMOLIB and net_file:
         try:
-            net = sumolib.net.readNet(default_log)
-            print("Loaded SUMO network:", default_log)
+            net = sumolib.net.readNet(net_file)
+            print(f"Loaded SUMO network: {net_file}")
         except Exception as e:
-            print("Could not load net:", e)
+            print(f"Could not load network: {e}")
             net = None
 
     for i, c in enumerate(sorted(clusters.values(), key=lambda x: x["count"], reverse=True)):
@@ -171,6 +171,19 @@ def process_sumo_log_no_stations(default_log, out_csv, out_geojson, out_xml):
             "estimated_chargers": est_chargers
         })
         poly = polygon_around_points(c["center_x"], c["center_y"], c["radius"], n_points=POLY_POINTS)
+        
+        # Convert SUMO coordinates to lat/lon for GeoJSON
+        if net:
+            poly_latlon = []
+            for px, py in poly:
+                try:
+                    lon, lat = net.convertXY2LonLat(px, py)
+                    poly_latlon.append([lon, lat])
+                except Exception as e:
+                    print(f"Warning: Could not convert coordinates ({px}, {py}): {e}")
+                    poly_latlon.append([px, py])  # fallback to SUMO coords
+            poly = poly_latlon
+        
         prop = {
             "cluster_id": c["cluster"],
             "count_low_soc": c["count"],

@@ -127,3 +127,18 @@ input[type=number] { width: 80px; }
 
 /* Command buttons container */
 #commands { display: flex; gap: 6px; margin: 6px; }
+
+/* Charging station icon styling */
+.charging-station-icon {
+  background: transparent;
+  border: none;
+}
+
+.charging-station-icon svg {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  transition: transform 0.2s;
+}
+
+.charging-station-icon:hover svg {
+  transform: scale(1.1);
+}
