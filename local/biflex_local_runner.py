@@ -515,6 +515,78 @@ def generate_synthetic_distribution(osm_file):
     }
 
 
+def read_poi_files(poi_files):
+    """
+    Read POI CSV files and convert them to GeoJSON format.
+
+    Args:
+        poi_files (list): List of CSV file paths.
+
+    Returns:
+        dict: Dictionary mapping category names to GeoJSON FeatureCollections.
+    """
+    import csv
+    
+    poi_geojson = {}
+    
+    # poi_files is a list of file paths like ["path/poi_offices.csv", "path/poi_residential.csv", ...]
+    for filepath in poi_files:
+        if not os.path.exists(filepath):
+            print(f"[WARNING] POI file not found: {filepath}")
+            continue
+        
+        # Extract category from filename (e.g., "poi_offices.csv" -> "offices")
+        filename = os.path.basename(filepath)
+        if filename.startswith("poi_") and filename.endswith(".csv"):
+            category = filename[4:-4]  # Remove "poi_" prefix and ".csv" suffix
+        else:
+            print(f"[WARNING] Unexpected POI filename format: {filename}")
+            continue
+        
+        features = []
+        try:
+            with open(filepath, 'r', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    # Skip rows without valid coordinates
+                    if not row.get('lat') or not row.get('lon'):
+                        continue
+                    
+                    try:
+                        lat = float(row['lat'])
+                        lon = float(row['lon'])
+                        
+                        feature = {
+                            "type": "Feature",
+                            "geometry": {
+                                "type": "Point",
+                                "coordinates": [lon, lat]
+                            },
+                            "properties": {
+                                "id": row.get('id', ''),
+                                "name": row.get('name', 'Unknown'),
+                                "type": row.get('type', ''),
+                                "category": category
+                            }
+                        }
+                        features.append(feature)
+                    except (ValueError, KeyError) as e:
+                        print(f"[WARNING] Skipping invalid POI row: {e}")
+                        continue
+            
+            poi_geojson[category] = {
+                "type": "FeatureCollection",
+                "features": features
+            }
+            print(f"[INFO] Loaded {len(features)} POIs for category '{category}'")
+        
+        except Exception as e:
+            print(f"[ERROR] Failed to read POI file {filepath}: {e}")
+            continue
+    
+    return poi_geojson
+
+
 def extract_real_charging_stations(osm_file):
     """
     Extract real charging stations from an OSM file.
@@ -620,6 +692,9 @@ class Handler(BaseHTTPRequestHandler):
                 # Step 3: Extract POIs
                 print(f"[INFO] Extracting POIs -> {scen_dir}")
                 poi_files = extract_pois(osm_file, scen_dir)
+                
+                # Read POI files and convert to GeoJSON
+                poi_geojson = read_poi_files(poi_files)
 
                 # Step 4: Assign POIs to edges
                 print(f"[INFO] Assigning POIs to edges -> {poi_files}")
@@ -714,6 +789,7 @@ class Handler(BaseHTTPRequestHandler):
                     "scenarioDir": scen_dir,
                     "networkFile": net_file,
                     "poiFiles": poi_files,
+                    "poiGeoJSON": poi_geojson,  # Added POI GeoJSON data
                     "powerGrid": power_grid,
                     "realChargingStations": real_charging_stations,  # Added charging stations
                     "heatmapGeoJSON": heatmap_geojson,  # Added heatmap geojson, Polygons

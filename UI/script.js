@@ -46,7 +46,10 @@ const layers = {
   circles: null,
   trafficHeatmap: null,
   socHeatmap: null,
-  powerGrid: null
+  powerGrid: null,
+  poiOffices: null,
+  poiResidential: null,
+  poiOthers: null
 };
 
 // --- Helpers to derive voltage and colors ---
@@ -316,6 +319,94 @@ function showTrafficHeatmap(trafficData) {
   layers.trafficHeatmap = trafficHeatmapLayer;
 }
 
+// Function to display POIs on the map
+function showPOIs(poiGeoJSON) {
+  console.log("POI GeoJSON data:", poiGeoJSON);
+
+  if (!poiGeoJSON || typeof poiGeoJSON !== 'object') {
+    console.error("Invalid POI data.");
+    return;
+  }
+
+  // Define icons and colors for each POI category
+  const poiStyles = {
+    offices: {
+      color: '#3b82f6', // blue
+      icon: '🏢',
+      name: 'Offices'
+    },
+    residential: {
+      color: '#10b981', // green
+      icon: '🏠',
+      name: 'Residential'
+    },
+    others: {
+      color: '#f59e0b', // amber
+      icon: '🏪',
+      name: 'Others (Shops, Schools, etc.)'
+    }
+  };
+
+  // Process each POI category
+  for (const [category, geojson] of Object.entries(poiGeoJSON)) {
+    if (!geojson || !geojson.features || !geojson.features.length) {
+      console.log(`No ${category} POIs to display.`);
+      continue;
+    }
+
+    console.log(`Displaying ${geojson.features.length} ${category} POIs.`);
+
+    const style = poiStyles[category] || { color: '#6b7280', icon: '📍', name: category };
+    const layerKey = `poi${category.charAt(0).toUpperCase() + category.slice(1)}`;
+
+    // Remove existing layer if present
+    if (layers[layerKey]) {
+      map.removeLayer(layers[layerKey]);
+    }
+
+    // Create custom icon using divIcon
+    const poiIcon = L.divIcon({
+      html: `<div style="
+        background-color: ${style.color};
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 2px solid white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      ">${style.icon}</div>`,
+      className: 'poi-marker',
+      iconSize: [24, 24],
+      iconAnchor: [12, 12],
+      popupAnchor: [0, -12]
+    });
+
+    // Create GeoJSON layer with custom markers
+    const poiLayer = L.geoJSON(geojson, {
+      pointToLayer: function (feature, latlng) {
+        return L.marker(latlng, { icon: poiIcon });
+      },
+      onEachFeature: function (feature, layer) {
+        const props = feature.properties || {};
+        const popupContent = `
+          <strong>${props.name || 'Unknown'}</strong><br>
+          <em>${props.type || category}</em><br>
+          <small>ID: ${props.id || 'N/A'}</small>
+        `;
+        layer.bindPopup(popupContent);
+      }
+    });
+
+    // Add the layer to the map
+    poiLayer.addTo(map);
+    layers[layerKey] = poiLayer;
+    console.log(`Added ${category} POI layer to map with ${geojson.features.length} points`);
+  }
+}
+
 function formatBbox(bounds) {
   const sw = bounds.getSouthWest();
   const ne = bounds.getNorthEast();
@@ -488,6 +579,14 @@ async function downloadOSMData(bounds, scenario) {
       showTrafficHeatmap(j.trafficHeatmap);
     } else {
       console.log("No trafficHeatmap in response (traffic visualization not available).");
+    }
+
+    // Visualize POIs (offices, residential, others)
+    if (j.poiGeoJSON) {
+      console.log("Calling showPOIs with data:", j.poiGeoJSON);
+      showPOIs(j.poiGeoJSON);
+    } else {
+      console.log("No poiGeoJSON in response (POI visualization not available).");
     }
 
 
@@ -712,7 +811,10 @@ const setupLayerControls = () => {
     'toggleCircles': 'circles',
     'toggleTrafficHeatmap': 'trafficHeatmap',
     'toggleSocHeatmap': 'socHeatmap',
-    'togglePowerGrid': 'powerGrid'
+    'togglePowerGrid': 'powerGrid',
+    'togglePOIOffices': 'poiOffices',
+    'togglePOIResidential': 'poiResidential',
+    'togglePOIOthers': 'poiOthers'
   };
 
   for (const [elementId, layerName] of Object.entries(controls)) {

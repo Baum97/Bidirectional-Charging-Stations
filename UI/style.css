@@ -167,6 +167,21 @@ input[type=number] { width: 80px; }
   padding-bottom: 8px;
 }
 
+#layerControl h5 {
+  margin: 10px 0 5px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+#layerControl hr {
+  border: 0;
+  border-top: 1px solid #ddd;
+  margin: 12px 0;
+}
+
 .layer-checkbox {
   display: flex;
   align-items: center;
