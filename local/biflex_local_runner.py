@@ -67,7 +67,13 @@ def _sumo_paths():
 
 def _run(cmd, cwd=None):
     print("[RUN]", " ".join(cmd))
-    subprocess.run(cmd, check=True, cwd=cwd)
+    result = subprocess.run(cmd, check=False, cwd=cwd, capture_output=True, text=True)
+    if result.stdout:
+        print(result.stdout)
+    if result.stderr:
+        print("[STDERR]", result.stderr)
+    if result.returncode != 0:
+        raise subprocess.CalledProcessError(result.returncode, cmd, result.stdout, result.stderr)
 
 
 def download_osm_data(bbox, scenario, prefix="test_name"):
@@ -528,6 +534,8 @@ def extract_real_charging_stations(osm_file):
         lon = float(n.get("lon"))
         nodes[nid] = (lon, lat)  # GeoJSON expects [lon, lat]
 
+    print(f"[DEBUG] Total nodes found: {len(nodes)}")
+
     features = []
 
     # --- Charging stations ---
@@ -537,6 +545,7 @@ def extract_real_charging_stations(osm_file):
         if amenity == "charging_station":
             nid = n.get("id")
             lon, lat = nodes[nid]
+            print(f"[DEBUG] Found charging station - Node ID: {nid}, Tags: {tags}")
             feature = {
                 "type": "Feature",
                 "geometry": {
@@ -601,7 +610,7 @@ class Handler(BaseHTTPRequestHandler):
                     "features": real_grid["features"] + synthetic_grid["features"],
                 }
 
-                print(json.dumps(power_grid, indent=2))
+                # print(json.dumps(power_grid, indent=2))
 
                 # Step 2: Build SUMO network
                 net_file = build_sumo_network(osm_file, scenario)
@@ -655,7 +664,7 @@ class Handler(BaseHTTPRequestHandler):
                     os.path.join(scen_dir, "sumo_merged_output.csv"),
                     os.path.join(scen_dir, "no_station_charging_suggestions.csv"),
                     os.path.join(scen_dir, "no_station_areas.geojson"),
-                    os.path.join(scen_dir, "generated_charging_no_stations.add.xml")
+                    os.path.join(scen_dir, "suggested_charging_stations.add.xml")
                 )
 
                 heatmap_geojson = os.path.join(scen_dir, "no_station_areas.geojson")
@@ -669,7 +678,7 @@ class Handler(BaseHTTPRequestHandler):
                     "poiFiles": poi_files,
                     "powerGrid": power_grid,
                     "realChargingStations": real_charging_stations,  # Added charging stations
-                    "heatmapGeoJSON": heatmap_geojson  # Added heatmap geojson
+                    "heatmapGeoJSON": heatmap_geojson  # Added heatmap geojson, Polygons
                 }
                 payload = json.dumps(resp).encode("utf-8")
                 self.send_response(200)

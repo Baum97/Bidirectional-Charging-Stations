@@ -62,7 +62,7 @@ def assign_poi_to_edges(netfile, input_csv_files):
 
                     # Convert WGS84 to SUMO projection
                     x, y = net.convertLonLat2XY(lon, lat)
-                    print(f"[DEBUG] Processing POI {poi_id} at lon: {lon}, lat: {lat}, x: {x}, y: {y}")
+                    # print(f"[DEBUG] Processing POI {poi_id} at lon: {lon}, lat: {lat}, x: {x}, y: {y}")
 
                     edge = get_closest_edge(net, x, y)
                     if edge is None:
@@ -71,7 +71,7 @@ def assign_poi_to_edges(netfile, input_csv_files):
                         continue
 
                     edge_id = edge.getID()
-                    print(f"[DEBUG] Closest edge for POI {poi_id}: {edge_id}")
+                    # print(f"[DEBUG] Closest edge for POI {poi_id}: {edge_id}")
                     writer.writerow([poi_id, lon, lat, x, y, edge_id])
 
                 except Exception as e:
