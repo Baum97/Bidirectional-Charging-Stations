@@ -16,8 +16,10 @@ def process_sumo_log_no_stations(default_log, out_csv, out_geojson, out_xml, net
         HAS_SUMOLIB = False
 
     SOC_THRESHOLD = 30.0      # percent
-    EPS_METERS = 50.0         # DBSCAN eps
-    MIN_SAMPLES = 3
+    EPS_METERS = 25.0         # DBSCAN eps (reduced to prevent chain-linking)
+    MIN_SAMPLES = 5           # increased to require denser concentrations
+    MAX_CLUSTER_SIZE = 200    # max points per cluster before sub-clustering
+    SPEED_THRESHOLD = 2.0     # m/s - only consider stopped/slow vehicles
     BUFFER_MARGIN = 20.0      # meters added to cluster spread
     POLY_POINTS = 32
 
@@ -102,34 +104,113 @@ def process_sumo_log_no_stations(default_log, out_csv, out_geojson, out_xml, net
         print(f"No rows with soc_percent <= {SOC_THRESHOLD} found. Nothing to do.")
         return
     print(f"Low-SOC rows (<= {SOC_THRESHOLD}%): {len(low_df)}")
+    
+    # Filter by speed if available (only consider stopped/slow vehicles)
+    if "speed" in low_df.columns:
+        low_df["speed"] = pd.to_numeric(low_df["speed"], errors="coerce")
+        before_filter = len(low_df)
+        low_df = low_df[low_df["speed"] <= SPEED_THRESHOLD].copy()
+        print(f"Filtered by speed (<= {SPEED_THRESHOLD} m/s): {len(low_df)} rows (removed {before_filter - len(low_df)} fast-moving vehicles)")
+        if len(low_df) == 0:
+            print("No slow/stopped vehicles with low SOC. Nothing to do.")
+            return
 
     coords = low_df[["x","y"]].to_numpy()
     # cluster
     labels = cluster_low_soc_points(coords, eps=EPS_METERS, min_samples=MIN_SAMPLES)
     low_df["cluster"] = labels
 
+    # Split mega-clusters using grid-based spatial partitioning
+    def split_large_cluster_grid(subset_df, max_size=MAX_CLUSTER_SIZE):
+        """Split oversized cluster into spatial grid cells"""
+        if len(subset_df) <= max_size:
+            return [subset_df]
+        
+        print(f"  Grid-splitting mega-cluster with {len(subset_df)} points into ~{max_size}-point chunks...")
+        
+        # Calculate grid dimensions
+        x_min, x_max = subset_df["x"].min(), subset_df["x"].max()
+        y_min, y_max = subset_df["y"].min(), subset_df["y"].max()
+        
+        # Estimate grid cells needed
+        num_cells = math.ceil(len(subset_df) / max_size)
+        grid_side = math.ceil(math.sqrt(num_cells))
+        
+        cell_width = (x_max - x_min) / grid_side if grid_side > 0 else 1.0
+        cell_height = (y_max - y_min) / grid_side if grid_side > 0 else 1.0
+        
+        # Avoid division by zero
+        if cell_width == 0:
+            cell_width = 1.0
+        if cell_height == 0:
+            cell_height = 1.0
+        
+        # Assign each point to a grid cell
+        subset_df = subset_df.copy()
+        subset_df["grid_x"] = ((subset_df["x"] - x_min) / cell_width).astype(int)
+        subset_df["grid_y"] = ((subset_df["y"] - y_min) / cell_height).astype(int)
+        
+        # Group by grid cell
+        result = []
+        for (gx, gy), group in subset_df.groupby(["grid_x", "grid_y"]):
+            if len(group) >= MIN_SAMPLES:  # Only keep cells with enough points
+                group_clean = group.drop(columns=["grid_x", "grid_y"])
+                result.append(group_clean)
+        
+        return result if result else [subset_df.drop(columns=["grid_x", "grid_y"], errors='ignore')]
+
     clusters = {}
+    cluster_counter = 0
     for lbl in sorted(set(labels)):
         if lbl == -1:
             continue
         subset = low_df[low_df["cluster"] == lbl]
-        cx = float(subset["x"].mean())
-        cy = float(subset["y"].mean())
-        count = len(subset)
-        mean_soc = float(subset["soc_percent"].mean())
-        # compute spread
-        dists = np.sqrt((subset["x"] - cx)**2 + (subset["y"] - cy)**2)
-        max_dist = float(dists.max()) if len(dists) > 0 else 0.0
-        radius = max(25.0, max_dist + BUFFER_MARGIN)
-        clusters[lbl] = {
-            "cluster": int(lbl),
-            "center_x": cx,
-            "center_y": cy,
-            "count": int(count),
-            "mean_soc": mean_soc,
-            "radius": radius,
-            "points": subset[["x","y","time","veh_id","soc_percent"]]
-        }
+        
+        # Split if cluster is too large
+        if len(subset) > MAX_CLUSTER_SIZE:
+            print(f"Cluster {lbl} has {len(subset)} points (>{MAX_CLUSTER_SIZE}), splitting...")
+            sub_clusters = split_large_cluster_grid(subset, MAX_CLUSTER_SIZE)
+            print(f"  Split into {len(sub_clusters)} sub-clusters")
+            
+            for sub_subset in sub_clusters:
+                if len(sub_subset) < MIN_SAMPLES:
+                    continue  # Skip tiny fragments
+                    
+                cx = float(sub_subset["x"].mean())
+                cy = float(sub_subset["y"].mean())
+                count = len(sub_subset)
+                mean_soc = float(sub_subset["soc_percent"].mean())
+                dists = np.sqrt((sub_subset["x"] - cx)**2 + (sub_subset["y"] - cy)**2)
+                max_dist = float(dists.max()) if len(dists) > 0 else 0.0
+                radius = max(25.0, max_dist + BUFFER_MARGIN)
+                clusters[cluster_counter] = {
+                    "cluster": cluster_counter,
+                    "center_x": cx,
+                    "center_y": cy,
+                    "count": int(count),
+                    "mean_soc": mean_soc,
+                    "radius": radius,
+                    "points": sub_subset[["x","y","time","veh_id","soc_percent"]]
+                }
+                cluster_counter += 1
+        else:
+            cx = float(subset["x"].mean())
+            cy = float(subset["y"].mean())
+            count = len(subset)
+            mean_soc = float(subset["soc_percent"].mean())
+            dists = np.sqrt((subset["x"] - cx)**2 + (subset["y"] - cy)**2)
+            max_dist = float(dists.max()) if len(dists) > 0 else 0.0
+            radius = max(25.0, max_dist + BUFFER_MARGIN)
+            clusters[cluster_counter] = {
+                "cluster": cluster_counter,
+                "center_x": cx,
+                "center_y": cy,
+                "count": int(count),
+                "mean_soc": mean_soc,
+                "radius": radius,
+                "points": subset[["x","y","time","veh_id","soc_percent"]]
+            }
+            cluster_counter += 1
 
     if not clusters:
         print("No clusters found (all points considered noise). Consider reducing eps or min_samples.")
