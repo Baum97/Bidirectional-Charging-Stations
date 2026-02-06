@@ -13,7 +13,7 @@ app.get('/health', (_, res) => {
 });
 
 // Serve static files from public/
-app.use(express.static('public', {
+app.use(express.static('UI', {
   extensions: ['html'],
 }));
 
