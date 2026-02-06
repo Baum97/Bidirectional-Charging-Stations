@@ -2,13 +2,10 @@ import sumolib
 import csv
 import os
 
-# Pfade zu den Dateien
+# Pfade zu den Dateien (only used when script is run directly)
 netfile = "../data/scenarios/test3/osm.net.xml.gz"
 input_csv_files = ["poi_offices.csv", "poi_residential.csv", "poi_others.csv"]
 output_csv_files = ["poi_offices_edges.csv", "poi_residential_edges.csv", "poi_others_edges.csv"]
-
-# SUMO-Netz laden
-net = sumolib.net.readNet(netfile)
 
 def get_closest_edge(net, x, y, radius=100):
     edges = net.getNeighboringEdges(x, y, radius)
@@ -85,5 +82,6 @@ def assign_poi_to_edges(netfile, input_csv_files):
 
     # return [os.path.join(output_dir, f"poi_{category}.csv") for category in poi_categories]
 
-# Call the function
-print(assign_poi_to_edges(netfile, input_csv_files))
+# Call the function only when script is run directly
+if __name__ == "__main__":
+    print(assign_poi_to_edges(netfile, input_csv_files))
