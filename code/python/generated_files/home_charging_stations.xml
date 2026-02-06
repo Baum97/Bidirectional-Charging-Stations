@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+     HOME CHARGING STATIONS
+     These stations are created as placeholders for the home charging logic.
+     Actual vehicle assignments happen dynamically in the Python simulation
+     based on vehicle starting positions. Home stations are not physical 
+     locations in SUMO but represent virtual charging at home positions.
+-->
+<additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/additional_file.xsd">
+    <!-- Home charging stations will be dynamically associated with vehicles at runtime -->
+    <!-- The home_charging_logic.py script handles assignment of 5% of EVs to home stations -->
+</additional>

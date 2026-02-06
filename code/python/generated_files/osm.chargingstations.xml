@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='utf-8'?>
 <additional>
-  <chargingStation id="CS_-465376254#2_0" lane="-465376254#2_0" startPos="29.98" endPos="34.980000000000004" power="200000" chargeInTransit="0" chargeDelay="200.0" />
-  <chargingStation id="CS_437325054#0_0" lane="437325054#0_0" startPos="26.245" endPos="31.245" power="200000" chargeInTransit="0" chargeDelay="200.0" />
-  <chargingStation id="CS_437325054#0_1" lane="437325054#0_1" startPos="26.245" endPos="31.245" power="200000" chargeInTransit="0" chargeDelay="200.0" />
-  <chargingStation id="CS_492340367#1_0" lane="492340367#1_0" startPos="40.46" endPos="45.46" power="200000" chargeInTransit="0" chargeDelay="200.0" />
-  <chargingStation id="CS_541295978#1_0" lane="541295978#1_0" startPos="47.26" endPos="52.26" power="200000" chargeInTransit="0" chargeDelay="200.0" />
-  <chargingStation id="CS_541295978#1_1" lane="541295978#1_1" startPos="47.26" endPos="52.26" power="200000" chargeInTransit="0" chargeDelay="200.0" />
+  <chargingStation id="CS_-465376254#2_0" lane="-465376254#2_0" startPos="29.98" endPos="34.980000000000004" power="200000" chargeInTransit="0" friendlyPos="true" chargeDelay="200.0" />
+  <chargingStation id="CS_437325054#0_0" lane="437325054#0_0" startPos="26.245" endPos="31.245" power="200000" chargeInTransit="0" friendlyPos="true" chargeDelay="200.0" />
+  <chargingStation id="CS_437325054#0_1" lane="437325054#0_1" startPos="26.245" endPos="31.245" power="200000" chargeInTransit="0" friendlyPos="true" chargeDelay="200.0" />
+  <chargingStation id="CS_492340367#1_0" lane="492340367#1_0" startPos="40.46" endPos="45.46" power="200000" chargeInTransit="0" friendlyPos="true" chargeDelay="200.0" />
+  <chargingStation id="CS_541295978#1_0" lane="541295978#1_0" startPos="47.26" endPos="52.26" power="200000" chargeInTransit="0" friendlyPos="true" chargeDelay="200.0" />
+  <chargingStation id="CS_541295978#1_1" lane="541295978#1_1" startPos="47.26" endPos="52.26" power="200000" chargeInTransit="0" friendlyPos="true" chargeDelay="200.0" />
   </additional>

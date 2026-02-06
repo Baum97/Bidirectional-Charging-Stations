@@ -5,3 +5,4 @@ code/python/generated_files/logs/*.xml.gz
 .vs
 code/python/generated_files/logs/*
 code/python/__pycache__/*
+code/python/generated_files/logs/battery_output.xml.gz
