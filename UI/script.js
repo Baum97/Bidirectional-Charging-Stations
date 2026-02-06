@@ -228,6 +228,75 @@ function showGeoJsonAreas(geojson) {
   geoJsonLayer.addTo(map);
 }
 
+let heatmapLayer = null;
+let trafficHeatmapLayer = null;
+
+// Function to display a heatmap of low-SOC points
+function showHeatmap(heatmapData) {
+  console.log("Heatmap data:", heatmapData);
+
+  if (!heatmapData || !Array.isArray(heatmapData) || heatmapData.length === 0) {
+    console.error("Invalid or empty heatmap data.");
+    return;
+  }
+
+  console.log(`Displaying heatmap with ${heatmapData.length} points.`);
+
+  // Remove existing heatmap layer if present
+  if (heatmapLayer) {
+    map.removeLayer(heatmapLayer);
+  }
+
+  // Create heatmap layer with intensity gradient
+  // Data format: [[lat, lon, intensity], ...]
+  heatmapLayer = L.heatLayer(heatmapData, {
+    radius: 25,           // Radius of each data point
+    blur: 15,             // Amount of blur
+    maxZoom: 17,          // Max zoom to aggregate points on
+    max: 1.0,             // Maximum point intensity
+    gradient: {           // Color gradient (red = highest intensity, yellow = medium, green = low)
+      0.0: '#00ff00',
+      0.4: '#ffff00',
+      0.6: '#ff8800',
+      0.8: '#ff4400',
+      1.0: '#ff0000'
+    }
+  }).addTo(map);
+}
+
+// Function to display traffic heatmap
+function showTrafficHeatmap(trafficData) {
+  console.log("Traffic heatmap data:", trafficData);
+
+  if (!trafficData || !Array.isArray(trafficData) || trafficData.length === 0) {
+    console.error("Invalid or empty traffic data.");
+    return;
+  }
+
+  console.log(`Displaying traffic heatmap with ${trafficData.length} points.`);
+
+  // Remove existing traffic heatmap layer if present
+  if (trafficHeatmapLayer) {
+    map.removeLayer(trafficHeatmapLayer);
+  }
+
+  // Create traffic heatmap layer with blue-purple gradient
+  // Data format: [[lat, lon, intensity], ...]
+  trafficHeatmapLayer = L.heatLayer(trafficData, {
+    radius: 20,           // Radius of each data point
+    blur: 12,             // Amount of blur
+    maxZoom: 17,          // Max zoom to aggregate points on
+    max: 1.0,             // Maximum point intensity
+    gradient: {           // Color gradient (blue = low traffic, purple = medium, magenta = high)
+      0.0: '#0000ff',
+      0.3: '#4444ff',
+      0.5: '#8844ff',
+      0.7: '#cc44ff',
+      1.0: '#ff00ff'
+    }
+  }).addTo(map);
+}
+
 function formatBbox(bounds) {
   const sw = bounds.getSouthWest();
   const ne = bounds.getNorthEast();
@@ -384,6 +453,22 @@ async function downloadOSMData(bounds, scenario) {
       showGeoJsonAreas(j.heatmapGeoJSON);
     } else {
       console.error("No heatmapGeoJSON data in the response.");
+    }
+
+    // Visualize heatmap with gradient (individual low-SOC points)
+    if (j.heatmapData) {
+      console.log("Calling showHeatmap with data:", j.heatmapData);
+      showHeatmap(j.heatmapData);
+    } else {
+      console.log("No heatmapData in response (gradient heatmap not available).");
+    }
+
+    // Visualize traffic heatmap (vehicle movement patterns)
+    if (j.trafficHeatmap) {
+      console.log("Calling showTrafficHeatmap with data:", j.trafficHeatmap);
+      showTrafficHeatmap(j.trafficHeatmap);
+    } else {
+      console.log("No trafficHeatmap in response (traffic visualization not available).");
     }
 
 

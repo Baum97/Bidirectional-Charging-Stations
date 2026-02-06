@@ -37,6 +37,7 @@ import re
 
 from convert_logs_to_csv import process_sumo_logs as convert_logs_to_csv
 from train_from_sumo_log_no_stations import process_sumo_log_no_stations as train_from_sumo_log_no_stations
+from generate_traffic_heatmap import generate_traffic_heatmap
 
 
 
@@ -659,23 +660,51 @@ class Handler(BaseHTTPRequestHandler):
 
                 print("[INFO] Logs converted to CSV successfully.")
 
-                # Step 11: generate stations from log
+                # Step 11: generate traffic heatmap from logs
+                traffic_heatmap_file = os.path.join(scen_dir, "traffic_heatmap.json")
+                try:
+                    generate_traffic_heatmap(
+                        os.path.join(scen_dir, "sumo_merged_output.csv"),
+                        net_file,
+                        traffic_heatmap_file,
+                        sample_rate=0.05  # 5% sampling to reduce data size
+                    )
+                except Exception as e:
+                    print(f"[WARNING] Could not generate traffic heatmap: {e}")
+
+                # Step 12: generate stations from log
+                heatmap_json_file = os.path.join(scen_dir, "no_station_heatmap.json")
                 train_from_sumo_log_no_stations(
                     os.path.join(scen_dir, "sumo_merged_output.csv"),
                     os.path.join(scen_dir, "no_station_charging_suggestions.csv"),
                     os.path.join(scen_dir, "no_station_areas.geojson"),
                     os.path.join(scen_dir, "suggested_charging_stations.add.xml"),
-                    net_file  # Pass network file for coordinate conversion
+                    net_file,  # Pass network file for coordinate conversion
+                    heatmap_json_file  # Output heatmap data for gradient visualization
                 )
 
                 heatmap_geojson_file = os.path.join(scen_dir, "no_station_areas.geojson")
                 
-                # Read the actual GeoJSON content
+                # Read the actual GeoJSON content (cluster polygons)
                 heatmap_geojson = None
                 if os.path.exists(heatmap_geojson_file):
                     with open(heatmap_geojson_file, 'r', encoding='utf-8') as f:
                         heatmap_geojson = json.load(f)
                     print(f"[INFO] Loaded heatmap GeoJSON with {len(heatmap_geojson.get('features', []))} features")
+
+                # Read the heatmap point data (for gradient visualization)
+                heatmap_data = None
+                if os.path.exists(heatmap_json_file):
+                    with open(heatmap_json_file, 'r', encoding='utf-8') as f:
+                        heatmap_data = json.load(f)
+                    print(f"[INFO] Loaded heatmap data with {len(heatmap_data)} points")
+
+                # Read the traffic heatmap data
+                traffic_heatmap_data = None
+                if os.path.exists(traffic_heatmap_file):
+                    with open(traffic_heatmap_file, 'r', encoding='utf-8') as f:
+                        traffic_heatmap_data = json.load(f)
+                    print(f"[INFO] Loaded traffic heatmap data with {len(traffic_heatmap_data)} points")
 
                 # Respond with success
                 resp = {
@@ -686,9 +715,11 @@ class Handler(BaseHTTPRequestHandler):
                     "poiFiles": poi_files,
                     "powerGrid": power_grid,
                     "realChargingStations": real_charging_stations,  # Added charging stations
-                    "heatmapGeoJSON": heatmap_geojson  # Added heatmap geojson, Polygons
+                    "heatmapGeoJSON": heatmap_geojson,  # Added heatmap geojson, Polygons
+                    "heatmapData": heatmap_data,  # Added gradient heatmap data
+                    "trafficHeatmap": traffic_heatmap_data  # Added traffic heatmap
                 }
-                print(f"Response: {json.dumps(resp, indent=2)}")
+                json.dumps(resp, indent=2)
                 payload = json.dumps(resp).encode("utf-8")
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json")

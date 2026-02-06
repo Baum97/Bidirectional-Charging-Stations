@@ -1,4 +1,4 @@
-def process_sumo_log_no_stations(default_log, out_csv, out_geojson, out_xml, net_file=None):
+def process_sumo_log_no_stations(default_log, out_csv, out_geojson, out_xml, net_file=None, out_heatmap_json=None):
     import os
     import math
     import json
@@ -232,6 +232,31 @@ def process_sumo_log_no_stations(default_log, out_csv, out_geojson, out_xml, net
                 f.write(f'  <!-- ns_cs_{r["cluster_id"]} at ({cx:.1f},{cy:.1f}) r={radius:.1f} est_chargers={r["estimated_chargers"]} -->\n')
         f.write("</additional>\n")
     print("Wrote XML (or commented suggestions):", out_xml)
+
+    # Export heatmap data (individual low-SOC points for gradient visualization)
+    if out_heatmap_json:
+        heatmap_points = []
+        for _, row in low_df.iterrows():
+            x, y = row["x"], row["y"]
+            soc = row["soc_percent"]
+            # Convert to lat/lon if network available
+            if net:
+                try:
+                    lon, lat = net.convertXY2LonLat(x, y)
+                    # Intensity based on how low the SOC is (lower SOC = higher intensity)
+                    intensity = max(0.1, (SOC_THRESHOLD - soc) / SOC_THRESHOLD)
+                    heatmap_points.append([lat, lon, intensity])
+                except Exception:
+                    pass
+            else:
+                # Fallback to SUMO coords (won't work well on real map)
+                intensity = max(0.1, (SOC_THRESHOLD - soc) / SOC_THRESHOLD)
+                heatmap_points.append([y, x, intensity])
+        
+        os.makedirs(os.path.dirname(out_heatmap_json), exist_ok=True)
+        with open(out_heatmap_json, "w", encoding="utf-8") as f:
+            json.dump(heatmap_points, f, indent=2)
+        print(f"Wrote heatmap data ({len(heatmap_points)} points):", out_heatmap_json)
 
     print("Done. Suggested clusters:", len(csv_rows))
     print("Tip: visualize the geojson in QGIS / any GeoJSON viewer.")
