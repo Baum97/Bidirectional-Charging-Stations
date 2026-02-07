@@ -962,8 +962,4 @@ if (layerControlEl) {
     layerControlH4.addEventListener('click', toggleCollapse);
     layerControlH4.style.cursor = 'pointer';
   }
-  if (layerToggleArrow) {
-    layerToggleArrow.addEventListener('click', toggleCollapse);
-    layerToggleArrow.style.cursor = 'pointer';
-  }
 }
