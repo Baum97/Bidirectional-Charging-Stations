@@ -81,25 +81,27 @@
           <h4>Position</h4>
           <div class="options open">
             <p>
-              <input id="address" value="Berlin" size="18" />
+              <input id="address" value="Berlin" size="18" class="address" />
               <input id="buttonSearch" type="button" value="Search" />
             </p>
             <p>
-              <input id="lat_lon" value="52.52 13.4" size="18" />
+              <input id="lat_lon" value="52.52 13.4" size="18" class="lat_lon" />
               <input id="buttonLatLon" type="button" value="Go to" />
             </p>
             <p>
-              <input id="buttonCurrent" type="button" value="Use current location" />
+              <input id="buttonCurrent" type="button" value="Find current location" />
             </p>
           </div>
         </div>
 
         <div class="container">
           <div class="options open">
-            <label>Select Area <input type="checkbox" id="canvas-toggle" /></label>
-            <div style="margin-top:6px">
+            <label class="select_area">Select Area (by mouse) <input type="checkbox" id="canvas-toggle" class="area_checkbox" /></label>
+            <div class="selected_bbox">
               <input id="scenario" placeholder="Scenario name (optional)" />
-              <div style="color:#ddd; font-size:.9em; margin-top:4px">
+              
+              <div>
+
                 Selected bbox: <code id="bbox">none</code>
               </div>
             </div>

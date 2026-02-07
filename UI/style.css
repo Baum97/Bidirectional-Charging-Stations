@@ -36,6 +36,19 @@ canvas {
 
 #side.open { right: 0; }
 
+.address { margin: 0 0 5px 0; }
+
+.lat_lon { margin: 0 0 5px 0; }
+
+.select_area { margin: 0 0 5px 0;
+float: left; }
+
+.selected_bbox {
+  color:#ddd; 
+  font-size:.8em; 
+  margin:3vw 0 0 0; 
+}
+
 #tabs { position: absolute; left: -40px; top: 0; }
 
 .tab {
