@@ -7,3 +7,4 @@ code/python/generated_files/logs/*.xml.gz
 local/__pycache__/
 
 
+/data/scenarios
