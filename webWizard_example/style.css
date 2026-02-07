@@ -33,6 +33,10 @@ canvas {
     right: 0;
 }
 
+.img {
+    background-color: #228C3B;
+}
+
 .tab {
     width: 40px;
     height: 40px;
@@ -42,7 +46,7 @@ canvas {
     text-align: center;
     cursor: pointer;
     border-radius: 4px 0 0 4px;
-    background: #5F5FD3;
+    background: #333;
 }
 
 .tab img {
@@ -86,7 +90,7 @@ canvas {
 }
 
 .images:first-of-type {
-    margin-top: 20px;
+    margin-top: 0px;
 }
 
 .container, button, #status {
@@ -165,7 +169,7 @@ button:hover {
 }
 
 .container > :checked + .options, h4 + .options.open {
-    margin-top: 5px;
+    margin-top: 0px;
 }
 
 .options label {

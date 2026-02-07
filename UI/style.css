@@ -29,9 +29,10 @@ canvas {
   width: 300px;
   height: 100%;
   transition: 0.2s right;
-  background: #5F5FD3;
-  color: #FFF;
+  background: rgba(255, 255, 255, 0.95);
+  color: #333;
   z-index: 1000; /* above map and canvas */
+  opacity: 0.9;
 }
 
 #side.open { right: 0; }
@@ -109,7 +110,7 @@ float: left; }
   width: 0;
   height: calc(100% - 55px);
   position: absolute;
-  top: 55px;
+  top: 0px;
   right: 0;
   overflow-x: hidden;
   overflow-y: auto;
@@ -122,10 +123,9 @@ float: left; }
 .controls img { float: left; height: 1.25em; margin-right: 0.5em; }
 .controls a { color: #FFF; }
 .images { overflow: hidden; }
-.images:first-of-type { margin-top: 20px; }
 
 .container, button, #status {
-  background: #2C2CA0;
+  background: #585858;
   border-radius: 4px;
   font-size: 0.8em;
   margin: 5px;
@@ -134,7 +134,7 @@ float: left; }
 
 button {
   color: #FFF;
-  border: 1.2px solid #2C2CA0;
+  border: 1.2px solid #333;
   cursor: pointer;
   display: block;
   background-color: #28A745;
@@ -151,8 +151,8 @@ button:hover { background-image: linear-gradient(-180deg,#34D058,#28A745 40%); }
 
 .options { max-height: 0; overflow: hidden; transition: 0.2s max-height; }
 .options.open { max-height: 250px; }
-.options label { display: block; overflow: hidden; height: 20px; margin: 5px; }
-.options input { float: left; border-radius: 2px; border: none; margin-right: 5px; }
+.options label { display: block; overflow: hidden; height: 20px }
+.options input { float: left; border-radius: 2px; border: none }
 input[type=number] { width: 80px; }
 
 #fixed { position: absolute; width: 100%; top: 0; left: 0; }
@@ -172,8 +172,8 @@ input[type=number] { width: 80px; }
   border-top-right-radius: 8px;
   z-index: 1001; /* above side if overlapping */
 }
-#footer h3 { margin: 0 0 6px 0; font-weight: 600; font-size: 1rem; }
-#footer .row { display: flex; gap: 6px; margin-bottom: 6px; }
+#footer h3 { margin: 0 0 0px 0; font-weight: 600; font-size: 1rem; }
+#footer .row { display: flex; gap: 6px; margin-bottom: 0px; }
 #footer input, #footer button { font-size: 0.9rem; }
 #footer #log { white-space: pre-wrap; border: 1px solid #8884; padding: 6px; border-radius: 6px; min-height: 6rem; max-height: 12rem; overflow: auto; background: #111827; }
 
@@ -208,6 +208,7 @@ input[type=number] { width: 80px; }
   min-width: 200px;
   font-family: Arial, sans-serif;
   backdrop-filter: blur(5px);
+  opacity: 0.8;
 }
 
 #layerControl h4 {
@@ -243,7 +244,6 @@ input[type=number] { width: 80px; }
   max-height: 600px;
   overflow: hidden;
   transition: max-height 0.3s ease;
-  margin-top: 12px;
 }
 #layerControl.collapsed #layerControlBody {
   max-height: 0;

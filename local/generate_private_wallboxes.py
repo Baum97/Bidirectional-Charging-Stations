@@ -276,21 +276,29 @@ def generate_private_wallboxes(netfile, persons_data, output_dir, wallbox_share=
             print(f"[WARNING] Invalid position for wallbox at {lane_id} for {person_id} (lane: {lane_length:.1f}m, start: {startPos:.1f}m, end: {endPos:.1f}m), skipping")
             continue
         
-        # Create charging station ID
+        # Create parking area ID and charging station ID
+        parking_area_id = f"parkingArea_{person_id}"
         wallbox_id = f"wallbox_{person_id}"
         
-        # Create charging station restricted to this person's vehicle type
-        ET.SubElement(
-            root, "chargingStation",
-            id=wallbox_id,
+        # Create parking area restricted to this person's vehicle type
+        parking_area = ET.SubElement(
+            root, "parkingArea",
+            id=parking_area_id,
             lane=lane_id,
             startPos=str(round(startPos, 2)),
             endPos=str(round(endPos, 2)),
+            access=vehicle_type  # Restrict parking area access to this vehicle type only
+        )
+        
+        # Create charging station inside the parking area
+        ET.SubElement(
+            parking_area, "chargingStation",
+            id=wallbox_id,
             power="11000",  # 11 kW (typical home wallbox power)
             efficiency="0.95",
             chargeInTransit="0",
             chargeDelay="0",  # Start charging immediately
-            vehicleTypes=vehicle_type  # KEY: Restrict to only this vehicle type!
+            vehicleTypes=vehicle_type  # Secondary restriction: charging also restricted to this vehicle type
         )
         wallbox_count += 1
         
