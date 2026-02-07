@@ -25,20 +25,38 @@ def generate_charging_stations(netfile, output_dir, min_length):
 
     root = ET.Element("additional")
     count = 0
+    skipped = 0
+    
     for edge in net.getEdges():
         if edge.getType() not in road_types:
             continue
         for lane in edge.getLanes():
             if lane.getLength() > min_length:
                 lane_id = lane.getID()
-                start_pos = lane.getLength() / 2
+                lane_length = lane.getLength()
+                
+                # Place charging station in the middle of the lane
+                start_pos = lane_length / 2
+                end_pos = start_pos + 5  # 5m long
+                
+                # Validate that the charging station fits within the lane
+                if end_pos > lane_length:
+                    # Adjust if it doesn't fit
+                    end_pos = lane_length - 0.1  # 0.1m buffer
+                    start_pos = max(0, end_pos - 5)
+                    
+                    # Skip if still invalid
+                    if start_pos >= end_pos or start_pos < 0:
+                        skipped += 1
+                        continue
+                
                 cs_id = f"CS_{lane_id}"
                 ET.SubElement(
                     root, "chargingStation",
                     id=cs_id,
                     lane=lane_id,
-                    startPos=str(start_pos),
-                    endPos=str(start_pos + 5),  # 5m long
+                    startPos=str(round(start_pos, 2)),
+                    endPos=str(round(end_pos, 2)),
                     power="200000",
                     chargeInTransit="0",
                     chargeDelay="200.0",
@@ -61,4 +79,6 @@ def generate_charging_stations(netfile, output_dir, min_length):
         f.write(pretty_xml)
 
     print(f"{count} Charging Stations wurden in '{output_xml}' erzeugt.")
+    if skipped > 0:
+        print(f"[WARNING] {skipped} charging stations skipped due to invalid positions")
     return output_xml

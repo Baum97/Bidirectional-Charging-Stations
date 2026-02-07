@@ -29,6 +29,7 @@ from extract_pois import extract_pois
 from getPOIEdgeIDs import assign_poi_to_edges
 from mainGenerateTrips import generate_trips
 from mainGenerateChargingStations import generate_charging_stations
+from generate_private_wallboxes import generate_trips_with_private_wallboxes, generate_private_wallboxes
 
 import xml.etree.ElementTree as ET
 
@@ -226,12 +227,10 @@ def create_sumo_config(net_file, trips_file, additional_files, base_dir):
         "        <lateral-resolution value=\"1.6\"/>\n"
         "        <collision.action value=\"none\"/>\n"
         "        <max-depart-delay value=\"900\"/>\n"
+        "        <!-- Device settings: using probability since each vType has its own device config -->\n"
         "        <device.battery.probability value=\"1\"/>\n"
-        "        <device.battery.explicit value=\"veh_ev\"/>\n"
         "        <device.rerouting.probability value=\"1.0\"/>\n"
-        "        <device.rerouting.explicit value=\"veh_ev\"/>\n"
         "        <device.stationfinder.probability value=\"1\"/>\n"
-        "        <device.stationfinder.explicit value=\"veh_ev\"/>\n"
         "        <device.stationfinder.rescueTime value=\"0\"/>\n"
         "        <device.stationfinder.reserveFactor value=\"1.3\"/>\n"
         "        <device.stationfinder.emptyThreshold value=\"0.05\"/>\n"
@@ -700,24 +699,38 @@ class Handler(BaseHTTPRequestHandler):
                 print(f"[INFO] Assigning POIs to edges -> {poi_files}")
                 edge_files = assign_poi_to_edges(net_file, poi_files)
 
-                # Step 5: Generate trips
-                print(f"[INFO] Generating trips -> {edge_files}")
-                trips_file = generate_trips(net_file, edge_files, scen_dir)
+                # Step 5: Generate trips with private wallboxes (unique vehicle types per person)
+                print(f"[INFO] Generating trips with unique vehicle types -> {edge_files}")
+                trips_file, persons_data = generate_trips_with_private_wallboxes(net_file, edge_files, scen_dir)
                 print(f"[INFO] Trips generated -> {trips_file}")
 
-                # Step 6: Generate charging stations
-                print(f"[INFO] Generating charging stations")
-                charging_stations_file = generate_charging_stations(net_file, scen_dir, min_length=50)
-                print(f"[INFO] Charging stations generated -> {charging_stations_file}")
+                # Step 6: Generate private wallboxes (restricted to vehicle owner)
+                # Only 50% of EV owners get wallboxes
+                print(f"[INFO] Generating private wallboxes (50% of EV owners)")
+                wallbox_file, wallbox_homes_file = generate_private_wallboxes(net_file, persons_data, scen_dir, wallbox_share=0.5)
+                ev_count = sum(1 for p in persons_data if p.get('has_ev', False))
+                wallbox_count = sum(1 for p in persons_data if p.get('has_wallbox', False))
+                print(f"[INFO] Private wallboxes generated -> {wallbox_file}")
+                print(f"[INFO] Created {wallbox_count} wallboxes for {wallbox_count}/{ev_count} EV owners (50%)")
 
-                # Step 7: Combine additional files
+                # Step 7: Generate public charging stations (unrestricted - all EVs can use)
+                print(f"[INFO] Generating public charging stations")
+                charging_stations_file = generate_charging_stations(net_file, scen_dir, min_length=50)
+                print(f"[INFO] Public charging stations generated -> {charging_stations_file}")
+                print(f"[INFO] Public stations are unrestricted - all vehicles can use them")
+
+                # Step 8: Combine additional files
                 copy_default_combined_additional(scenario)
                 copy_vehicle_types_additional(scenario)
 
-                # Step 8: Create sim.sumocfg
+                # Step 9: Create sim.sumocfg (combined_additional.xml includes wallboxes and charging stations)
+                # The combined_additional.xml file includes via <include> directives:
+                # - private_wallboxes.xml
+                # - osm.chargingstations.xml  
+                # - vehicle_types.add.xml
                 create_sumo_config(net_file, trips_file, "combined_additional.xml", scen_dir)
 
-                # Step 9: Run simulation to generate logs
+                # Step 10: Run simulation to generate logs
                 print("[INFO] Running SUMO simulation...")
                 sumo_command = ["sumo", "-c", "sim.sumocfg"]
                 try:
@@ -726,7 +739,7 @@ class Handler(BaseHTTPRequestHandler):
                 except subprocess.CalledProcessError as e:
                     raise RuntimeError(f"SUMO simulation failed: {e}")
 
-                # Step 10: convert logs to CSV (optional)
+                # Step 11: convert logs to CSV (optional)
                 convert_logs_to_csv(
                     os.path.join(scen_dir, "fcd_output.xml.gz"),
                     os.path.join(scen_dir, "battery_output.xml.gz"),
@@ -736,7 +749,7 @@ class Handler(BaseHTTPRequestHandler):
 
                 print("[INFO] Logs converted to CSV successfully.")
 
-                # Step 11: generate traffic heatmap from logs
+                # Step 12: generate traffic heatmap from logs
                 traffic_heatmap_file = os.path.join(scen_dir, "traffic_heatmap.json")
                 try:
                     generate_traffic_heatmap(
@@ -748,7 +761,7 @@ class Handler(BaseHTTPRequestHandler):
                 except Exception as e:
                     print(f"[WARNING] Could not generate traffic heatmap: {e}")
 
-                # Step 12: generate stations from log
+                # Step 13: generate stations from log
                 heatmap_json_file = os.path.join(scen_dir, "no_station_heatmap.json")
                 train_from_sumo_log_no_stations(
                     os.path.join(scen_dir, "sumo_merged_output.csv"),
@@ -782,10 +795,17 @@ class Handler(BaseHTTPRequestHandler):
                         traffic_heatmap_data = json.load(f)
                     print(f"[INFO] Loaded traffic heatmap data with {len(traffic_heatmap_data)} points")
 
+                # Read the wallbox homes GeoJSON
+                wallbox_homes_geojson = None
+                if os.path.exists(wallbox_homes_file):
+                    with open(wallbox_homes_file, 'r', encoding='utf-8') as f:
+                        wallbox_homes_geojson = json.load(f)
+                    print(f"[INFO] Loaded wallbox homes GeoJSON with {len(wallbox_homes_geojson.get('features', []))} homes")
+
                 # Respond with success
                 resp = {
                     "ok": True,
-                    "message": "Pipeline completed successfully",
+                    "message": "Pipeline completed successfully with private wallboxes",
                     "scenarioDir": scen_dir,
                     "networkFile": net_file,
                     "poiFiles": poi_files,
@@ -794,7 +814,19 @@ class Handler(BaseHTTPRequestHandler):
                     "realChargingStations": real_charging_stations,  # Added charging stations
                     "heatmapGeoJSON": heatmap_geojson,  # Added heatmap geojson, Polygons
                     "heatmapData": heatmap_data,  # Added gradient heatmap data
-                    "trafficHeatmap": traffic_heatmap_data  # Added traffic heatmap
+                    "trafficHeatmap": traffic_heatmap_data,  # Added traffic heatmap
+                    "wallboxHomesGeoJSON": wallbox_homes_geojson,  # NEW: Homes with private wallboxes
+                    "privateWallboxes": {
+                        "file": os.path.basename(wallbox_file),
+                        "count": wallbox_count,
+                        "total_evs": ev_count,
+                        "coverage": f"{wallbox_count}/{ev_count} (50%)",
+                        "description": "Private wallboxes restricted to vehicle owner"
+                    },
+                    "publicChargingStations": {
+                        "file": os.path.basename(charging_stations_file),
+                        "description": "Public charging stations (unrestricted)"
+                    }
                 }
                 json.dumps(resp, indent=2)
                 payload = json.dumps(resp).encode("utf-8")

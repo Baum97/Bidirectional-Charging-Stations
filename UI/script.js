@@ -49,7 +49,8 @@ const layers = {
   powerGrid: null,
   poiOffices: null,
   poiResidential: null,
-  poiOthers: null
+  poiOthers: null,
+  wallboxHomes: null
 };
 
 // --- Helpers to derive voltage and colors ---
@@ -407,6 +408,83 @@ function showPOIs(poiGeoJSON) {
   }
 }
 
+// Function to display homes with private wallboxes
+function showWallboxHomes(wallboxHomesGeoJSON) {
+  console.log("Wallbox homes GeoJSON data:", wallboxHomesGeoJSON);
+
+  if (!wallboxHomesGeoJSON || !wallboxHomesGeoJSON.features || !wallboxHomesGeoJSON.features.length) {
+    console.log("No wallbox homes to display.");
+    return;
+  }
+
+  console.log(`Displaying ${wallboxHomesGeoJSON.features.length} homes with private wallboxes.`);
+
+  // Remove existing layer if present
+  if (layers.wallboxHomes) {
+    map.removeLayer(layers.wallboxHomes);
+  }
+
+  // Create custom icon: house with charging symbol
+  const wallboxHomeIcon = L.divIcon({
+    html: `<div style="
+      background: linear-gradient(135deg, #7700ff 0%, #a200ff 100%);
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      border: 2px solid white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.4);
+      position: relative;
+    ">
+      🏠
+      <span style="
+        position: absolute;
+        bottom: -2px;
+        right: -2px;
+        background: #cc00ff;
+        border-radius: 50%;
+        width: 14px;
+        height: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        border: 1px solid white;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+      ">⚡</span>
+    </div>`,
+    className: 'wallbox-home-marker',
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
+    popupAnchor: [0, -15]
+  });
+
+  // Create GeoJSON layer with custom markers
+  const wallboxLayer = L.geoJSON(wallboxHomesGeoJSON, {
+    pointToLayer: function (feature, latlng) {
+      return L.marker(latlng, { icon: wallboxHomeIcon });
+    },
+    onEachFeature: function (feature, layer) {
+      const props = feature.properties || {};
+      const popupContent = `
+        <strong>🏠 Home with Private Wallbox</strong><br>
+        <em>Person: ${props.person_id || 'N/A'}</em><br>
+        <small>⚡ 11 kW Private Charging (Restricted Access)</small><br>
+        <small>Vehicle: ${props.vehicle_type || 'N/A'}</small>
+      `;
+      layer.bindPopup(popupContent);
+    }
+  });
+
+  // Add the layer to the map
+  wallboxLayer.addTo(map);
+  layers.wallboxHomes = wallboxLayer;
+  console.log(`Added wallbox homes layer to map with ${wallboxHomesGeoJSON.features.length} homes`);
+}
+
 function formatBbox(bounds) {
   const sw = bounds.getSouthWest();
   const ne = bounds.getNorthEast();
@@ -587,6 +665,14 @@ async function downloadOSMData(bounds, scenario) {
       showPOIs(j.poiGeoJSON);
     } else {
       console.log("No poiGeoJSON in response (POI visualization not available).");
+    }
+
+    // Visualize homes with private wallboxes
+    if (j.wallboxHomesGeoJSON) {
+      console.log("Calling showWallboxHomes with data:", j.wallboxHomesGeoJSON);
+      showWallboxHomes(j.wallboxHomesGeoJSON);
+    } else {
+      console.log("No wallboxHomesGeoJSON in response (wallbox homes not available).");
     }
 
 
@@ -814,7 +900,8 @@ const setupLayerControls = () => {
     'togglePowerGrid': 'powerGrid',
     'togglePOIOffices': 'poiOffices',
     'togglePOIResidential': 'poiResidential',
-    'togglePOIOthers': 'poiOthers'
+    'togglePOIOthers': 'poiOthers',
+    'toggleWallboxHomes': 'wallboxHomes'
   };
 
   for (const [elementId, layerName] of Object.entries(controls)) {
