@@ -826,53 +826,71 @@ if (statusEl && logEl && msgEl && sendBtn && pingBtn && clearBtn) {
 // ===== Position search and geolocation =====
 const latLonEl = document.getElementById('lat_lon');
 
-document.getElementById('buttonLatLon').addEventListener('click', () => {
-  const parts = latLonEl.value.trim().split(/\s+/);
-  if (parts.length === 2) {
-    const lat = parseFloat(parts[0]);
-    const lon = parseFloat(parts[1]);
-    if (!isNaN(lat) && !isNaN(lon)) map.setView([lat, lon], 16);
-  }
-});
+const buttonLatLon = document.getElementById('buttonLatLon');
+if (buttonLatLon) {
+  buttonLatLon.addEventListener('click', () => {
+    const parts = latLonEl.value.trim().split(/\s+/);
+    if (parts.length === 2) {
+      const lat = parseFloat(parts[0]);
+      const lon = parseFloat(parts[1]);
+      if (!isNaN(lat) && !isNaN(lon)) map.setView([lat, lon], 16);
+    }
+  });
+}
 
-document.getElementById('buttonSearch').addEventListener('click', async () => {
-  const q = document.getElementById('address').value.trim();
-  if (!q) return;
-  try {
-    const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=1`);
-    const data = await res.json();
-    if (data && data[0]) {
-      const lat = parseFloat(data[0].lat);
-      const lon = parseFloat(data[0].lon);
+const buttonSearch = document.getElementById('buttonSearch');
+if (buttonSearch) {
+  buttonSearch.addEventListener('click', async () => {
+    const q = document.getElementById('address').value.trim();
+    if (!q) return;
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=1`);
+      const data = await res.json();
+      if (data && data[0]) {
+        const lat = parseFloat(data[0].lat);
+        const lon = parseFloat(data[0].lon);
+        map.setView([lat, lon], 16);
+        latLonEl.value = `${lat.toFixed(6)} ${lon.toFixed(6)}`;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  });
+}
+
+const buttonCurrent = document.getElementById('buttonCurrent');
+if (buttonCurrent) {
+  buttonCurrent.addEventListener('click', () => {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition((pos) => {
+      const { latitude: lat, longitude: lon } = pos.coords;
       map.setView([lat, lon], 16);
       latLonEl.value = `${lat.toFixed(6)} ${lon.toFixed(6)}`;
-    }
-  } catch (e) {
-    console.error(e);
-  }
-});
-
-document.getElementById('buttonCurrent').addEventListener('click', () => {
-  if (!navigator.geolocation) return;
-  navigator.geolocation.getCurrentPosition((pos) => {
-    const { latitude: lat, longitude: lon } = pos.coords;
-    map.setView([lat, lon], 16);
-    latLonEl.value = `${lat.toFixed(6)} ${lon.toFixed(6)}`;
+    });
   });
-});
+}
 
 // Generate Scenario button mirrors Send to Local SUMO
-document.getElementById('export-button').addEventListener('click', async () => {
-  const b = currentBboxBounds();
-  if (!b) {
-    alert('Please select an area by clicking two corners on the map.');
-    return;
-  }
-  await sendToLocal(b, defaultScenarioName());
-});
+const exportBtn = document.getElementById('export-button');
+if (exportBtn) {
+  exportBtn.addEventListener('click', async () => {
+    const b = currentBboxBounds();
+    if (!b) {
+      alert('Please select an area by clicking two corners on the map.');
+      return;
+    }
+    await sendToLocal(b, defaultScenarioName());
+  });
+}
 
-document.getElementById('startSimulation').addEventListener('click', startSimulation);
-document.getElementById('generateTrips').addEventListener('click', generateTrips);
+const startSimBtn = document.getElementById('startSimulation');
+if (startSimBtn) {
+  startSimBtn.addEventListener('click', startSimulation);
+}
+const generateTripsBtn = document.getElementById('generateTrips');
+if (generateTripsBtn) {
+  generateTripsBtn.addEventListener('click', generateTrips);
+}
 
 // ===== Layer Control Toggle Functions =====
 function toggleLayer(layerName, show) {
@@ -932,8 +950,20 @@ setupLayerControls();
 // ===== Layer control panel collapse / expand =====
 const layerControlEl = document.getElementById('layerControl');
 const layerControlH4 = layerControlEl?.querySelector('h4');
-if (layerControlH4) {
-  layerControlH4.addEventListener('click', () => {
+const layerToggleArrow = document.getElementById('layerToggleArrow');
+
+if (layerControlEl) {
+  const toggleCollapse = () => {
     layerControlEl.classList.toggle('collapsed');
-  });
+    console.log('Layer control toggled, collapsed:', layerControlEl.classList.contains('collapsed'));
+  };
+  
+  if (layerControlH4) {
+    layerControlH4.addEventListener('click', toggleCollapse);
+    layerControlH4.style.cursor = 'pointer';
+  }
+  if (layerToggleArrow) {
+    layerToggleArrow.addEventListener('click', toggleCollapse);
+    layerToggleArrow.style.cursor = 'pointer';
+  }
 }
