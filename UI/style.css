@@ -36,6 +36,45 @@ canvas {
 
 #side.open { right: 0; }
 
+/* Collapsed state: push side fully off-screen including tabs */
+#side.collapsed { right: -340px !important; }
+#side.collapsed #tabs { visibility: hidden; }
+
+/* Side toggle arrow button — fixed so it never leaves viewport */
+#sideToggle {
+  position: fixed;
+  right: 340px; /* 300px side width + 40px tabs */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 40px;
+  background: #5F5FD3;
+  border: none;
+  border-radius: 6px 0 0 6px;
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1002;
+  padding: 0;
+  box-shadow: -2px 0 6px rgba(0,0,0,0.3);
+  transition: right 0.2s, background 0.2s;
+}
+/* When side is closed (no tab active), button hugs the tabs area */
+#side:not(.open) #sideToggle { right: -20px; }
+/* When side is open, button sits flush left of tabs */
+#side.open #sideToggle { right: 294px; }
+/* When collapsed, pin button to the right edge of the viewport */
+#side.collapsed #sideToggle { right: -8px; border-radius: 6px 0 0 6px; }
+#sideToggle:hover { background: #4a4abf; }
+#sideToggleArrow {
+  display: inline-block;
+  transition: transform 0.3s;
+}
+#side.collapsed #sideToggleArrow { transform: rotate(180deg); }
+
 .address { margin: 0 0 5px 0; }
 
 .lat_lon { margin: 0 0 5px 0; }

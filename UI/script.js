@@ -26,6 +26,15 @@ function openTab(id) {
 tabs.forEach((t, i) => t.addEventListener('click', () => openTab(i)));
 openTab(0);
 
+// ===== Side panel collapse / expand toggle =====
+const sideToggleBtn = document.getElementById('sideToggle');
+if (sideToggleBtn) {
+  sideToggleBtn.addEventListener('click', () => {
+    const side = document.getElementById('side');
+    side.classList.toggle('collapsed');
+  });
+}
+
 // ===== Map + bbox selection (Leaflet) =====
 const map = L.map('map').setView([52.52, 13.4], 13);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
