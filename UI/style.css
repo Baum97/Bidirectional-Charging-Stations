@@ -199,7 +199,7 @@ input[type=number] { width: 80px; }
 #layerControl {
   position: absolute;
   top: 10px;
-  left: 10px;
+  left: 60px;
   z-index: 1000;
   background: rgba(255, 255, 255, 0.95);
   border-radius: 8px;
@@ -211,12 +211,43 @@ input[type=number] { width: 80px; }
 }
 
 #layerControl h4 {
-  margin: 0 0 12px 0;
+  margin: 0;
   font-size: 16px;
   font-weight: 600;
   color: #333;
   border-bottom: 2px solid #5F5FD3;
   padding-bottom: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+#layerControl.collapsed h4 {
+  margin: 0;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+/* Layer control collapse toggle arrow */
+.layer-toggle-arrow {
+  display: inline-block;
+  font-size: 12px;
+  transition: transform 0.3s;
+  margin-right: 4px;
+}
+#layerControl.collapsed .layer-toggle-arrow {
+  transform: rotate(-90deg);
+}
+
+/* Collapsible body */
+#layerControlBody {
+  max-height: 600px;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  margin-top: 12px;
+}
+#layerControl.collapsed #layerControlBody {
+  max-height: 0;
+  margin-top: 0;
 }
 
 #layerControl h5 {

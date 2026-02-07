@@ -36,7 +36,7 @@ if (sideToggleBtn) {
 }
 
 // ===== Map + bbox selection (Leaflet) =====
-const map = L.map('map').setView([52.52, 13.4], 13);
+const map = L.map('map').setView([52.52, 13.4], 14);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19,
   attribution: '&copy; OpenStreetMap contributors',
@@ -928,3 +928,12 @@ const setupLayerControls = () => {
 };
 
 setupLayerControls();
+
+// ===== Layer control panel collapse / expand =====
+const layerControlEl = document.getElementById('layerControl');
+const layerControlH4 = layerControlEl?.querySelector('h4');
+if (layerControlH4) {
+  layerControlH4.addEventListener('click', () => {
+    layerControlEl.classList.toggle('collapsed');
+  });
+}

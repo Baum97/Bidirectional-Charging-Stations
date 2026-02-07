@@ -25,7 +25,8 @@
 
     <!-- Layer Control Panel -->
     <div id="layerControl">
-      <h4>Map Layers</h4>
+      <h4><span id="layerToggleArrow" class="layer-toggle-arrow">&#9660;</span> Map Layers</h4>
+      <div id="layerControlBody">
       <label class="layer-checkbox">
         <input type="checkbox" id="toggleChargingStations" checked>
         <span>Real Charging Stations</span>
@@ -66,6 +67,7 @@
         <input type="checkbox" id="toggleWallboxHomes" checked>
         <span>🏠⚡ Homes with Wallboxes</span>
       </label>
+      </div>
     </div>
 
     <div id="side">
