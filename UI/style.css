@@ -100,7 +100,7 @@ float: left; }
   text-align: center;
   cursor: pointer;
   border-radius: 4px 0 0 4px;
-  background: #5F5FD3;
+  background: #333;
 }
 
 .tab img { width: 32px; margin: 4px; }
