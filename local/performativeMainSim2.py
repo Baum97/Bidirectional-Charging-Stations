@@ -360,7 +360,24 @@ def main():
 
                 ev = ev_objects[vid]
 
-                ev.update_soc_from_sumo(float(soc), float(max_soc))
+                # Check if vehicle is at home BEFORE updating from SUMO
+                # (home charging is managed by Python model, not SUMO)
+                ev_is_at_home = False
+                if vid in home_stations:
+                    home_station_id = home_stations[vid]
+                    home_pos_x, home_pos_y, home_tolerance = home_charging_cache[home_station_id]
+                    veh_x, veh_y = traci.vehicle.getPosition(vid)
+                    distance_to_home = ((veh_x - home_pos_x) ** 2 + (veh_y - home_pos_y) ** 2) ** 0.5
+                    speed = traci.vehicle.getSpeed(vid)
+                    ev_is_at_home = distance_to_home <= home_tolerance and speed < 0.2
+                
+                # Only update from SUMO if NOT at home (prevents overwriting home charging progress)
+                if not ev_is_at_home:
+                    ev.update_soc_from_sumo(float(soc), float(max_soc))
+                    soc_val = ev.soc  # Use updated Python model SOC
+                else:
+                    # At home: use Python model's SOC (don't overwrite with SUMO's frozen value)
+                    soc_val = ev.soc
 
                 # detect charging
                 speed = traci.vehicle.getSpeed(vid)
@@ -421,7 +438,8 @@ def main():
                     energy_pool.update_station_power_usage(station_id, allowed_kw)
 
                     # charge EV in Python model with allowed power
-                    ev.chargevehicle(simulationtime=sim_time, dt=1, kw=allowed_kw)
+                    # dt=10 matches SUMO step-length of 10 seconds
+                    ev.chargevehicle(simulationtime=sim_time, dt=10, kw=allowed_kw)
 
                     # set SUMO charging power (W)
                     w = allowed_kw * 1000
@@ -467,14 +485,9 @@ def main():
                         charging_session_energy.pop(vid, None)
 
                 # ========== HOME CHARGING LOGIC FOR DESIGNATED HOME STATIONS ==========
+                # Note: ev_is_at_home and distance_to_home were already calculated earlier to prevent SUMO overwrite
                 if vid in home_stations:
                     home_station_id = home_stations[vid]
-                    home_pos_x, home_pos_y, home_tolerance = home_charging_cache[home_station_id]
-                    
-                    # Check if vehicle is at home (within tolerance distance)
-                    veh_x, veh_y = traci.vehicle.getPosition(vid)
-                    distance_to_home = ((veh_x - home_pos_x) ** 2 + (veh_y - home_pos_y) ** 2) ** 0.5
-                    ev_is_at_home = distance_to_home <= home_tolerance and speed < 0.2
                     
                     if ev_is_at_home:
                         # Vehicle is at home and stationary
@@ -502,7 +515,8 @@ def main():
                             v2g_power_allowed = home_evse.send_to_ev()
                             if v2g_power_allowed < 0:  # Negative = discharge
                                 # Apply discharge to EV
-                                energy_removed_wh = ev.dischargevehicle(simulationtime=sim_time, dt=1, kw=abs(v2g_power_allowed))
+                                # dt=10 matches SUMO step-length of 10 seconds
+                                energy_removed_wh = ev.dischargevehicle(simulationtime=sim_time, dt=10, kw=abs(v2g_power_allowed))
                                 v2g_session_energy[vid] = v2g_session_energy.get(vid, 0.0) + energy_removed_wh / 3600.0
                                 
                                 # Update energy pool (discharge reduces grid demand)
@@ -519,6 +533,7 @@ def main():
                                 charging_start_time[vid] = sim_time
                                 charging_session_energy[vid] = 0.0
                                 last_soc[vid] = soc_val  # Save starting SOC for home charging session
+                                home_pos_x, home_pos_y, _ = home_charging_cache[home_station_id]
                                 print(f"[HOME_CHARGE_START] veh={vid} at home position ({home_pos_x:.1f}, {home_pos_y:.1f})")
                             
                             home_ramp_kw = compute_rampup_power(sim_time, charging_start_time[vid], home_evse.Prated_kW)
@@ -535,12 +550,13 @@ def main():
                             
                             home_charge_kw = home_evse.send_to_ev()
                             if home_charge_kw > 0:
-                                ev.chargevehicle(simulationtime=sim_time, dt=1, kw=home_charge_kw)
+                                # dt=10 matches SUMO step-length of 10 seconds
+                                ev.chargevehicle(simulationtime=sim_time, dt=10, kw=home_charge_kw)
                                 energy_pool.update_station_power_usage(home_station_id, home_charge_kw)
                                 energy_kwh_this_step = home_charge_kw / 3600.0
                                 charging_session_energy[vid] = charging_session_energy.get(vid, 0.0) + energy_kwh_this_step
                                 
-                                # Re-read updated SOC after charging
+                                # Re-read updated SOC from Python model (home charging is virtual, not in SUMO network)
                                 soc_val = ev.soc
                                 
                                 if step % 100 == 0:
@@ -550,9 +566,10 @@ def main():
                         # Vehicle left home - end charging session if active
                         if vid in charging_start_time and not is_charging:
                             soc_start = last_soc.get(vid, 0.0)
+                            soc_end = ev.soc  # Use Python model's SOC for home charging (not SUMO's)
                             total_energy = charging_session_energy.get(vid, 0.0)
                             if total_energy > 0.01:
-                                print(f"[HOME_SESSION_END] veh={vid} energy={total_energy:.3f}kWh soc:{soc_start:.2f}->{soc_val:.2f}")
+                                print(f"[HOME_SESSION_END] veh={vid} energy={total_energy:.3f}kWh soc:{soc_start:.2f}->{soc_end:.2f}")
                             charging_start_time.pop(vid, None)
                             charging_session_energy.pop(vid, None)
 
