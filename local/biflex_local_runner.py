@@ -22,6 +22,7 @@ import json
 import os
 import sys
 import subprocess
+import random
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse
 
@@ -699,21 +700,42 @@ class Handler(BaseHTTPRequestHandler):
                 print(f"[INFO] Assigning POIs to edges -> {poi_files}")
                 edge_files = assign_poi_to_edges(net_file, poi_files)
 
-                # Step 5: Generate trips with private wallboxes (unique vehicle types per person)
+                # Step 5: Pre-select wallbox recipients BEFORE trip generation
+                # This is needed so trips can include parkingArea stops for wallbox owners
+                print(f"[INFO] Pre-selecting wallbox recipients (50% of EV owners)")
+                from generate_private_wallboxes import _select_wallbox_recipients
+                
+                # Build temporary person list to determine EV owners and wallbox recipients
+                num_persons = 250
+                ev_share = 0.6
+                num_evs = int(num_persons * ev_share)
+                temp_persons = [{'id': f'person{i}'} for i in range(1, num_persons + 1)]
+                random.seed(42)
+                all_ids = [p['id'] for p in temp_persons]
+                ev_ids = set(random.sample(all_ids, num_evs))
+                for p in temp_persons:
+                    p['has_ev'] = p['id'] in ev_ids
+                wallbox_recipients = _select_wallbox_recipients(temp_persons, wallbox_share=0.5)
+                print(f"[INFO] Pre-selected {len(wallbox_recipients)} wallbox recipients")
+
+                # Step 6: Generate trips with private wallboxes (unique vehicle types per person)
+                # Wallbox owners get explicit <stop parkingArea="..."> for their home wallbox
                 print(f"[INFO] Generating trips with unique vehicle types -> {edge_files}")
-                trips_file, persons_data = generate_trips_with_private_wallboxes(net_file, edge_files, scen_dir)
+                trips_file, persons_data = generate_trips_with_private_wallboxes(
+                    net_file, edge_files, scen_dir, wallbox_recipients=wallbox_recipients
+                )
                 print(f"[INFO] Trips generated -> {trips_file}")
 
-                # Step 6: Generate private wallboxes (restricted to vehicle owner)
-                # Only 50% of EV owners get wallboxes
-                print(f"[INFO] Generating private wallboxes (50% of EV owners)")
-                wallbox_file, wallbox_homes_file = generate_private_wallboxes(net_file, persons_data, scen_dir, wallbox_share=0.5)
+                # Step 7: Generate private wallboxes (parkingArea + nested chargingStation)
+                # Access control is enforced through routing: only owners are routed to their parkingArea
+                print(f"[INFO] Generating private wallboxes")
+                wallbox_file, wallbox_homes_file = generate_private_wallboxes(net_file, persons_data, scen_dir)
                 ev_count = sum(1 for p in persons_data if p.get('has_ev', False))
                 wallbox_count = sum(1 for p in persons_data if p.get('has_wallbox', False))
                 print(f"[INFO] Private wallboxes generated -> {wallbox_file}")
                 print(f"[INFO] Created {wallbox_count} wallboxes for {wallbox_count}/{ev_count} EV owners (50%)")
 
-                # Step 7: Generate public charging stations (unrestricted - all EVs can use)
+                # Step 8: Generate public charging stations (unrestricted - all EVs can use)
                 print(f"[INFO] Generating public charging stations")
                 charging_stations_file = generate_charging_stations(net_file, scen_dir, min_length=50)
                 print(f"[INFO] Public charging stations generated -> {charging_stations_file}")

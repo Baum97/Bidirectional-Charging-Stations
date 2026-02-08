@@ -4,7 +4,14 @@ Generate private wallboxes for residential POIs in SUMO.
 Each person with an EV gets:
 1. A unique vehicle type (vehicleTypePersonX)
 2. A private wallbox at their home location (wallboxPersonX)
-3. The wallbox is restricted to only accept that person's vehicle type
+3. The wallbox is inside a parkingArea that only the owner is routed to
+
+Enforcement strategy:
+- Each wallbox is a <chargingStation> nested INSIDE a <parkingArea>
+- The parkingArea has roadsideCapacity="1" (single private spot)
+- Only the wallbox owner's trip includes a <stop parkingArea="parkingArea_personX">
+- Other vehicles have NO stop referencing that parkingArea, so they never park/charge there
+- This achieves access control through routing, not through attribute-based restrictions
 """
 
 import sumolib
@@ -14,24 +21,53 @@ import xml.etree.ElementTree as ET
 import os
 
 
-def generate_trips_with_private_wallboxes(netfile, input_csvs, output_dir):
+def _select_wallbox_recipients(persons, wallbox_share=0.5):
+    """
+    Decide which EV owners get a private wallbox.
+    Must be called BEFORE trip generation so trips can include parkingArea stops.
+
+    Args:
+        persons (list): List of person dicts (must have 'has_ev' set).
+        wallbox_share (float): Fraction of EV owners that get wallboxes.
+
+    Returns:
+        set: IDs of persons who receive a wallbox.
+    """
+    ev_owners = [p for p in persons if p.get('has_ev', False)]
+    random.seed(42)
+    num_wallboxes = int(len(ev_owners) * wallbox_share)
+    recipients = set(random.sample([p['id'] for p in ev_owners], num_wallboxes))
+    for p in persons:
+        p['has_wallbox'] = p['id'] in recipients
+    return recipients
+
+
+def generate_trips_with_private_wallboxes(netfile, input_csvs, output_dir, wallbox_recipients=None):
     """
     Generate trips with unique vehicle types per person for private wallbox access.
+    Wallbox owners get an additional <stop parkingArea="parkingArea_personX"> when
+    they return home, so they park at their private wallbox and charge.
 
     Args:
         netfile (str): Path to the SUMO network file.
         input_csvs (list): List of input CSV files containing POI edges.
         output_dir (str): Directory to save the generated trips XML file.
+        wallbox_recipients (set): Set of person IDs that have wallboxes.
+            If None, no parkingArea stops are added.
 
     Returns:
         tuple: (trips_file_path, persons_data_dict)
             - trips_file_path: Path to the generated trips XML file
             - persons_data_dict: Dictionary with person data for wallbox generation
     """
+    if wallbox_recipients is None:
+        wallbox_recipients = set()
+
     # Configuration
     num_persons = 250
     morning_depart_interval = (23400, 32400)  # 6:30 - 9:00
     work_duration = 8 * 3600  # 8 hrs in sec
+    home_duration = 10 * 3600  # 10 hrs parked at home (overnight)
     ev_share = 0.6  # part of electrical cars
     num_evs = int(num_persons * ev_share)
 
@@ -132,32 +168,74 @@ def generate_trips_with_private_wallboxes(netfile, input_csvs, output_dir):
             veh_type = "veh_passenger"
             p['has_ev'] = False
         
+        # Check if this person has a wallbox at home
+        has_wallbox = person_id in wallbox_recipients
+        p['has_wallbox'] = has_wallbox
+        
         vehicles.append({
             'id': person_id,
             'type': veh_type,
             'depart': depart_morning,
             'route': [p['home'], p['work'], p['home']],
             'stop_edge': p['work'],
-            'stop_duration': work_duration
+            'stop_duration': work_duration,
+            'has_wallbox': has_wallbox,
+            'home_duration': home_duration
         })
 
     vehicles.sort(key=lambda v: v['depart'])
 
     # Generate vehicle elements
+    wallbox_stop_count = 0
     for v in vehicles:
-        veh_elem = ET.SubElement(
-            routes, 'vehicle',
-            id=v['id'],
-            type=v['type'],
-            depart=str(v['depart'])
-        )
-        ET.SubElement(veh_elem, 'route', edges=" ".join(v['route']))
-        ET.SubElement(
-            veh_elem, 'stop',
-            edge=v['stop_edge'],
-            duration=str(v['stop_duration']),
-            parking="true"
-        )
+        if v['has_wallbox']:
+            # Wallbox owners: depart at time 0 and start parked at their wallbox.
+            # They charge overnight until their actual departure time, then drive to work.
+            veh_elem = ET.SubElement(
+                routes, 'vehicle',
+                id=v['id'],
+                type=v['type'],
+                depart="0"  # Exist from simulation start
+            )
+            ET.SubElement(veh_elem, 'route', edges=" ".join(v['route']))
+            # Stop 0: parked at home wallbox from sim start until departure time (overnight charging)
+            ET.SubElement(
+                veh_elem, 'stop',
+                parkingArea=f"parkingArea_{v['id']}",
+                until=str(v['depart']),  # Stay parked and charging until morning departure
+                parking="true"
+            )
+            # Stop 1: at work
+            ET.SubElement(
+                veh_elem, 'stop',
+                edge=v['stop_edge'],
+                duration=str(v['stop_duration']),
+                parking="true"
+            )
+            # Stop 2: return home to wallbox (evening/overnight charging)
+            ET.SubElement(
+                veh_elem, 'stop',
+                parkingArea=f"parkingArea_{v['id']}",
+                duration=str(v['home_duration']),
+                parking="true"
+            )
+            wallbox_stop_count += 1
+        else:
+            # Non-wallbox vehicles: depart at their scheduled time
+            veh_elem = ET.SubElement(
+                routes, 'vehicle',
+                id=v['id'],
+                type=v['type'],
+                depart=str(v['depart'])
+            )
+            ET.SubElement(veh_elem, 'route', edges=" ".join(v['route']))
+            # Stop 1: at work
+            ET.SubElement(
+                veh_elem, 'stop',
+                edge=v['stop_edge'],
+                duration=str(v['stop_duration']),
+                parking="true"
+            )
 
     # Pretty print XML
     def indent(elem, level=0):
@@ -182,21 +260,27 @@ def generate_trips_with_private_wallboxes(netfile, input_csvs, output_dir):
     tree.write(output_xml, encoding='utf-8', xml_declaration=True)
     
     print(f"✓ Generated {num_persons} vehicles ({num_evs} EVs with unique vehicle types)")
+    print(f"  {wallbox_stop_count} vehicles have explicit parkingArea stops at home wallbox")
     print(f"  Saved to: {output_xml}")
 
     return output_xml, persons
 
 
-def generate_private_wallboxes(netfile, persons_data, output_dir, wallbox_share=0.5):
+def generate_private_wallboxes(netfile, persons_data, output_dir):
     """
-    Generate private wallboxes at selected EV owner's home locations.
-    Each wallbox is restricted to only accept its owner's vehicle type.
+    Generate private wallboxes at EV owners' home locations.
+    Each wallbox is a chargingStation nested inside a parkingArea.
+    
+    Access control is enforced through routing:
+    - Only the owner's trip has a <stop parkingArea="parkingArea_personX">
+    - The parkingArea has roadsideCapacity="1" (single private spot)
+    - No other vehicle has a stop referencing this parkingArea
+    - Therefore only the owner ever parks and charges there
 
     Args:
         netfile (str): Path to the SUMO network file.
-        persons_data (list): List of person dictionaries with home edges and vehicle types.
+        persons_data (list): List of person dicts (must have 'has_wallbox' already set).
         output_dir (str): Directory to save the wallboxes XML file.
-        wallbox_share (float): Fraction of EV owners that get private wallboxes (default 0.5 = 50%).
 
     Returns:
         tuple: (wallbox_file_path, wallbox_homes_geojson_path)
@@ -206,35 +290,26 @@ def generate_private_wallboxes(netfile, persons_data, output_dir, wallbox_share=
     root = ET.Element("additional")
     wallbox_count = 0
     
-    # Collect all EV owners
-    ev_owners = [p for p in persons_data if p.get('has_ev', False)]
-    
-    # Select random subset of EV owners to receive wallboxes
-    import random
-    random.seed(42)  # Use same seed for reproducibility
-    num_wallboxes = int(len(ev_owners) * wallbox_share)
-    wallbox_recipients = set(random.sample([p['id'] for p in ev_owners], num_wallboxes))
-    
-    print(f"[INFO] Creating wallboxes for {num_wallboxes} out of {len(ev_owners)} EV owners ({wallbox_share*100:.0f}%)")
-    
     # Track homes with wallboxes for GeoJSON visualization
     wallbox_homes = []
     
+    # Count for logging
+    ev_count = sum(1 for p in persons_data if p.get('has_ev', False))
+    wb_count = sum(1 for p in persons_data if p.get('has_wallbox', False))
+    print(f"[INFO] Creating wallboxes for {wb_count} out of {ev_count} EV owners")
+    
     for person in persons_data:
-        # Only create wallboxes for selected EV owners
-        if not person.get('has_ev', False):
+        # Only create wallboxes for persons marked as wallbox recipients
+        if not person.get('has_wallbox', False):
             continue
-        
-        # Check if this person is selected for a wallbox
-        if person['id'] not in wallbox_recipients:
-            person['has_wallbox'] = False
-            continue
-        
-        person['has_wallbox'] = True
         
         person_id = person['id']
         home_edge_id = person['home']
-        vehicle_type = person['vehicle_type']
+        vehicle_type = person.get('vehicle_type', '')
+        
+        if not vehicle_type:
+            print(f"[WARNING] {person_id} has wallbox but no vehicle_type, skipping")
+            continue
         
         # Get the edge object
         try:
@@ -280,25 +355,38 @@ def generate_private_wallboxes(netfile, persons_data, output_dir, wallbox_share=
         parking_area_id = f"parkingArea_{person_id}"
         wallbox_id = f"wallbox_{person_id}"
         
-        # Create parking area restricted to this person's vehicle type
-        parking_area = ET.SubElement(
+        s_start = str(round(startPos, 2))
+        s_end = str(round(endPos, 2))
+        
+        # Private parkingArea: restricted to this person's vehicle type via vehicleTypes.
+        # Only vehicleType_personX can park here.
+        # roadsideCapacity="1": single private spot.
+        # The owner's trip also has <stop parkingArea="..."> to route them here.
+        ET.SubElement(
             root, "parkingArea",
             id=parking_area_id,
             lane=lane_id,
-            startPos=str(round(startPos, 2)),
-            endPos=str(round(endPos, 2)),
-            access=vehicle_type  # Restrict parking area access to this vehicle type only
+            startPos=s_start,
+            endPos=s_end,
+            roadsideCapacity="1",
+            onRoad="false",
+            vehicleTypes=vehicle_type  # Only this vehicle type can access
         )
         
-        # Create charging station inside the parking area
+        # Charging station at the same location (top-level, not nested).
+        # Also restricted to this person's vehicle type.
+        # Public charging stations do NOT have vehicleTypes, so all EVs can use those.
         ET.SubElement(
-            parking_area, "chargingStation",
+            root, "chargingStation",
             id=wallbox_id,
-            power="11000",  # 11 kW (typical home wallbox power)
+            lane=lane_id,
+            startPos=s_start,
+            endPos=s_end,
+            power="11000",
             efficiency="0.95",
             chargeInTransit="0",
-            chargeDelay="0",  # Start charging immediately
-            vehicleTypes=vehicle_type  # Secondary restriction: charging also restricted to this vehicle type
+            chargeDelay="0",
+            vehicleTypes=vehicle_type  # Only this vehicle type can charge here
         )
         wallbox_count += 1
         
@@ -380,33 +468,69 @@ def generate_private_wallboxes(netfile, persons_data, output_dir, wallbox_share=
     return output_xml, wallbox_homes_file
 
 
-def generate_complete_scenario_with_wallboxes(netfile, input_csvs, output_dir):
+def generate_complete_scenario_with_wallboxes(netfile, input_csvs, output_dir, wallbox_share=0.5):
     """
     Complete pipeline: Generate trips with unique vehicle types AND private wallboxes.
+    
+    The wallbox recipient selection happens FIRST, so that:
+    1. Trip generation can add <stop parkingArea="..."> for wallbox owners
+    2. Wallbox generation creates matching parkingArea + chargingStation elements
+    
+    This ensures access control through routing: only the owner is routed to
+    their private parkingArea, so no other vehicle parks or charges there.
     
     Args:
         netfile (str): Path to the SUMO network file.
         input_csvs (list): List of POI edge CSV files.
         output_dir (str): Output directory for generated files.
+        wallbox_share (float): Fraction of EV owners that get wallboxes (default 0.5).
         
     Returns:
         dict: Paths to generated files
     """
-    print("\n=== Generating Trips with Unique Vehicle Types ===")
-    trips_file, persons_data = generate_trips_with_private_wallboxes(netfile, input_csvs, output_dir)
+    # --- Step 0: Build person list and select EV owners + wallbox recipients ---
+    # We need to pre-compute who gets a wallbox BEFORE generating trips,
+    # because trips need to include parkingArea stops for wallbox owners.
     
+    num_persons = 250
+    ev_share = 0.6
+    num_evs = int(num_persons * ev_share)
+    
+    # Build temporary person list to select EVs and wallbox recipients
+    temp_persons = [{'id': f'person{i}'} for i in range(1, num_persons + 1)]
+    random.seed(42)
+    all_ids = [p['id'] for p in temp_persons]
+    ev_ids = set(random.sample(all_ids, num_evs))
+    for p in temp_persons:
+        p['has_ev'] = p['id'] in ev_ids
+    
+    # Select wallbox recipients (uses random.seed(42) internally)
+    wallbox_recipients = _select_wallbox_recipients(temp_persons, wallbox_share)
+    
+    print(f"\n=== Pre-selected {len(wallbox_recipients)} wallbox recipients ===")
+    
+    # --- Step 1: Generate trips WITH parkingArea stops for wallbox owners ---
+    print("\n=== Generating Trips with Unique Vehicle Types ===")
+    trips_file, persons_data = generate_trips_with_private_wallboxes(
+        netfile, input_csvs, output_dir, wallbox_recipients=wallbox_recipients
+    )
+    
+    # --- Step 2: Generate wallbox XML (parkingArea containing chargingStation) ---
     print("\n=== Generating Private Wallboxes ===")
     wallbox_file = generate_private_wallboxes(netfile, persons_data, output_dir)
     
+    # --- Summary ---
     print("\n=== Summary ===")
     ev_count = sum(1 for p in persons_data if p.get('has_ev', False))
+    wb_count = sum(1 for p in persons_data if p.get('has_wallbox', False))
     print(f"Total persons: {len(persons_data)}")
     print(f"EV owners: {ev_count}")
-    print(f"Private wallboxes: {ev_count}")
-    print(f"\nEach EV owner has:")
-    print(f"  - Unique vehicle type: vehicleType_personX")
-    print(f"  - Private wallbox: wallbox_personX")
-    print(f"  - Wallbox accepts ONLY their vehicle type")
+    print(f"Private wallboxes: {wb_count} ({wallbox_share*100:.0f}% of EV owners)")
+    print(f"\nAccess control mechanism:")
+    print(f"  - Each wallbox is inside a parkingArea (roadsideCapacity=1)")
+    print(f"  - Only the owner's trip has <stop parkingArea=\"parkingArea_personX\">")
+    print(f"  - No other vehicle is routed to that parkingArea")
+    print(f"  - Therefore only the owner can park and charge there")
     
     return {
         'trips_file': trips_file,

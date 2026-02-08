@@ -25,12 +25,23 @@ def parse_wallbox_restrictions(wallbox_file):
         tree = ET.parse(wallbox_file)
         root = tree.getroot()
         
+        # Find chargingStations both at root level and nested inside parkingAreas
         for cs in root.findall('chargingStation'):
             cs_id = cs.get('id')
             vehicle_types = cs.get('vehicleTypes')
-            
-            if cs_id and cs_id.startswith('wallbox_') and vehicle_types:
+            if cs_id and cs_id.startswith('wallbox_'):
                 wallbox_restrictions[cs_id] = vehicle_types
+        
+        for pa in root.findall('parkingArea'):
+            pa_id = pa.get('id', '')
+            for cs in pa.findall('chargingStation'):
+                cs_id = cs.get('id')
+                if cs_id and cs_id.startswith('wallbox_'):
+                    # For nested stations, derive allowed type from parkingArea ID
+                    # parkingArea_personX -> vehicleType_personX
+                    person_id = pa_id.replace('parkingArea_', '')
+                    allowed_type = f'vehicleType_{person_id}'
+                    wallbox_restrictions[cs_id] = allowed_type
         
         print(f"✓ Found {len(wallbox_restrictions)} private wallboxes with restrictions")
         return wallbox_restrictions
