@@ -396,6 +396,7 @@ def main():
                     if vid not in charging_start_time:
                         charging_start_time[vid] = sim_time
                         charging_session_energy[vid] = 0.0
+                        last_soc[vid] = soc_val  # Save starting SOC for session tracking
                     ramp_kw = compute_rampup_power(sim_time, charging_start_time[vid], evse.Prated_kW)
 
                     # Register this station's request with the energy pool
@@ -430,6 +431,9 @@ def main():
                     energy_kwh_this_step = allowed_kw / 3600.0
                     charging_session_energy[vid] = charging_session_energy.get(vid, 0.0) + energy_kwh_this_step
 
+                    # Re-read updated SOC after charging
+                    soc_val = ev.soc
+
                     # Debug print when value changes notably
                     prev = evse_log[-1]["allowed_kw"] if evse_log else None
                     if prev is None or abs(allowed_kw - prev) > 0.1:
@@ -457,9 +461,10 @@ def main():
                         
                         if total_energy > 0.01:
                             print(f"[SESSION] veh={vid} station={prev_station} energy={total_energy:.3f} kWh soc:{soc_start:.2f}->{soc_end:.2f}")
-                    
-                    charging_start_time.pop(vid, None)
-                    charging_session_energy.pop(vid, None)
+                        
+                        # Only clear tracking when actually ending a public charging session
+                        charging_start_time.pop(vid, None)
+                        charging_session_energy.pop(vid, None)
 
                 # ========== HOME CHARGING LOGIC FOR DESIGNATED HOME STATIONS ==========
                 if vid in home_stations:
@@ -513,6 +518,7 @@ def main():
                             if vid not in charging_start_time:
                                 charging_start_time[vid] = sim_time
                                 charging_session_energy[vid] = 0.0
+                                last_soc[vid] = soc_val  # Save starting SOC for home charging session
                                 print(f"[HOME_CHARGE_START] veh={vid} at home position ({home_pos_x:.1f}, {home_pos_y:.1f})")
                             
                             home_ramp_kw = compute_rampup_power(sim_time, charging_start_time[vid], home_evse.Prated_kW)
@@ -533,6 +539,9 @@ def main():
                                 energy_pool.update_station_power_usage(home_station_id, home_charge_kw)
                                 energy_kwh_this_step = home_charge_kw / 3600.0
                                 charging_session_energy[vid] = charging_session_energy.get(vid, 0.0) + energy_kwh_this_step
+                                
+                                # Re-read updated SOC after charging
+                                soc_val = ev.soc
                                 
                                 if step % 100 == 0:
                                     print(f"[HOME_CHARGE] veh={vid} at_home={distance_to_home:.1f}m ramp={home_ramp_kw:.2f}kW power={home_charge_kw:.2f}kW soc={soc_val:.2f}")

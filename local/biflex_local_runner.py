@@ -31,6 +31,10 @@ from mainGenerateTrips import generate_trips
 from mainGenerateChargingStations import generate_charging_stations
 from generate_private_wallboxes import generate_private_wallboxes
 
+# Fast test versions for quick iteration (100 cars, 10h simulation)
+from mainGenerateTrips_test import generate_trips_test
+from generate_private_wallboxes_test import generate_trips_with_private_wallboxes_test
+
 import xml.etree.ElementTree as ET
 
 import xml.etree.ElementTree as ET
@@ -978,8 +982,14 @@ class Handler(BaseHTTPRequestHandler):
                 print(f"[INFO] Generating vehicle trips -> {edge_files}")
                 # Convert dict to list for generate_trips (expects list of file paths)
                 edge_files_list = list(edge_files.values())
-                trips_file = generate_trips(net_file, edge_files_list, scen_dir)
-                print(f"[INFO] Trips generated -> {trips_file}")
+                
+                # FAST TEST MODE: 100 cars, 10 hour simulation (uncomment for quick testing)
+                trips_file = generate_trips_test(net_file, edge_files_list, scen_dir)
+                print(f"[INFO] TEST TRIPS generated (100 cars, ~10h sim) -> {trips_file}")
+                
+                # FULL MODE: 250 cars, 30 hour simulation (commented out)
+                # trips_file = generate_trips(net_file, edge_files_list, scen_dir)
+                # print(f"[INFO] Trips generated -> {trips_file}")
 
                 # Step 6: Generate public charging stations
                 print(f"[INFO] Generating public charging stations")

@@ -32,6 +32,7 @@ def generate_trips_with_private_wallboxes(netfile, input_csvs, output_dir):
     num_persons = 250
     morning_depart_interval = (23400, 32400)  # 6:30 - 9:00
     work_duration = 8 * 3600  # 8 hrs in sec
+    home_evening_duration_range = (6 * 3600, 14 * 3600)  # 6-14 hours at home (variable)
     ev_share = 0.6  # part of electrical cars
     num_evs = int(num_persons * ev_share)
 
@@ -81,6 +82,7 @@ def generate_trips_with_private_wallboxes(netfile, input_csvs, output_dir):
     vehicles = []
     for p in persons:
         depart_morning = round(random.uniform(*morning_depart_interval), 2)
+        home_evening_duration = round(random.uniform(*home_evening_duration_range), 2)
         person_id = p['id']
         
         if person_id in ev_ids:
@@ -137,8 +139,10 @@ def generate_trips_with_private_wallboxes(netfile, input_csvs, output_dir):
             'type': veh_type,
             'depart': depart_morning,
             'route': [p['home'], p['work'], p['home']],
-            'stop_edge': p['work'],
-            'stop_duration': work_duration
+            'stops': [
+                {'edge': p['work'], 'duration': work_duration},
+                {'edge': p['home'], 'duration': home_evening_duration}
+            ]
         })
 
     vehicles.sort(key=lambda v: v['depart'])
@@ -152,12 +156,14 @@ def generate_trips_with_private_wallboxes(netfile, input_csvs, output_dir):
             depart=str(v['depart'])
         )
         ET.SubElement(veh_elem, 'route', edges=" ".join(v['route']))
-        ET.SubElement(
-            veh_elem, 'stop',
-            edge=v['stop_edge'],
-            duration=str(v['stop_duration']),
-            parking="true"
-        )
+        # Add all stops (work stop + home stop)
+        for stop in v['stops']:
+            ET.SubElement(
+                veh_elem, 'stop',
+                edge=stop['edge'],
+                duration=str(stop['duration']),
+                parking="true"
+            )
 
     # Pretty print XML
     def indent(elem, level=0):

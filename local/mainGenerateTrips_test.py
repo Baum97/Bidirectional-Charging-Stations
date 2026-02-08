@@ -5,10 +5,10 @@ import xml.etree.ElementTree as ET
 import sys
 import os
 
-def generate_trips(netfile, input_csvs, output_dir):
+def generate_trips_test(netfile, input_csvs, output_dir):
     """
-    Generate trips based on POI edges and save them to an XML file.
-
+    Generate FAST TEST trips - 100 cars, 10 hour simulation for quick testing.
+    
     Args:
         netfile (str): Path to the SUMO network file.
         input_csvs (list): List of input CSV files containing POI edges.
@@ -17,12 +17,12 @@ def generate_trips(netfile, input_csvs, output_dir):
     Returns:
         str: Path to the generated trips XML file.
     """
-    # Configuration
-    num_persons = 250
-    morning_depart_interval = (23400, 32400)  # 6:30 - 9:00
-    work_duration = 8 * 3600  # 8 hrs in sec
-    home_evening_duration_range = (6 * 3600, 14 * 3600)  # 6-14 hours at home (variable)
-    ev_share = 0.6  # part of electrical cars
+    # Configuration - FAST TEST VERSION
+    num_persons = 100  # 100 cars instead of 250
+    morning_depart_interval = (0, 1800)  # 0-30 minutes (quick departure)
+    work_duration = 3 * 3600  # 3 hours instead of 8
+    home_evening_duration_range = (2 * 3600, 4 * 3600)  # 2-4 hours at home (quick)
+    ev_share = 0.6  # 60% EVs
     num_evs = int(num_persons * ev_share)
 
     # Load network and define edges
@@ -158,6 +158,18 @@ def generate_trips(netfile, input_csvs, output_dir):
     output_xml = os.path.join(output_dir, "osm.passenger.trips.xml")
     tree = ET.ElementTree(routes)
     tree.write(output_xml, encoding='utf-8', xml_declaration=True)
-    print(f"Fertig! {num_persons} Fahrzeuge mit Tagesrhythmus und Arbeitsstopp wurden in '{output_xml}' gespeichert.")
+    print(f"[TEST] Schnell-Testlauf erstellt: {num_persons} Fahrzeuge (10h Simulation) in '{output_xml}'")
 
     return output_xml
+
+
+if __name__ == "__main__":
+    if len(sys.argv) < 4:
+        print("Usage: python mainGenerateTrips_test.py <netfile> <input_csv> <output_dir> [input_csv2 ...]")
+        sys.exit(1)
+
+    netfile = sys.argv[1]
+    input_csvs = sys.argv[2:-1]
+    output_dir = sys.argv[-1]
+
+    generate_trips_test(netfile, input_csvs, output_dir)
