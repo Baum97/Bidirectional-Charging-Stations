@@ -187,19 +187,20 @@ def generate_trips_with_private_wallboxes(netfile, input_csvs, output_dir):
     return output_xml, persons
 
 
-def generate_private_wallboxes(netfile, persons_data, output_dir, wallbox_share=0.5):
+def generate_private_wallboxes(netfile, persons_data, output_dir, trips_file=None, wallbox_share=0.5):
     """
     Generate private wallboxes at selected EV owner's home locations.
-    Each wallbox is restricted to only accept its owner's vehicle type.
+    Each wallbox owner gets a UNIQUE vehicle type for true privacy.
 
     Args:
         netfile (str): Path to the SUMO network file.
         persons_data (list): List of person dictionaries with home edges and vehicle types.
         output_dir (str): Directory to save the wallboxes XML file.
+        trips_file (str): Path to trips XML file to update vehicle types (optional).
         wallbox_share (float): Fraction of EV owners that get private wallboxes (default 0.5 = 50%).
 
     Returns:
-        tuple: (wallbox_file_path, wallbox_homes_geojson_path)
+        tuple: (wallbox_file_path, wallbox_homes_geojson_path, vehicle_types_file_path)
     """
     net = sumolib.net.readNet(netfile)
     
@@ -216,25 +217,36 @@ def generate_private_wallboxes(netfile, persons_data, output_dir, wallbox_share=
     wallbox_recipients = set(random.sample([p['id'] for p in ev_owners], num_wallboxes))
     
     print(f"[INFO] Creating wallboxes for {num_wallboxes} out of {len(ev_owners)} EV owners ({wallbox_share*100:.0f}%)")
+    print(f"[INFO] Assigning unique vehicle types to wallbox owners for privacy")
     
     # Track homes with wallboxes for GeoJSON visualization
     wallbox_homes = []
     
+    # Track unique vehicle types we need to create
+    unique_vehicle_types = {}  # person_id -> unique_type_id
+    
+    # Step 1: Assign unique vehicle types to wallbox recipients
     for person in persons_data:
+        if person['id'] in wallbox_recipients:
+            unique_type = f"veh_ev_{person['id']}"  # e.g., "veh_ev_person59"
+            unique_vehicle_types[person['id']] = unique_type
+            person['vehicle_type'] = unique_type  # Update in memory
+            person['has_wallbox'] = True
+        else:
+            person['has_wallbox'] = False
         # Only create wallboxes for selected EV owners
         if not person.get('has_ev', False):
             continue
-        
-        # Check if this person is selected for a wallbox
-        if person['id'] not in wallbox_recipients:
-            person['has_wallbox'] = False
+    
+    # Step 2: Create wallboxes for selected EV owners
+    for person in persons_data:
+        # Only create wallboxes for those who have them
+        if not person.get('has_wallbox', False):
             continue
-        
-        person['has_wallbox'] = True
         
         person_id = person['id']
         home_edge_id = person['home']
-        vehicle_type = person['vehicle_type']
+        vehicle_type = person['vehicle_type']  # Now unique per wallbox owner
         
         # Get the edge object
         try:
@@ -276,29 +288,22 @@ def generate_private_wallboxes(netfile, persons_data, output_dir, wallbox_share=
             print(f"[WARNING] Invalid position for wallbox at {lane_id} for {person_id} (lane: {lane_length:.1f}m, start: {startPos:.1f}m, end: {endPos:.1f}m), skipping")
             continue
         
-        # Create parking area ID and charging station ID
-        parking_area_id = f"parkingArea_{person_id}"
+        # Create standalone charging station ID (home wallbox)
         wallbox_id = f"wallbox_{person_id}"
         
-        # Create parking area restricted to this person's vehicle type
-        parking_area = ET.SubElement(
-            root, "parkingArea",
-            id=parking_area_id,
+        # Create standalone charging station on the lane (no parkingArea needed)
+        # This is a private home wallbox restricted to the owner's vehicle
+        ET.SubElement(
+            root, "chargingStation",
+            id=wallbox_id,
             lane=lane_id,
             startPos=str(round(startPos, 2)),
             endPos=str(round(endPos, 2)),
-            access=vehicle_type  # Restrict parking area access to this vehicle type only
-        )
-        
-        # Create charging station inside the parking area
-        ET.SubElement(
-            parking_area, "chargingStation",
-            id=wallbox_id,
             power="11000",  # 11 kW (typical home wallbox power)
             efficiency="0.95",
             chargeInTransit="0",
             chargeDelay="0",  # Start charging immediately
-            vehicleTypes=vehicle_type  # Secondary restriction: charging also restricted to this vehicle type
+            vehicleTypes=vehicle_type  # Restrict charging to this vehicle type only
         )
         wallbox_count += 1
         
@@ -377,7 +382,83 @@ def generate_private_wallboxes(netfile, persons_data, output_dir, wallbox_share=
     print(f"✓ Generated GeoJSON for {len(wallbox_homes)} homes with wallboxes")
     print(f"  Saved to: {wallbox_homes_file}")
     
-    return output_xml, wallbox_homes_file
+    # Step 3: Update trips XML file with unique vehicle types for wallbox owners
+    vehicle_types_file = None
+    if trips_file and unique_vehicle_types:
+        try:
+            print(f"[INFO] Updating trips file with unique vehicle types for wallbox owners")
+            trips_tree = ET.parse(trips_file)
+            trips_root = trips_tree.getroot()
+            
+            # Update vehicle elements with new types
+            updated_count = 0
+            for vehicle in trips_root.findall('vehicle'):
+                veh_id = vehicle.get('id')
+                if veh_id in unique_vehicle_types:
+                    vehicle.set('type', unique_vehicle_types[veh_id])
+                    updated_count += 1
+            
+            # Save updated trips file
+            trips_tree.write(trips_file, encoding='utf-8', xml_declaration=True)
+            print(f"✓ Updated {updated_count} vehicle types in trips file")
+            
+            # Step 4: Generate vehicle types XML with unique EV type definitions for wallbox owners
+            # Note: We don't redefine veh_ev since it's already in vehicle_types.add.xml
+            # We only add the unique types for wallbox owners
+            vtypes_root = ET.Element("additional")
+            
+            # Add unique types for wallbox owners (same config as base veh_ev)
+            for person_id, unique_type in unique_vehicle_types.items():
+                unique_vtype = ET.SubElement(
+                    vtypes_root, 'vType',
+                    id=unique_type,
+                    minGap="2.50",
+                    maxSpeed="29.06",
+                    color="green",  # Different color for wallbox owners
+                    accel="1.0",
+                    decel="1.0",
+                    sigma="0.0",
+                    emissionClass="Energy",
+                    mass="183000",
+                    vClass="passenger"
+                )
+                # Same battery configuration
+                ET.SubElement(unique_vtype, 'param', key="has.battery.device", value="true")
+                ET.SubElement(unique_vtype, 'param', key="device.battery.capacity", value="80000")
+                ET.SubElement(unique_vtype, 'param', key="device.battery.actualBatteryCapacity", value="40000")
+                ET.SubElement(unique_vtype, 'param', key="has.rerouting.device", value="true")
+                ET.SubElement(unique_vtype, 'param', key="device.rerouting.probability", value="1")
+                ET.SubElement(unique_vtype, 'param', key="has.stationfinder.device", value="true")
+                ET.SubElement(unique_vtype, 'param', key="device.stationfinder.rescueTime", value="1800")
+                ET.SubElement(unique_vtype, 'param', key="device.stationfinder.reserveFactor", value="1.2")
+                ET.SubElement(unique_vtype, 'param', key="device.stationfinder.radius", value="3000")
+                ET.SubElement(unique_vtype, 'param', key="maximumPower", value="150000")
+                ET.SubElement(unique_vtype, 'param', key="recuperationEfficiency", value="0.00")
+                ET.SubElement(unique_vtype, 'param', key="stoppingThreshold", value="0.1")
+                ET.SubElement(unique_vtype, 'param', key="airDragCoefficient", value="0.35")
+                ET.SubElement(unique_vtype, 'param', key="constantPowerIntake", value="500")
+                ET.SubElement(unique_vtype, 'param', key="frontSurfaceArea", value="2.6")
+                ET.SubElement(unique_vtype, 'param', key="rotatingMass", value="40")
+                ET.SubElement(unique_vtype, 'param', key="propulsionEfficiency", value="0.95")
+                ET.SubElement(unique_vtype, 'param', key="radialDragCoefficient", value="0.1")
+                ET.SubElement(unique_vtype, 'param', key="rollDragCoefficient", value="0.01")
+            
+            indent(vtypes_root)
+            
+            # Save vehicle types XML (will replace the default one)
+            vehicle_types_file = os.path.join(output_dir, "wallbox_vehicle_types.add.xml")
+            vtypes_tree = ET.ElementTree(vtypes_root)
+            vtypes_tree.write(vehicle_types_file, encoding='utf-8', xml_declaration=True)
+            
+            print(f"✓ Generated vehicle types with {len(unique_vehicle_types)} unique wallbox owner types")
+            print(f"  Saved to: {vehicle_types_file}")
+            
+        except Exception as e:
+            print(f"[WARNING] Could not update trips file or generate vehicle types: {e}")
+            import traceback
+            traceback.print_exc()
+    
+    return output_xml, wallbox_homes_file, vehicle_types_file
 
 
 def generate_complete_scenario_with_wallboxes(netfile, input_csvs, output_dir):

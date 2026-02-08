@@ -65,7 +65,7 @@
       <h5 style="margin: 10px 0 5px 0; font-size: 0.9em; color: #aaa;">Charging Infrastructure</h5>
       <label class="layer-checkbox">
         <input type="checkbox" id="toggleWallboxHomes" checked>
-        <span>🏠⚡ Homes with Wallboxes</span>
+        <span>🏠⚡ Homes with Private Wallboxes (5%)</span>
       </label>
       </div>
     </div>
@@ -124,6 +124,13 @@
 
         <div class="container">
           <h4>Build</h4>
+          <div class="options open">
+            <label for="buildMode" style="display: block; margin-bottom: 8px;">Build Mode:</label>
+            <select id="buildMode" style="width: 100%; padding: 6px; margin-bottom: 10px; background: #2a2a2a; color: #fff; border: 1px solid #555;">
+              <option value="build">Standard Build</option>
+              <option value="buildWithTraci">Build with TraCI (V2G + Home Charging)</option>
+            </select>
+          </div>
           <div id="commands">
             <button id="sendLocal">Send to Local SUMO</button>
             <button id="copyBash">Copy Bash</button>

@@ -600,9 +600,13 @@ let lastScenarioDir = null;
 // Patch sendToLocal to remember the scenarioDir
 async function sendToLocal(bounds, scenario) {
   const body = { bbox: getBboxArray(bounds), scenario };
-  statusEl2.textContent = 'Contacting local helper at http://127.0.0.1:8787 ...';
+  const buildMode = document.getElementById('buildMode')?.value || 'build';
+  const endpoint = buildMode === 'buildWithTraci' ? '/buildWithTraci' : '/build';
+  const mode = buildMode === 'buildWithTraci' ? 'with TraCI simulation' : 'standard';
+  
+  statusEl2.textContent = `Contacting local helper (${mode}) at http://127.0.0.1:8787 ...`;
   try {
-    const res = await fetch('http://127.0.0.1:8787/build', {
+    const res = await fetch(`http://127.0.0.1:8787${endpoint}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -611,6 +615,11 @@ async function sendToLocal(bounds, scenario) {
     const j = await res.json();
     statusEl2.textContent = `Success: ${j.message || 'scenario created'} at ${j.scenarioDir || ''}`;
     lastScenarioDir = j.scenarioDir; // <-- store for simulation
+    
+    // Show TraCI simulation info if available
+    if (j.traciSimulation && j.traciSimulation.logs_available) {
+      statusEl2.textContent += ` | TraCI logs: ${j.traciSimulation.logs_dir}`;
+    }
   } catch (err) {
     statusEl2.textContent = 'Local helper not reachable or failed. Use copy commands below.';
   }
@@ -619,9 +628,13 @@ async function sendToLocal(bounds, scenario) {
 
 async function downloadOSMData(bounds, scenario) {
   const body = { bbox: getBboxArray(bounds), scenario };
-  statusEl2.textContent = 'Downloading OSM data...';
+  const buildMode = document.getElementById('buildMode')?.value || 'build';
+  const endpoint = buildMode === 'buildWithTraci' ? '/buildWithTraci' : '/build';
+  const mode = buildMode === 'buildWithTraci' ? 'with TraCI simulation' : 'standard';
+  
+  statusEl2.textContent = `Downloading OSM data (${mode})...`;
   try {
-    const res = await fetch('http://127.0.0.1:8787/build', {
+    const res = await fetch(`http://127.0.0.1:8787${endpoint}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -676,14 +689,21 @@ async function downloadOSMData(bounds, scenario) {
       console.log("No poiGeoJSON in response (POI visualization not available).");
     }
 
-    // Visualize homes with private wallboxes
-    if (j.wallboxHomesGeoJSON) {
-      console.log("Calling showWallboxHomes with data:", j.wallboxHomesGeoJSON);
-      showWallboxHomes(j.wallboxHomesGeoJSON);
+    // Visualize private wallbox homes (5% of residences with TraCI)
+    if (j.wallboxHomes) {
+      console.log("Calling showWallboxHomes with data:", j.wallboxHomes);
+      showWallboxHomes(j.wallboxHomes);
     } else {
-      console.log("No wallboxHomesGeoJSON in response (wallbox homes not available).");
+      console.log("No wallboxHomes in response (available only with TraCI build mode).");
     }
 
+    // Show TraCI simulation results if available
+    if (j.traciSimulation) {
+      console.log("TraCI simulation results:", j.traciSimulation);
+      if (j.traciSimulation.logs_available) {
+        statusEl2.textContent += ` | TraCI logs available in ${j.traciSimulation.logs_dir}`;
+      }
+    }
 
   } catch (err) {
     statusEl2.textContent = 'Failed to download OSM data: ' + err;

@@ -29,7 +29,7 @@ from extract_pois import extract_pois
 from getPOIEdgeIDs import assign_poi_to_edges
 from mainGenerateTrips import generate_trips
 from mainGenerateChargingStations import generate_charging_stations
-from generate_private_wallboxes import generate_trips_with_private_wallboxes, generate_private_wallboxes
+from generate_private_wallboxes import generate_private_wallboxes
 
 import xml.etree.ElementTree as ET
 
@@ -664,7 +664,26 @@ class Handler(BaseHTTPRequestHandler):
                 scenario = data.get("scenario") or "scenario"
 
                 # Step 1: Download OSM data -> returns full path to the file
-                osm_file = download_osm_data(bbox, scenario)
+                # COMMENTED OUT: Reusing OSM data from scenario_20260208_215130 instead of downloading
+                # osm_file = download_osm_data(bbox, scenario)
+                
+                # Create new scenario directory
+                base_dir = os.path.join("..", "data", "scenarios", scenario)
+                os.makedirs(base_dir, exist_ok=True)
+                print(f"[INFO] Created scenario directory: {base_dir}")
+                
+                # Copy OSM file from previous scenario
+                source_osm = os.path.abspath(os.path.join("..", "data", "scenarios", "scenario_20260208_215130", "test_name_bbox.osm.xml"))
+                target_osm = os.path.join(base_dir, "test_name_bbox.osm.xml")
+                
+                if not os.path.exists(source_osm):
+                    raise FileNotFoundError(f"Source OSM file not found: {source_osm}")
+                
+                import shutil
+                shutil.copy2(source_osm, target_osm)
+                print(f"[INFO] Copied OSM data from scenario_20260208_215130 -> {target_osm}")
+                
+                osm_file = os.path.abspath(target_osm)
                 scen_dir = os.path.dirname(osm_file)
 
                 # Extract real already existing charging stations
@@ -689,48 +708,73 @@ class Handler(BaseHTTPRequestHandler):
                 net_file = build_sumo_network(osm_file, scenario)
 
                 # Step 3: Extract POIs
-                print(f"[INFO] Extracting POIs -> {scen_dir}")
-                poi_files = extract_pois(osm_file, scen_dir)
+                # COMMENTED OUT: Reusing POI data from scenario_20260208_215130 instead of processing
+                # print(f"[INFO] Extracting POIs -> {scen_dir}")
+                # poi_files = extract_pois(osm_file, scen_dir)
+                
+                # Copy POI files from previous scenario
+                source_scenario_dir = os.path.abspath(os.path.join("..", "data", "scenarios", "scenario_20260208_215130"))
+                poi_file_names = [
+                    "poi_offices.csv",
+                    "poi_others.csv",
+                    "poi_residential.csv"
+                ]
+                poi_files = {}
+                for poi_file in poi_file_names:
+                    source_poi = os.path.join(source_scenario_dir, poi_file)
+                    target_poi = os.path.join(scen_dir, poi_file)
+                    if os.path.exists(source_poi):
+                        shutil.copy2(source_poi, target_poi)
+                        # Map the type to the file path
+                        poi_type = poi_file.replace("poi_", "").replace(".csv", "")
+                        poi_files[poi_type] = target_poi
+                print(f"[INFO] Copied {len(poi_files)} POI files from scenario_20260208_215130")
                 
                 # Read POI files and convert to GeoJSON
                 poi_geojson = read_poi_files(poi_files)
 
                 # Step 4: Assign POIs to edges
-                print(f"[INFO] Assigning POIs to edges -> {poi_files}")
-                edge_files = assign_poi_to_edges(net_file, poi_files)
+                # COMMENTED OUT: Reusing edge assignments from scenario_20260208_215130 instead of processing
+                # print(f"[INFO] Assigning POIs to edges -> {poi_files}")
+                # edge_files = assign_poi_to_edges(net_file, poi_files)
+                
+                # Copy POI edge assignment files from previous scenario
+                edge_file_names = [
+                    "poi_offices_edges.csv",
+                    "poi_others_edges.csv",
+                    "poi_residential_edges.csv"
+                ]
+                edge_files = {}
+                for edge_file in edge_file_names:
+                    source_edge = os.path.join(source_scenario_dir, edge_file)
+                    target_edge = os.path.join(scen_dir, edge_file)
+                    if os.path.exists(source_edge):
+                        shutil.copy2(source_edge, target_edge)
+                        # Map the type to the file path
+                        poi_type = edge_file.replace("poi_", "").replace("_edges.csv", "")
+                        edge_files[poi_type] = target_edge
+                print(f"[INFO] Copied {len(edge_files)} POI edge assignment files from scenario_20260208_215130")
 
-                # Step 5: Generate trips with private wallboxes (unique vehicle types per person)
-                print(f"[INFO] Generating trips with unique vehicle types -> {edge_files}")
-                trips_file, persons_data = generate_trips_with_private_wallboxes(net_file, edge_files, scen_dir)
+                # Step 5: Generate trips
+                print(f"[INFO] Generating vehicle trips")
+                # Convert dict to list for generate_trips (expects list of file paths)
+                edge_files_list = list(edge_files.values())
+                trips_file = generate_trips(net_file, edge_files_list, scen_dir)
                 print(f"[INFO] Trips generated -> {trips_file}")
 
-                # Step 6: Generate private wallboxes (restricted to vehicle owner)
-                # Only 50% of EV owners get wallboxes
-                print(f"[INFO] Generating private wallboxes (50% of EV owners)")
-                wallbox_file, wallbox_homes_file = generate_private_wallboxes(net_file, persons_data, scen_dir, wallbox_share=0.5)
-                ev_count = sum(1 for p in persons_data if p.get('has_ev', False))
-                wallbox_count = sum(1 for p in persons_data if p.get('has_wallbox', False))
-                print(f"[INFO] Private wallboxes generated -> {wallbox_file}")
-                print(f"[INFO] Created {wallbox_count} wallboxes for {wallbox_count}/{ev_count} EV owners (50%)")
-
-                # Step 7: Generate public charging stations (unrestricted - all EVs can use)
+                # Step 6: Generate public charging stations
                 print(f"[INFO] Generating public charging stations")
                 charging_stations_file = generate_charging_stations(net_file, scen_dir, min_length=50)
                 print(f"[INFO] Public charging stations generated -> {charging_stations_file}")
-                print(f"[INFO] Public stations are unrestricted - all vehicles can use them")
 
-                # Step 8: Combine additional files
+                # Step 7: Combine additional files
                 copy_default_combined_additional(scenario)
                 copy_vehicle_types_additional(scenario)
 
-                # Step 9: Create sim.sumocfg (combined_additional.xml includes wallboxes and charging stations)
-                # The combined_additional.xml file includes via <include> directives:
-                # - private_wallboxes.xml
-                # - osm.chargingstations.xml  
-                # - vehicle_types.add.xml
+                # Step 8: Create sim.sumocfg
                 create_sumo_config(net_file, trips_file, "combined_additional.xml", scen_dir)
 
-                # Step 10: Run simulation to generate logs
+                # Step 9: Run simulation to generate logs
                 print("[INFO] Running SUMO simulation...")
                 sumo_command = ["sumo", "-c", "sim.sumocfg"]
                 try:
@@ -739,7 +783,7 @@ class Handler(BaseHTTPRequestHandler):
                 except subprocess.CalledProcessError as e:
                     raise RuntimeError(f"SUMO simulation failed: {e}")
 
-                # Step 11: convert logs to CSV (optional)
+                # Step 10: convert logs to CSV
                 convert_logs_to_csv(
                     os.path.join(scen_dir, "fcd_output.xml.gz"),
                     os.path.join(scen_dir, "battery_output.xml.gz"),
@@ -749,7 +793,7 @@ class Handler(BaseHTTPRequestHandler):
 
                 print("[INFO] Logs converted to CSV successfully.")
 
-                # Step 12: generate traffic heatmap from logs
+                # Step 11: generate traffic heatmap from logs
                 traffic_heatmap_file = os.path.join(scen_dir, "traffic_heatmap.json")
                 try:
                     generate_traffic_heatmap(
@@ -761,7 +805,7 @@ class Handler(BaseHTTPRequestHandler):
                 except Exception as e:
                     print(f"[WARNING] Could not generate traffic heatmap: {e}")
 
-                # Step 13: generate stations from log
+                # Step 12: generate stations from log
                 heatmap_json_file = os.path.join(scen_dir, "no_station_heatmap.json")
                 train_from_sumo_log_no_stations(
                     os.path.join(scen_dir, "sumo_merged_output.csv"),
@@ -795,37 +839,22 @@ class Handler(BaseHTTPRequestHandler):
                         traffic_heatmap_data = json.load(f)
                     print(f"[INFO] Loaded traffic heatmap data with {len(traffic_heatmap_data)} points")
 
-                # Read the wallbox homes GeoJSON
-                wallbox_homes_geojson = None
-                if os.path.exists(wallbox_homes_file):
-                    with open(wallbox_homes_file, 'r', encoding='utf-8') as f:
-                        wallbox_homes_geojson = json.load(f)
-                    print(f"[INFO] Loaded wallbox homes GeoJSON with {len(wallbox_homes_geojson.get('features', []))} homes")
-
                 # Respond with success
                 resp = {
                     "ok": True,
-                    "message": "Pipeline completed successfully with private wallboxes",
+                    "message": "Pipeline completed successfully",
                     "scenarioDir": scen_dir,
                     "networkFile": net_file,
                     "poiFiles": poi_files,
-                    "poiGeoJSON": poi_geojson,  # Added POI GeoJSON data
+                    "poiGeoJSON": poi_geojson,
                     "powerGrid": power_grid,
-                    "realChargingStations": real_charging_stations,  # Added charging stations
-                    "heatmapGeoJSON": heatmap_geojson,  # Added heatmap geojson, Polygons
-                    "heatmapData": heatmap_data,  # Added gradient heatmap data
-                    "trafficHeatmap": traffic_heatmap_data,  # Added traffic heatmap
-                    "wallboxHomesGeoJSON": wallbox_homes_geojson,  # NEW: Homes with private wallboxes
-                    "privateWallboxes": {
-                        "file": os.path.basename(wallbox_file),
-                        "count": wallbox_count,
-                        "total_evs": ev_count,
-                        "coverage": f"{wallbox_count}/{ev_count} (50%)",
-                        "description": "Private wallboxes restricted to vehicle owner"
-                    },
-                    "publicChargingStations": {
+                    "realChargingStations": real_charging_stations,
+                    "heatmapGeoJSON": heatmap_geojson,
+                    "heatmapData": heatmap_data,
+                    "trafficHeatmap": traffic_heatmap_data,
+                    "chargingStations": {
                         "file": os.path.basename(charging_stations_file),
-                        "description": "Public charging stations (unrestricted)"
+                        "description": "Public charging stations"
                     }
                 }
                 json.dumps(resp, indent=2)
@@ -838,6 +867,331 @@ class Handler(BaseHTTPRequestHandler):
                 self.wfile.write(payload)
             except Exception as e:
                 print(f"[ERROR] {e}")
+                msg = {"ok": False, "error": str(e)}
+                payload = json.dumps(msg).encode("utf-8")
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json")
+                self._set_cors()
+                self.send_header("Content-Length", str(len(payload)))
+                self.end_headers()
+                self.wfile.write(payload)
+        
+        elif parsed.path == "/buildWithTraci":
+            try:
+                length = int(self.headers.get("Content-Length", "0"))
+                raw = self.rfile.read(length) if length else b"{}"
+                data = json.loads(raw.decode("utf-8") or "{}")
+                bbox = data.get("bbox")
+                scenario = data.get("scenario") or "scenario"
+
+                # Step 1: Download OSM data -> returns full path to the file
+                # COMMENTED OUT: Reusing OSM data from scenario_20260208_215130 instead of downloading
+                # osm_file = download_osm_data(bbox, scenario)
+                
+                # Create new scenario directory
+                base_dir = os.path.join("..", "data", "scenarios", scenario)
+                os.makedirs(base_dir, exist_ok=True)
+                print(f"[INFO] Created scenario directory: {base_dir}")
+                
+                # Copy OSM file from previous scenario
+                source_osm = os.path.abspath(os.path.join("..", "data", "scenarios", "scenario_20260208_215130", "test_name_bbox.osm.xml"))
+                target_osm = os.path.join(base_dir, "test_name_bbox.osm.xml")
+                
+                if not os.path.exists(source_osm):
+                    raise FileNotFoundError(f"Source OSM file not found: {source_osm}")
+                
+                import shutil
+                shutil.copy2(source_osm, target_osm)
+                print(f"[INFO] Copied OSM data from scenario_20260208_215130 -> {target_osm}")
+                
+                osm_file = os.path.abspath(target_osm)
+                scen_dir = os.path.dirname(osm_file)
+
+                # Extract real already existing charging stations
+                real_charging_stations = extract_real_charging_stations(osm_file)
+                print(f"[INFO] Extracted real charging stations: {len(real_charging_stations['features'])} found")
+
+                # Real high-/medium-voltage grid from OSM
+                real_grid = extract_power_grid(osm_file)
+
+                # Synthetic dense LV/MV distribution along roads
+                synthetic_grid = generate_synthetic_distribution(osm_file)
+
+                # Combine both into one FeatureCollection
+                power_grid = {
+                    "type": "FeatureCollection",
+                    "features": real_grid["features"] + synthetic_grid["features"],
+                }
+
+                # Step 2: Build SUMO network
+                net_file = build_sumo_network(osm_file, scenario)
+
+                # Step 3: Extract POIs
+                # COMMENTED OUT: Reusing POI data from scenario_20260208_215130 instead of processing
+                # print(f"[INFO] Extracting POIs -> {scen_dir}")
+                # poi_files = extract_pois(osm_file, scen_dir)
+                
+                # Copy POI files from previous scenario
+                source_scenario_dir = os.path.abspath(os.path.join("..", "data", "scenarios", "scenario_20260208_215130"))
+                poi_file_names = [
+                    "poi_offices.csv",
+                    "poi_others.csv",
+                    "poi_residential.csv"
+                ]
+                poi_files = {}
+                for poi_file in poi_file_names:
+                    source_poi = os.path.join(source_scenario_dir, poi_file)
+                    target_poi = os.path.join(scen_dir, poi_file)
+                    if os.path.exists(source_poi):
+                        shutil.copy2(source_poi, target_poi)
+                        # Map the type to the file path
+                        poi_type = poi_file.replace("poi_", "").replace(".csv", "")
+                        poi_files[poi_type] = target_poi
+                print(f"[INFO] Copied {len(poi_files)} POI files from scenario_20260208_215130")
+                
+                # Read POI files and convert to GeoJSON
+                poi_geojson = read_poi_files(poi_files)
+
+                # Step 4: Assign POIs to edges
+                # COMMENTED OUT: Reusing edge assignments from scenario_20260208_215130 instead of processing
+                # print(f"[INFO] Assigning POIs to edges -> {poi_files}")
+                # edge_files = assign_poi_to_edges(net_file, poi_files)
+                
+                # Copy POI edge assignment files from previous scenario
+                edge_file_names = [
+                    "poi_offices_edges.csv",
+                    "poi_others_edges.csv",
+                    "poi_residential_edges.csv"
+                ]
+                edge_files = {}
+                for edge_file in edge_file_names:
+                    source_edge = os.path.join(source_scenario_dir, edge_file)
+                    target_edge = os.path.join(scen_dir, edge_file)
+                    if os.path.exists(source_edge):
+                        shutil.copy2(source_edge, target_edge)
+                        # Map the type to the file path
+                        poi_type = edge_file.replace("poi_", "").replace("_edges.csv", "")
+                        edge_files[poi_type] = target_edge
+                print(f"[INFO] Copied {len(edge_files)} POI edge assignment files from scenario_20260208_215130")
+
+                # Step 5: Generate trips
+                print(f"[INFO] Generating vehicle trips -> {edge_files}")
+                # Convert dict to list for generate_trips (expects list of file paths)
+                edge_files_list = list(edge_files.values())
+                trips_file = generate_trips(net_file, edge_files_list, scen_dir)
+                print(f"[INFO] Trips generated -> {trips_file}")
+
+                # Step 6: Generate public charging stations
+                print(f"[INFO] Generating public charging stations")
+                charging_stations_file = generate_charging_stations(net_file, scen_dir, min_length=50)
+                print(f"[INFO] Public charging stations generated -> {charging_stations_file}")
+
+                # Step 7: Copy default additional files (BEFORE wallbox generation so we can modify combined_additional.xml)
+                copy_default_combined_additional(scenario)
+                copy_vehicle_types_additional(scenario)
+
+                # Step 8: Generate private wallboxes (5% of residential POIs)
+                print(f"[INFO] Generating private wallboxes at 5% of residential locations")
+                
+                # Read the trips file to get persons data
+                import xml.etree.ElementTree as ET
+                trips_tree = ET.parse(trips_file)
+                trips_root = trips_tree.getroot()
+                
+                # Extract persons data from trips XML
+                persons_data = []
+                for vehicle in trips_root.findall('vehicle'):
+                    veh_id = vehicle.get('id')
+                    veh_type = vehicle.get('type')
+                    
+                    # Get home edge from the route (first edge in the route)
+                    route_elem = vehicle.find('route')
+                    if route_elem is not None:
+                        edges = route_elem.get('edges', '').split()
+                        if edges:
+                            home_edge = edges[0]  # First edge is home
+                            
+                            # Determine if this is an EV based on vehicle type
+                            # mainGenerateTrips.py creates "veh_ev" for EVs
+                            # Wallbox owners will later get unique types "veh_ev_personXXX"
+                            is_ev = veh_type.startswith("veh_ev")
+                            
+                            person_data = {
+                                'id': veh_id,
+                                'home': home_edge,
+                                'vehicle_type': veh_type,
+                                'has_ev': is_ev
+                            }
+                            persons_data.append(person_data)
+                
+                # Generate wallboxes at 5% of EV owner homes
+                try:
+                    wallbox_file, wallbox_homes_geojson_path, vehicle_types_file = generate_private_wallboxes(
+                        net_file, 
+                        persons_data, 
+                        scen_dir,
+                        trips_file=trips_file,  # Pass trips file for updating vehicle types
+                        wallbox_share=0.05  # 5% of EV owners get wallboxes
+                    )
+                    print(f"[INFO] Private wallboxes generated -> {wallbox_file}")
+                    
+                    # Read wallbox homes GeoJSON for UI visualization
+                    wallbox_homes_geojson = None
+                    if os.path.exists(wallbox_homes_geojson_path):
+                        with open(wallbox_homes_geojson_path, 'r', encoding='utf-8') as f:
+                            wallbox_homes_geojson = json.load(f)
+                        print(f"[INFO] Loaded wallbox homes GeoJSON: {len(wallbox_homes_geojson.get('features', []))} homes")
+                    
+                    # If unique vehicle types were generated, use them instead of default
+                    if vehicle_types_file and os.path.exists(vehicle_types_file):
+                        print(f"[INFO] Using wallbox-specific vehicle types: {os.path.basename(vehicle_types_file)}")
+                        # Update combined_additional.xml to reference the new vehicle types file
+                        # IMPORTANT: Remove private_wallboxes.xml so stationfinder doesn't route vehicles there
+                        # TraCI will manage wallboxes as virtual stations based on vehicle proximity
+                        combined_add_path = os.path.join(scen_dir, "combined_additional.xml")
+                        if os.path.exists(combined_add_path):
+                            tree = ET.parse(combined_add_path)
+                            root = tree.getroot()
+                            
+                            # Remove private_wallboxes.xml from SUMO's additional files
+                            # This prevents stationfinder from routing vehicles to wallboxes
+                            for include in root.findall('include'):
+                                if include.get('href') == 'private_wallboxes.xml':
+                                    root.remove(include)
+                                    print(f"[INFO] Removed private_wallboxes.xml from SUMO - TraCI manages wallboxes")
+                            
+                            # Replace vehicle_types.add.xml include with wallbox_vehicle_types.add.xml
+                            for include in root.findall('include'):
+                                if include.get('href') == 'vehicle_types.add.xml':
+                                    include.set('href', os.path.basename(vehicle_types_file))
+                            tree.write(combined_add_path, encoding='utf-8', xml_declaration=True)
+                            print(f"[INFO] Updated combined_additional.xml to use wallbox vehicle types")
+                    
+                except Exception as e:
+                    print(f"[WARNING] Could not generate private wallboxes: {e}")
+                    import traceback
+                    traceback.print_exc()
+                    wallbox_homes_geojson = None
+
+                # Step 9: Create sim.sumocfg
+                create_sumo_config(net_file, trips_file, "combined_additional.xml", scen_dir)
+
+                # Step 10: Run TraCI simulation with V2G and home charging
+                # NOTE: This replaces the standard headless SUMO simulation
+                print("[INFO] Running TraCI simulation with V2G support...")
+                traci_script = os.path.join(os.path.dirname(__file__), "performativeMainSim2.py")
+                traci_command = [sys.executable, traci_script, scen_dir]
+                try:
+                    result = subprocess.run(traci_command, check=True, capture_output=True, text=True)
+                    print(result.stdout)
+                    if result.stderr:
+                        print(f"[STDERR] {result.stderr}")
+                    print("[INFO] TraCI simulation completed successfully")
+                except subprocess.CalledProcessError as e:
+                    print(f"[ERROR] TraCI simulation failed: {e.stderr}")
+                    raise Exception(f"TraCI simulation failed: {e.stderr}")
+
+                # Step 11: Convert SUMO logs to CSV for analysis
+                print("[INFO] Converting SUMO logs to CSV...")
+                convert_logs_to_csv(
+                    os.path.join(scen_dir, "fcd_output.xml.gz"),
+                    os.path.join(scen_dir, "battery_output.xml.gz"),
+                    os.path.join(scen_dir, "combined_additional.xml"),
+                    os.path.join(scen_dir, "sumo_merged_output.csv")
+                )
+                print("[INFO] Logs converted to CSV successfully.")
+
+                # Step 12: Generate traffic heatmap from logs
+                traffic_heatmap_file = os.path.join(scen_dir, "traffic_heatmap.json")
+                try:
+                    generate_traffic_heatmap(
+                        os.path.join(scen_dir, "sumo_merged_output.csv"),
+                        net_file,
+                        traffic_heatmap_file,
+                        sample_rate=0.25  # 25% sampling to reduce data size
+                    )
+                    print("[INFO] Traffic heatmap generated successfully.")
+                except Exception as e:
+                    print(f"[WARNING] Traffic heatmap generation failed: {e}")
+
+                # Step 13: Generate charging demand heatmap from low-SOC analysis
+                heatmap_json_file = os.path.join(scen_dir, "no_station_heatmap.json")
+                try:
+                    train_from_sumo_log_no_stations(
+                        os.path.join(scen_dir, "sumo_merged_output.csv"),
+                        os.path.join(scen_dir, "no_station_charging_suggestions.csv"),
+                        os.path.join(scen_dir, "no_station_areas.geojson"),
+                        os.path.join(scen_dir, "suggested_charging_stations.add.xml"),
+                        net_file,
+                        heatmap_json_file
+                    )
+                    print("[INFO] Charging demand heatmap generated successfully.")
+                except Exception as e:
+                    print(f"[WARNING] Charging demand analysis failed: {e}")
+
+                # Read heatmap data files
+                heatmap_geojson_file = os.path.join(scen_dir, "no_station_areas.geojson")
+                
+                heatmap_geojson = None
+                if os.path.exists(heatmap_geojson_file):
+                    with open(heatmap_geojson_file, "r", encoding="utf-8") as f:
+                        heatmap_geojson = json.load(f)
+
+                heatmap_data = None
+                if os.path.exists(heatmap_json_file):
+                    with open(heatmap_json_file, "r", encoding="utf-8") as f:
+                        heatmap_data = json.load(f)
+
+                traffic_heatmap_data = None
+                if os.path.exists(traffic_heatmap_file):
+                    with open(traffic_heatmap_file, "r", encoding="utf-8") as f:
+                        traffic_heatmap_data = json.load(f)
+
+                # Read TraCI simulation outputs
+                traci_logs_dir = os.path.join(scen_dir, "traci_logs")
+                traci_model_log = os.path.join(traci_logs_dir, "model_log_data.csv")
+                traci_charging_sessions = os.path.join(traci_logs_dir, "charging_sessions.csv")
+                
+                traci_summary = {
+                    "logs_available": os.path.exists(traci_model_log),
+                    "model_log": os.path.basename(traci_model_log) if os.path.exists(traci_model_log) else None,
+                    "charging_sessions": os.path.basename(traci_charging_sessions) if os.path.exists(traci_charging_sessions) else None,
+                    "logs_dir": "traci_logs"
+                }
+
+                # Respond with success
+                resp = {
+                    "ok": True,
+                    "message": "Pipeline completed successfully with TraCI simulation (V2G + Home Charging + Private Wallboxes)",
+                    "scenarioDir": scen_dir,
+                    "networkFile": net_file,
+                    "poiFiles": poi_files,
+                    "poiGeoJSON": poi_geojson,
+                    "powerGrid": power_grid,
+                    "realChargingStations": real_charging_stations,
+                    "heatmapGeoJSON": heatmap_geojson,
+                    "heatmapData": heatmap_data,
+                    "trafficHeatmap": traffic_heatmap_data,
+                    "wallboxHomes": wallbox_homes_geojson,
+                    "chargingStations": {
+                        "file": os.path.basename(charging_stations_file),
+                        "description": "Public charging stations"
+                    },
+                    "traciSimulation": traci_summary,
+                    "note": "TraCI simulation with V2G + dynamic home charging + private wallboxes (5% of residences) - heatmaps show effects of smart charging control"
+                }
+                json.dumps(resp, indent=2)
+                payload = json.dumps(resp).encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self._set_cors()
+                self.send_header("Content-Length", str(len(payload)))
+                self.end_headers()
+                self.wfile.write(payload)
+            except Exception as e:
+                print(f"[ERROR] {e}")
+                import traceback
+                traceback.print_exc()
                 msg = {"ok": False, "error": str(e)}
                 payload = json.dumps(msg).encode("utf-8")
                 self.send_response(500)
