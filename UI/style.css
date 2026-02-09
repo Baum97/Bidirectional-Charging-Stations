@@ -300,5 +300,5 @@ img[src*="bicycle.png"],
 img[src*="generate.png"],
 img[src*="passenger.png"],
 img[src*="road.png"] {
-  filter: brightness(0.3);
+  filter: brightness(0.4);
 }
