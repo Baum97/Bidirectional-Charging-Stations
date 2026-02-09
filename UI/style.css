@@ -125,7 +125,7 @@ float: left; }
 .images { overflow: hidden; }
 
 .container, button, #status {
-  background: #585858;
+  background: #dfdfdf;
   border-radius: 4px;
   font-size: 0.8em;
   margin: 5px;
