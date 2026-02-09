@@ -3,7 +3,9 @@ class EVSE_class():
         self.efficiency = efficiency
         self.Prated_kW  = Prated_kW
         self.evse_id   = evse_id
-        self.energy_pool = energy_pool  # reference to global energy pool
+        # Reference to global energy pool or grid controller
+        # Both implement the same interface: get_available_power_for_station()
+        self.energy_pool = energy_pool  # Can be EnergyPool or GridController
         
         # Private home charging station support
         self.is_private = is_private                    # True if this is a private home station
@@ -88,6 +90,7 @@ class EnergyPool:
         self.max_total_power_kw = max_total_power_kw
         self.station_requests = {}  # station_id -> requested_power_kw
         self.station_setpoints = {}  # station_id -> currently allocated power_kw
+        self._previous_total_demand = 0  # Total demand from previous step (for fair scaling)
     
     def register_station_request(self, station_id, requested_power_kw):
         """
@@ -110,7 +113,10 @@ class EnergyPool:
         requested_power_kw = max(0.0, requested_power_kw)
         
         # Calculate total requested power from all active stations
-        total_requested = sum(self.station_requests.values())
+        # Use max of current and previous step's demand for fair scaling
+        # (prevents race condition where early stations get more power)
+        current_total = sum(self.station_requests.values())
+        total_requested = max(current_total, self._previous_total_demand)
         
         # If no demand or within limits, grant full request
         if total_requested <= self.max_total_power_kw:
@@ -124,9 +130,12 @@ class EnergyPool:
     
     def reset_requests(self):
         """
-        Clear all station requests at the start of each time step.
+        Clear all station requests and actuals at the start of each time step.
+        Preserves previous step's total demand for fair scaling.
         """
+        self._previous_total_demand = sum(self.station_requests.values())
         self.station_requests.clear()
+        self.station_setpoints.clear()  # Clear stale entries from previous step
     
     def get_total_power_usage(self):
         """
@@ -145,3 +154,11 @@ class EnergyPool:
         Update actual power usage for a station (for monitoring).
         """
         self.station_setpoints[station_id] = max(0.0, actual_power_kw)
+
+    def finalize_step(self):
+        """
+        Finalize power allocation for this step.
+        Called after all stations have registered their requests.
+        Saves total demand for next step's fair scaling.
+        """
+        self._previous_total_demand = sum(self.station_requests.values())

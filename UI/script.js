@@ -62,39 +62,11 @@ const layers = {
   wallboxHomes: null
 };
 
-// --- Helpers to derive voltage and colors ---
-
-function getFeatureVoltageKv(feature) {
-  const p = feature.properties || {};
-  if (p.voltage_kv != null) {
-    return Number(p.voltage_kv);
-  }
-  if (!p.voltage) return null;
-  const str = String(p.voltage);
-  const matches = str.replace(',', '.').match(/\d+(\.\d+)?/g);
-  if (!matches) return null;
-  let maxVal = 0;
-  for (const m of matches) {
-    const v = parseFloat(m);
-    if (v > maxVal) maxVal = v;
-  }
-  if (maxVal > 1000) return maxVal / 1000.0;
-  return maxVal;
-}
-
-function colorForVoltageKv(v) {
-  if (v == null || isNaN(v)) return '#999999';  // unknown / miscellaneous
-  if (v >= 380) return '#ff0000';   // extra high voltage
-  if (v >= 220) return '#ff4500';   // high voltage
-  if (v >= 110) return '#ff8800';   // sub-transmission
-  if (v >= 36)  return '#ffdd00';   // medium
-  if (v >= 1)   return '#00aa00';   // low voltage distribution
-  return '#5555ff';                 // really low stuff
-}
+// --- Power Grid Network Visualization (V2G System) ---
 
 function showPowerGrid(geojson) {
   if (!geojson || !geojson.features || !geojson.features.length) {
-    console.log('No power grid features in this area');
+    console.log('No power grid network in this area');
     if (layers.powerGrid) {
       map.removeLayer(layers.powerGrid);
       layers.powerGrid = null;
@@ -106,61 +78,268 @@ function showPowerGrid(geojson) {
     map.removeLayer(layers.powerGrid);
   }
 
+  console.log(`Displaying power grid network with ${geojson.features.length} features`);
+
+  // Debug: Count features by type and color
+  const typeCount = {};
+  const colorCount = {};
+  geojson.features.forEach(f => {
+    const type = f.properties?.type || 'unknown';
+    const color = f.properties?.color || 'no color';
+    typeCount[type] = (typeCount[type] || 0) + 1;
+    if (f.properties?.type === 'bus') {
+      const busType = f.properties?.bus_type || 'unknown';
+      colorCount[`${busType} (${color})`] = (colorCount[`${busType} (${color})`] || 0) + 1;
+    }
+  });
+  console.log('Grid feature types:', typeCount);
+  console.log('Bus types and colors:', colorCount);
+
   const powerLayer = L.geoJSON(geojson, {
     style: function (feature) {
-      const kv = getFeatureVoltageKv(feature);
-      const color = colorForVoltageKv(kv);
-
-      // Thicker for higher voltages
+      const p = feature.properties || {};
+      const color = p.color || '#999999';
+      
       let weight = 2;
-      if (kv >= 220) weight = 4;
-      else if (kv >= 110) weight = 3;
-
-      if (feature.geometry && feature.geometry.type === 'Polygon') {
-        return {
-          color,
-          weight: 2,
-          fillColor: color,
-          fillOpacity: 0.15,
-          opacity: 0.9,
-        };
+      let opacity = 0.9;
+      let dashArray = null;
+      let lineCap = 'round';
+      let lineJoin = 'round';
+      
+      if (p.type === 'bus') {
+        weight = 0;  // buses are points, handled by pointToLayer
+      } else if (p.type === 'transformer') {
+        weight = 0;  // transformers are points
+      } else if (p.type === 'line') {
+        // Power distribution lines - very wide for visibility
+        weight = 7;
+        opacity = 1.0;
+      } else if (p.type === 'station_connection') {
+        weight = 4;
+        opacity = 0.85;
+        dashArray = '8, 5';
       }
+
       return {
-        color,
-        weight,
-        opacity: 0.9,
+        color: color,
+        weight: weight,
+        opacity: opacity,
+        dashArray: dashArray,
+        lineCap: lineCap,
+        lineJoin: lineJoin
       };
     },
     pointToLayer: function (feature, latlng) {
-      const kv = getFeatureVoltageKv(feature);
-      const color = colorForVoltageKv(kv);
       const p = feature.properties || {};
-      const kind = p.kind || '';
-      const baseRadius = kind === 'power_node' ? 4 : 3;
-      const radius = kv != null && kv >= 110 ? baseRadius + 2 : baseRadius;
+      const color = p.color || '#999999';
+      
+      if (p.type === 'transformer') {
+        // Transformers: rotated square (diamond / Raute shape) using DivIcon
+        const size = p.trafo_type === 'HV/MV' ? 22 : 18;
+        const half = size / 2;
+        const diamondIcon = L.divIcon({
+          className: 'grid-diamond-marker',
+          html: `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="filter: drop-shadow(0 1px 3px rgba(0,0,0,0.4));">
+            <rect x="${half * 0.29}" y="${half * 0.29}" width="${size * 0.71}" height="${size * 0.71}"
+                  transform="rotate(45 ${half} ${half})"
+                  fill="${color}" stroke="#fff" stroke-width="2.5" rx="2"/>
+          </svg>`,
+          iconSize: [size, size],
+          iconAnchor: [half, half]
+        });
+        return L.marker(latlng, { icon: diamondIcon });
+      }
+      
+      // Buses: clean circles, sized and colored by voltage level
+      let radius = 8;
+      let weight = 3;
+      if (p.bus_type === 'HV') {
+        radius = 13;
+        weight = 4;
+      } else if (p.bus_type === 'MV') {
+        radius = 10;
+        weight = 3;
+      } else if (p.bus_type === 'LV') {
+        radius = 8;
+        weight = 2.5;
+      }
+      
       return L.circleMarker(latlng, {
-        radius,
-        color,
+        radius: radius,
+        color: '#ffffff',
         fillColor: color,
-        fillOpacity: 0.9,
+        fillOpacity: 1.0,
+        weight: weight
       });
     },
     onEachFeature: function (feature, layer) {
       const p = feature.properties || {};
-      const kv = getFeatureVoltageKv(feature);
       const lines = [];
 
-      if (p.power) lines.push(`<b>${p.power}</b>`);
-      if (p.name) lines.push(p.name);
-      if (kv != null && !isNaN(kv)) lines.push(`Voltage: ${kv.toFixed(1)} kV`);
-      else if (p.voltage) lines.push(`Voltage: ${p.voltage}`);
-      if (p.circuits) lines.push(`Circuits: ${p.circuits}`);
-      if (p.operator) lines.push(`Operator: ${p.operator}`);
+      // Different popup content based on feature type
+      if (p.type === 'bus') {
+        lines.push(`<b>⚡ Grid Bus ${p.bus_idx}</b>`);
+        lines.push(`Type: ${p.bus_type || 'Unknown'}`);
+        if (p.voltage_kv) lines.push(`Voltage: ${parseFloat(p.voltage_kv).toFixed(1)} kV`);
+        if (p.name) lines.push(`Name: ${p.name}`);
+      } else if (p.type === 'line') {
+        lines.push(`<b>━ Power Line</b>`);
+        if (p.from_bus != null) lines.push(`From Bus: ${p.from_bus}`);
+        if (p.to_bus != null) lines.push(`To Bus: ${p.to_bus}`);
+        if (p.length_km) lines.push(`Length: ${parseFloat(p.length_km).toFixed(2)} km`);
+      } else if (p.type === 'transformer') {
+        lines.push(`<b>⚙ Transformer ${p.trafo_type || ''}</b>`);
+        if (p.hv_bus != null) lines.push(`HV Bus: ${p.hv_bus}`);
+        if (p.lv_bus != null) lines.push(`LV Bus: ${p.lv_bus}`);
+        if (p.name) lines.push(`Name: ${p.name}`);
+      } else if (p.type === 'station_connection') {
+        lines.push(`<b>🔌 Station Connection</b>`);
+        if (p.station_id) lines.push(`Station: ${p.station_id}`);
+        if (p.bus_idx != null) lines.push(`Connected to Bus: ${p.bus_idx}`);
+        if (p.distance_m != null) lines.push(`Distance: ${p.distance_m}m`);
+      }
 
-      if (lines.length) layer.bindPopup(lines.join('<br>'));
+      if (lines.length) {
+        layer.bindPopup(lines.join('<br>'));
+      }
+
+      // Add hover effects for better visibility
+      layer.on('mouseover', function() {
+        if (p.type === 'line') {
+          this.setStyle({
+            weight: 10,
+            opacity: 1.0,
+            color: p.color
+          });
+        } else if (p.type === 'station_connection') {
+          this.setStyle({
+            weight: 6,
+            opacity: 1.0,
+            dashArray: '8, 5'
+          });
+        } else if (p.type === 'bus' && feature.geometry.type === 'Point') {
+          this.setRadius(this.options.radius + 4);
+          this.setStyle({ weight: 4 });
+        } else if (p.type === 'transformer') {
+          // DivIcon markers don't have setRadius — handled by CSS
+        }
+        this.bringToFront();
+      });
+
+      layer.on('mouseout', function() {
+        if (p.type === 'line') {
+          this.setStyle({
+            weight: 7,
+            opacity: 1.0,
+            color: p.color
+          });
+        } else if (p.type === 'station_connection') {
+          this.setStyle({
+            weight: 4,
+            opacity: 0.85,
+            dashArray: '8, 5'
+          });
+        } else if (p.type === 'bus') {
+          const baseRadius = p.bus_type === 'HV' ? 13 : (p.bus_type === 'MV' ? 10 : 8);
+          this.setRadius(baseRadius);
+          const weight = p.bus_type === 'HV' ? 4 : (p.bus_type === 'MV' ? 3 : 2.5);
+          this.setStyle({ weight: weight });
+        } else if (p.type === 'transformer') {
+          // DivIcon marker — no-op on mouseout
+        }
+      });
     }
   }).addTo(map);
+  
   layers.powerGrid = powerLayer;
+  
+  // Log summary from metadata
+  const meta = geojson.properties || {};
+  if (meta.total_buses) {
+    console.log(`Power Grid Network: ${meta.total_buses} buses (${meta.hv_buses || 0} HV, ${meta.mv_buses || 0} MV, ${meta.lv_buses || 0} LV), ${meta.total_lines} lines, ${meta.total_transformers} transformers, ${meta.total_stations_connected} stations`);
+  }
+}
+
+// --- V2G Activity Statistics Panel ---
+function showV2GStats(v2gStats) {
+  const panel = document.getElementById('v2gStats');
+  if (!panel || !v2gStats) return;
+
+  panel.style.display = 'block';
+
+  const set = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  };
+
+  const fmtEnergy = (kwh) => kwh != null ? kwh.toFixed(1) + ' kWh' : '–';
+  const fmtTime = (sec) => {
+    if (sec == null) return '–';
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    return h > 0 ? `${h}h ${m}m` : `${m}m`;
+  };
+
+  // Overview
+  set('v2gTotalEvs', v2gStats.total_evs ?? '–');
+  set('v2gSimDuration', fmtTime(v2gStats.sim_duration_seconds));
+  set('v2gRuntime', fmtTime(v2gStats.runtime_seconds));
+
+  // Public stations
+  const pub = v2gStats.charging?.public || {};
+  set('v2gPublicStations', v2gStats.total_public_stations ?? '–');
+  set('v2gPublicSessions', pub.sessions ?? '–');
+  set('v2gPublicVehicles', pub.unique_vehicles ?? '–');
+  set('v2gPublicEnergy', fmtEnergy(pub.total_energy_kwh));
+
+  // Wallbox
+  const wb = v2gStats.charging?.wallbox || {};
+  set('v2gWallboxCount', wb.wallbox_count ?? v2gStats.total_wallboxes ?? '–');
+  set('v2gWallboxSessions', wb.sessions ?? '–');
+  set('v2gWallboxVehicles', wb.unique_vehicles ?? '–');
+  set('v2gWallboxEnergy', fmtEnergy(wb.total_energy_kwh));
+  set('v2gWallboxV2G', fmtEnergy(wb.total_v2g_energy_kwh));
+  set('v2gWallboxNet', fmtEnergy(wb.net_energy_kwh));
+
+  // V2G
+  const v2g = v2gStats.v2g || {};
+  set('v2gActiveVehicles', v2g.active_vehicles ?? '–');
+  set('v2gDischargedEnergy', fmtEnergy(v2g.total_discharged_kwh));
+
+  // Grid
+  const grid = v2gStats.grid || {};
+  set('v2gGridMax', grid.max_power_kw != null ? grid.max_power_kw + ' kW' : '–');
+  set('v2gGridPeak', grid.peak_usage_kw != null ? grid.peak_usage_kw.toFixed(0) + ' kW' : '–');
+  // Show utilization percentage
+  if (grid.max_power_kw > 0 && grid.peak_usage_kw != null) {
+    const util = ((grid.peak_usage_kw / grid.max_power_kw) * 100).toFixed(1);
+    set('v2gGridPeak', grid.peak_usage_kw.toFixed(0) + ' kW (' + util + '%)');
+  }
+
+  console.log('V2G stats displayed:', v2gStats);
+}
+
+// --- Power Grid Statistics Panel ---
+function showPowerGridStats(stats) {
+  const panel = document.getElementById('powerGridStats');
+  if (!panel || !stats) return;
+
+  panel.style.display = 'block';
+
+  const set = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  };
+
+  set('pgArea', stats.area_km2 != null ? stats.area_km2.toFixed(2) + ' km²' : '–');
+  set('pgHV', stats.hv_buses ?? 0);
+  set('pgMV', stats.mv_buses ?? 0);
+  set('pgLV', stats.lv_buses ?? 0);
+  set('pgLines', stats.total_lines ?? 0);
+  set('pgTrafos', stats.total_transformers ?? 0);
+  set('pgLoads', stats.total_loads ?? stats.total_stations_connected ?? 0);
+
+  console.log('Power grid stats displayed:', stats);
 }
 
 // Function to display charging stations on the map
@@ -644,9 +823,14 @@ async function downloadOSMData(bounds, scenario) {
     statusEl2.textContent = `OSM data downloaded: ${j.message || ''}`;
     lastScenarioDir = j.scenarioDir;
 
-    // Visualize power grid
-    if (j.powerGrid) {
-      showPowerGrid(j.powerGrid);
+    // Visualize power grid network (V2G system)
+    if (j.powerGridNetwork) {
+      showPowerGrid(j.powerGridNetwork);
+    }
+
+    // Show power grid statistics panel
+    if (j.powerGridStats) {
+      showPowerGridStats(j.powerGridStats);
     }
 
     // Visualize real charging stations
@@ -695,6 +879,12 @@ async function downloadOSMData(bounds, scenario) {
       showWallboxHomes(j.wallboxHomes);
     } else {
       console.log("No wallboxHomes in response (available only with TraCI build mode).");
+    }
+
+    // Show V2G activity statistics
+    if (j.v2gStats) {
+      console.log("V2G stats:", j.v2gStats);
+      showV2GStats(j.v2gStats);
     }
 
     // Show TraCI simulation results if available
@@ -958,6 +1148,14 @@ const setupLayerControls = () => {
       element.addEventListener('change', (e) => {
         console.log(`Checkbox ${elementId} changed to ${e.target.checked}`);
         toggleLayer(layerName, e.target.checked);
+        
+        // Toggle grid legend visibility with power grid layer
+        if (elementId === 'togglePowerGrid') {
+          const gridLegend = document.getElementById('gridLegend');
+          if (gridLegend) {
+            gridLegend.style.display = e.target.checked ? 'block' : 'none';
+          }
+        }
       });
     } else {
       console.error(`Element ${elementId} not found!`);

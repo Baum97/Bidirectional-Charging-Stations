@@ -1,0 +1,26 @@
+# SUMO and Traffic Simulation
+sumolib
+traci
+
+# Power Grid Simulation
+pandapower>=2.14.0
+networkx>=2.8
+
+# Data Processing
+pandas>=1.5.0
+numpy>=1.23.0
+
+# Geospatial Analysis
+shapely>=2.0.0
+geopandas>=0.12.0
+pyproj>=3.4.0
+
+# Machine Learning (for optimal placement)
+scikit-learn>=1.2.0
+scipy>=1.10.0
+
+# Visualization
+matplotlib>=3.6.0
+
+# Web Server
+# No additional requirements - uses built-in http.server

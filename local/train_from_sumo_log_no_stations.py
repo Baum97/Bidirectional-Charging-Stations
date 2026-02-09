@@ -1,4 +1,4 @@
-def process_sumo_log_no_stations(default_log, out_csv, out_geojson, out_xml, net_file=None, out_heatmap_json=None):
+def process_sumo_log_no_stations(default_log, out_csv, out_geojson, out_xml, net_file=None, out_heatmap_json=None, power_grid_manager=None):
     import os
     import math
     import json
@@ -242,6 +242,40 @@ def process_sumo_log_no_stations(default_log, out_csv, out_geojson, out_xml, net
     for i, c in enumerate(sorted(clusters.values(), key=lambda x: x["count"], reverse=True)):
         est_chargers = estimate_chargers(c["count"], sim_hours, avg_session_kwh=AVG_SESSION_KWH,
                                          charger_kw=CHARGER_KW, utilization=UTILIZATION)
+        
+        # Check grid capacity at this location if power grid manager available
+        grid_quality = 'unknown'
+        grid_capacity_kw = 0.0
+        grid_distance_m = 0.0
+        
+        if power_grid_manager:
+            try:
+                # Convert SUMO coords to lon/lat for grid query
+                if net:
+                    lon, lat = net.convertXY2LonLat(c["center_x"], c["center_y"])
+                else:
+                    lon, lat = c["center_x"], c["center_y"]  # Fallback
+                
+                grid_info = power_grid_manager.get_grid_capacity_at_location(lon, lat, radius_m=500)
+                grid_quality = grid_info['grid_quality']
+                grid_capacity_kw = grid_info['available_power_kw']
+                grid_distance_m = grid_info['distance_m']
+                
+                # Skip locations with no grid access
+                if grid_quality == 'none':
+                    print(f"[SKIP] Cluster {c['cluster']} - no grid access within 500m")
+                    continue
+                
+                # Adjust charger estimate based on grid capacity
+                max_chargers_by_grid = int(grid_capacity_kw / CHARGER_KW)
+                if max_chargers_by_grid < est_chargers:
+                    print(f"[INFO] Cluster {c['cluster']} - grid limits chargers to {max_chargers_by_grid} (was {est_chargers})")
+                    est_chargers = max_chargers_by_grid
+                    if est_chargers == 0:
+                        continue  # Skip if grid can't support any chargers
+            except Exception as e:
+                print(f"[WARNING] Grid check failed for cluster {c['cluster']}: {e}")
+        
         csv_rows.append({
             "cluster_id": c["cluster"],
             "center_x": c["center_x"],
@@ -249,7 +283,10 @@ def process_sumo_log_no_stations(default_log, out_csv, out_geojson, out_xml, net
             "count_low_soc": c["count"],
             "mean_soc": c["mean_soc"],
             "radius_m": c["radius"],
-            "estimated_chargers": est_chargers
+            "estimated_chargers": est_chargers,
+            "grid_quality": grid_quality,
+            "grid_capacity_kw": grid_capacity_kw,
+            "grid_distance_m": grid_distance_m
         })
         poly = polygon_around_points(c["center_x"], c["center_y"], c["radius"], n_points=POLY_POINTS)
         
@@ -269,7 +306,10 @@ def process_sumo_log_no_stations(default_log, out_csv, out_geojson, out_xml, net
             "cluster_id": c["cluster"],
             "count_low_soc": c["count"],
             "mean_soc": c["mean_soc"],
-            "estimated_chargers": est_chargers
+            "estimated_chargers": est_chargers,
+            "grid_quality": grid_quality,
+            "grid_capacity_kw": grid_capacity_kw,
+            "grid_distance_m": grid_distance_m
         }
         features.append({
             "type": "Feature",

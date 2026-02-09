@@ -23,6 +23,59 @@
     <div id="map"></div>
     <canvas id="selectionCanvas" style="display:none"></canvas>
 
+    <!-- Power Grid Statistics Panel (lower-left) -->
+    <div id="powerGridStats" class="power-grid-stats" style="display:none;">
+      <h4>⚡ Power Grid</h4>
+      <div id="pgStatsBody">
+        <div class="pg-stat-row"><span class="pg-label">Area</span><span id="pgArea" class="pg-value">–</span></div>
+        <div class="pg-stat-section">Buses</div>
+        <div class="pg-stat-row"><span class="pg-dot" style="background:#e74c3c"></span><span class="pg-label">HV (110 kV)</span><span id="pgHV" class="pg-value">0</span></div>
+        <div class="pg-stat-row"><span class="pg-dot" style="background:#f39c12"></span><span class="pg-label">MV (20 kV)</span><span id="pgMV" class="pg-value">0</span></div>
+        <div class="pg-stat-row"><span class="pg-dot" style="background:#3498db"></span><span class="pg-label">LV (0.4 kV)</span><span id="pgLV" class="pg-value">0</span></div>
+        <div class="pg-stat-divider"></div>
+        <div class="pg-stat-row"><span class="pg-label">Lines</span><span id="pgLines" class="pg-value">0</span></div>
+        <div class="pg-stat-row"><span class="pg-label">Transformers</span><span id="pgTrafos" class="pg-value">0</span></div>
+        <div class="pg-stat-row"><span class="pg-label">Connected loads</span><span id="pgLoads" class="pg-value">0</span></div>
+      </div>
+    </div>
+
+    <!-- V2G Activity Statistics Panel (next to power grid panel) -->
+    <div id="v2gStats" class="v2g-stats" style="display:none;">
+      <h4>🔋 V2G &amp; Charging Activity</h4>
+      <div id="v2gStatsBody">
+        <div class="pg-stat-section">Overview</div>
+        <div class="pg-stat-row"><span class="pg-label">Total EVs</span><span id="v2gTotalEvs" class="pg-value">–</span></div>
+        <div class="pg-stat-row"><span class="pg-label">Sim Duration</span><span id="v2gSimDuration" class="pg-value">–</span></div>
+        <div class="pg-stat-row"><span class="pg-label">Runtime</span><span id="v2gRuntime" class="pg-value">–</span></div>
+
+        <div class="pg-stat-divider"></div>
+        <div class="pg-stat-section">⚡ Public Stations</div>
+        <div class="pg-stat-row"><span class="pg-label">Stations</span><span id="v2gPublicStations" class="pg-value">–</span></div>
+        <div class="pg-stat-row"><span class="pg-label">Sessions</span><span id="v2gPublicSessions" class="pg-value">–</span></div>
+        <div class="pg-stat-row"><span class="pg-label">Vehicles charged</span><span id="v2gPublicVehicles" class="pg-value">–</span></div>
+        <div class="pg-stat-row"><span class="pg-label">Energy delivered</span><span id="v2gPublicEnergy" class="pg-value v2g-charge">–</span></div>
+
+        <div class="pg-stat-divider"></div>
+        <div class="pg-stat-section">🏠 Private Wallboxes</div>
+        <div class="pg-stat-row"><span class="pg-label">Wallboxes</span><span id="v2gWallboxCount" class="pg-value">–</span></div>
+        <div class="pg-stat-row"><span class="pg-label">Sessions (plug-in→unplug)</span><span id="v2gWallboxSessions" class="pg-value">–</span></div>
+        <div class="pg-stat-row"><span class="pg-label">Vehicles charged</span><span id="v2gWallboxVehicles" class="pg-value">–</span></div>
+        <div class="pg-stat-row"><span class="pg-label">Energy charged</span><span id="v2gWallboxEnergy" class="pg-value v2g-charge">–</span></div>
+        <div class="pg-stat-row"><span class="pg-label">Energy fed to grid (V2G)</span><span id="v2gWallboxV2G" class="pg-value v2g-discharge">–</span></div>
+        <div class="pg-stat-row"><span class="pg-label">Net energy delivered</span><span id="v2gWallboxNet" class="pg-value">–</span></div>
+
+        <div class="pg-stat-divider"></div>
+        <div class="pg-stat-section">🔄 V2G Discharge</div>
+        <div class="pg-stat-row"><span class="pg-label">Active V2G vehicles</span><span id="v2gActiveVehicles" class="pg-value v2g-discharge">–</span></div>
+        <div class="pg-stat-row"><span class="pg-label">Total V2G discharged</span><span id="v2gDischargedEnergy" class="pg-value v2g-discharge">–</span></div>
+
+        <div class="pg-stat-divider"></div>
+        <div class="pg-stat-section">📊 Grid</div>
+        <div class="pg-stat-row"><span class="pg-label">Max grid power</span><span id="v2gGridMax" class="pg-value">–</span></div>
+        <div class="pg-stat-row"><span class="pg-label">Peak usage</span><span id="v2gGridPeak" class="pg-value">–</span></div>
+      </div>
+    </div>
+
     <!-- Layer Control Panel -->
     <div id="layerControl">
       <h4><span id="layerToggleArrow" class="layer-toggle-arrow">&#9660;</span> Map Layers</h4>
@@ -45,8 +98,16 @@
       </label>
       <label class="layer-checkbox">
         <input type="checkbox" id="togglePowerGrid" checked>
-        <span>Power Grid</span>
+        <span>⚡ Power Grid Network (V2G System)</span>
       </label>
+      <div id="gridLegend" style="margin-left: 20px; font-size: 0.75em; color: #666; line-height: 1.8;">
+        <div><span style="color: #e74c3c; font-size: 1.2em;">●</span> HV Buses (110 kV)</div>
+        <div><span style="color: #f39c12; font-size: 1.2em;">●</span> MV Buses (20 kV)</div>
+        <div><span style="color: #3498db; font-size: 1.2em;">●</span> LV Buses (0.4 kV)</div>
+        <div><span style="color: #9b59b6; font-size: 1.2em;">◆</span> Transformers</div>
+        <div><span style="color: #95a5a6;">━━━</span> Power Lines</div>
+        <div><span style="color: #27ae60;">- - -</span> Station Connections</div>
+      </div>
       <hr style="border: 0; border-top: 1px solid #444; margin: 10px 0;">
       <h5 style="margin: 10px 0 5px 0; font-size: 0.9em; color: #3d3d3d;">POI Layers</h5>
       <label class="layer-checkbox">
@@ -65,7 +126,7 @@
       <h5 style="margin: 10px 0 5px 0; font-size: 0.9em; color: #3d3d3d;">Charging Infrastructure</h5>
       <label class="layer-checkbox">
         <input type="checkbox" id="toggleWallboxHomes" checked>
-        <span>🏠⚡ Homes with Private Wallboxes (5%)</span>
+        <span>🏠⚡ Homes with Private Wallboxes</span>
       </label>
       </div>
     </div>
