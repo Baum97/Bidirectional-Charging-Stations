@@ -100,11 +100,11 @@ float: left; }
   text-align: center;
   cursor: pointer;
   border-radius: 4px 0 0 4px;
-  background: #333;
+  background: #ffffff;
 }
 
 .tab img { width: 32px; margin: 4px; }
-.tab.open { border-left: 4px solid #2C2CA0; }
+.tab.open { border-left: 4px solid #797979; }
 
 .controls {
   width: 0;
@@ -292,4 +292,13 @@ input[type=number] { width: 80px; }
   font-size: 14px;
   color: #444;
   line-height: 1.4;
+}
+
+/* Make generate.png, passenger.png, and road.png black */
+img[src*="truck.png"],
+img[src*="bicycle.png"],
+img[src*="generate.png"],
+img[src*="passenger.png"],
+img[src*="road.png"] {
+  filter: brightness(0.3);
 }
