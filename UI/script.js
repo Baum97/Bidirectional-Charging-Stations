@@ -120,6 +120,56 @@ const layers = {
   wallboxHomes: null
 };
 
+// Data storage for zoom-responsive redrawing
+const layerData = {
+  chargingStations: null,
+  wallboxHomes: null,
+  pois: null  // Store all POI categories together
+};
+
+/**
+ * Calculate icon size based on current zoom level.
+ * Returns a scale factor that increases with zoom.
+ */
+function getZoomBasedSize(baseSize) {
+  const zoom = map.getZoom();
+  // Zoom levels typically range from 10 (city) to 19 (building)
+  // Scale factor: 
+  // - zoom ≤11: 0.25x (very small)
+  // - zoom 12-13: 0.4x (small)
+  // - zoom 14-15: 0.7x (medium)
+  // - zoom 16-17: 1.0x (base)
+  // - zoom 18: 1.3x (larger)
+  // - zoom 19+: 1.6x (largest)
+  let scale;
+  if (zoom <= 11) scale = 0.25;
+  else if (zoom <= 13) scale = 0.4;
+  else if (zoom <= 15) scale = 0.7;
+  else if (zoom <= 17) scale = 1.0;
+  else if (zoom <= 18) scale = 1.2;
+  else scale = 1.3;
+  
+  return Math.round(baseSize * scale);
+}
+
+// Add zoom event listener to redraw markers at new sizes
+map.on('zoomend', function() {
+  // Redraw charging stations if they exist (skip fitBounds to avoid zoom fight)
+  if (layerData.chargingStations) {
+    showChargingStations(layerData.chargingStations, true);
+  }
+  
+  // Redraw wallbox homes if they exist
+  if (layerData.wallboxHomes) {
+    showWallboxHomes(layerData.wallboxHomes);
+  }
+  
+  // Redraw POIs if they exist
+  if (layerData.pois) {
+    showPOIs(layerData.pois);
+  }
+});
+
 // --- Power Grid Network Visualization (V2G System) ---
 
 function showPowerGrid(geojson) {
@@ -481,7 +531,7 @@ function showPowerGridStats(stats) {
 }
 
 // Function to display charging stations on the map
-function showChargingStations(geojson) {
+function showChargingStations(geojson, skipFitBounds = false) {
   console.log("Charging stations GeoJSON data:", geojson);
 
   if (!geojson || !geojson.features || !geojson.features.length) {
@@ -489,24 +539,34 @@ function showChargingStations(geojson) {
     return;
   }
 
+  // Store data for zoom-based redrawing
+  layerData.chargingStations = geojson;
+
   console.log(`Displaying ${geojson.features.length} charging stations on the map.`);
 
-  const bounds = L.geoJSON(geojson).getBounds();
-  map.fitBounds(bounds); // Automatically zoom to the area of the charging stations
+  // Only fit bounds on initial display, not during zoom updates
+  if (!skipFitBounds) {
+    const bounds = L.geoJSON(geojson).getBounds();
+    map.fitBounds(bounds);
+  }
 
-  // Custom charging station icon using SVG
+  // Calculate zoom-based size
+  const size = getZoomBasedSize(32);
+  const anchor = size / 2;
+
+  // Custom charging station icon using SVG (zoom-responsive)
   const chargingIcon = L.divIcon({
     className: 'charging-station-icon',
-    html: `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    html: `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="6" y="2" width="12" height="20" rx="2" fill="#4CAF50" stroke="#2E7D32" stroke-width="1.5"/>
       <path d="M9 6 L12 10 L10.5 10 L13 14" stroke="#FFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
       <circle cx="9" cy="18" r="1" fill="#FFF"/>
       <circle cx="15" cy="18" r="1" fill="#FFF"/>
       <path d="M18 8 L20 6 M20 6 L20 12 M20 6 L22 8" stroke="#2E7D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>`,
-    iconSize: [32, 32],
-    iconAnchor: [16, 32],
-    popupAnchor: [0, -32]
+    iconSize: [size, size],
+    iconAnchor: [anchor, size],
+    popupAnchor: [0, -size]
   });
 
   // Remove old layer if exists
@@ -655,6 +715,9 @@ function showPOIs(poiGeoJSON) {
     return;
   }
 
+  // Store data for zoom-based redrawing
+  layerData.pois = poiGeoJSON;
+
   // Define icons and colors for each POI category
   const poiStyles = {
     offices: {
@@ -691,24 +754,29 @@ function showPOIs(poiGeoJSON) {
       map.removeLayer(layers[layerKey]);
     }
 
-    // Create custom icon using divIcon
+    // Calculate zoom-based size
+    const size = getZoomBasedSize(24);
+    const anchor = size / 2;
+    const fontSize = getZoomBasedSize(14);
+
+    // Create custom icon using divIcon (zoom-responsive)
     const poiIcon = L.divIcon({
       html: `<div style="
         background-color: ${style.color};
-        width: 24px;
-        height: 24px;
+        width: ${size}px;
+        height: ${size}px;
         border-radius: 50%;
         border: 2px solid white;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 14px;
+        font-size: ${fontSize}px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.3);
       ">${style.icon}</div>`,
       className: 'poi-marker',
-      iconSize: [24, 24],
-      iconAnchor: [12, 12],
-      popupAnchor: [0, -12]
+      iconSize: [size, size],
+      iconAnchor: [anchor, anchor],
+      popupAnchor: [0, -anchor]
     });
 
     // Create GeoJSON layer with custom markers
@@ -750,18 +818,28 @@ function showWallboxHomes(wallboxHomesGeoJSON) {
     map.removeLayer(layers.wallboxHomes);
   }
 
-  // Create custom icon: house with charging symbol
+  // Store data for zoom-based redrawing
+  layerData.wallboxHomes = wallboxHomesGeoJSON;
+
+  // Calculate zoom-based size
+  const size = getZoomBasedSize(30);
+  const anchor = size / 2;
+  const fontSize = getZoomBasedSize(16);
+  const badgeSize = getZoomBasedSize(14);
+  const badgeFontSize = getZoomBasedSize(10);
+
+  // Create custom icon: house with charging symbol (zoom-responsive)
   const wallboxHomeIcon = L.divIcon({
     html: `<div style="
       background: linear-gradient(135deg, #7700ff 0%, #a200ff 100%);
-      width: 30px;
-      height: 30px;
+      width: ${size}px;
+      height: ${size}px;
       border-radius: 6px;
       border: 2px solid white;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
+      font-size: ${fontSize}px;
       box-shadow: 0 3px 6px rgba(0,0,0,0.4);
       position: relative;
     ">
@@ -772,20 +850,20 @@ function showWallboxHomes(wallboxHomesGeoJSON) {
         right: -2px;
         background: #cc00ff;
         border-radius: 50%;
-        width: 14px;
-        height: 14px;
+        width: ${badgeSize}px;
+        height: ${badgeSize}px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 10px;
+        font-size: ${badgeFontSize}px;
         border: 1px solid white;
         box-shadow: 0 1px 3px rgba(0,0,0,0.3);
       ">⚡</span>
     </div>`,
     className: 'wallbox-home-marker',
-    iconSize: [30, 30],
-    iconAnchor: [15, 15],
-    popupAnchor: [0, -15]
+    iconSize: [size, size],
+    iconAnchor: [anchor, anchor],
+    popupAnchor: [0, -anchor]
   });
 
   // Create GeoJSON layer with custom markers
