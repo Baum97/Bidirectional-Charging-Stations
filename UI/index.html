@@ -28,7 +28,7 @@
 
     <!-- V2G Activity Statistics Panel (next to power grid panel) -->
     <div id="v2gStats" class="v2g-stats">
-      <h4>🔋 V2G &amp; Charging Activity</h4>
+      <h4>V2G &amp; Charging Activity</h4>
       <div id="v2gStatsBody">
         <div class="pg-stat-section">Overview</div>
         <div class="pg-stat-row"><span class="pg-label">Total EVs</span><span id="v2gTotalEvs" class="pg-value">–</span></div>
@@ -36,14 +36,14 @@
         <div class="pg-stat-row"><span class="pg-label">Runtime</span><span id="v2gRuntime" class="pg-value">–</span></div>
 
         <div class="pg-stat-divider"></div>
-        <div class="pg-stat-section">⚡ Public Stations</div>
+        <div class="pg-stat-section">Public Stations</div>
         <div class="pg-stat-row"><span class="pg-label">Stations</span><span id="v2gPublicStations" class="pg-value">–</span></div>
         <div class="pg-stat-row"><span class="pg-label">Sessions</span><span id="v2gPublicSessions" class="pg-value">–</span></div>
         <div class="pg-stat-row"><span class="pg-label">Vehicles charged</span><span id="v2gPublicVehicles" class="pg-value">–</span></div>
         <div class="pg-stat-row"><span class="pg-label">Energy delivered</span><span id="v2gPublicEnergy" class="pg-value v2g-charge">–</span></div>
 
         <div class="pg-stat-divider"></div>
-        <div class="pg-stat-section">🏠 Private Wallboxes</div>
+        <div class="pg-stat-section">Private Wallboxes</div>
         <div class="pg-stat-row"><span class="pg-label">Wallboxes</span><span id="v2gWallboxCount" class="pg-value">–</span></div>
         <div class="pg-stat-row"><span class="pg-label">Sessions (plug-in→unplug)</span><span id="v2gWallboxSessions" class="pg-value">–</span></div>
         <div class="pg-stat-row"><span class="pg-label">Vehicles charged</span><span id="v2gWallboxVehicles" class="pg-value">–</span></div>
@@ -52,12 +52,12 @@
         <div class="pg-stat-row"><span class="pg-label">Net energy delivered</span><span id="v2gWallboxNet" class="pg-value">–</span></div>
 
         <div class="pg-stat-divider"></div>
-        <div class="pg-stat-section">🔄 V2G Discharge</div>
+        <div class="pg-stat-section">V2G Discharge</div>
         <div class="pg-stat-row"><span class="pg-label">Active V2G vehicles</span><span id="v2gActiveVehicles" class="pg-value v2g-discharge">–</span></div>
         <div class="pg-stat-row"><span class="pg-label">Total V2G discharged</span><span id="v2gDischargedEnergy" class="pg-value v2g-discharge">–</span></div>
 
         <div class="pg-stat-divider"></div>
-        <div class="pg-stat-section">📊 Grid</div>
+        <div class="pg-stat-section">Grid</div>
         <div class="pg-stat-row"><span class="pg-label">Max grid power</span><span id="v2gGridMax" class="pg-value">–</span></div>
         <div class="pg-stat-row"><span class="pg-label">Peak usage</span><span id="v2gGridPeak" class="pg-value">–</span></div>
 
@@ -66,7 +66,7 @@
         <!-- Toggle for Grid Power Analysis flyout -->
         <div class="grid-power-header" id="gridPowerToggle">
           <span id="gridPowerArrow" class="grid-power-arrow">&#9654;</span>
-          <span>📊 Grid Power Analysis</span>
+          <span>Grid Power Analysis</span>
         </div>
       </div>
     </div>
@@ -74,7 +74,7 @@
     <!-- Grid Power Analysis Flyout Panel (slides out to the right of V2G panel) -->
     <div id="gridPowerFlyout" class="grid-power-flyout">
       <div class="grid-power-flyout-header">
-        <h4>📊 Grid Power Analysis</h4>
+        <h4>Grid Power Analysis</h4>
       </div>
       <div class="grid-power-flyout-body">
         <p id="gridPowerNoData" class="chart-description" style="color:#999; text-align:center; margin:18px 0;">No chart data yet. Run a simulation first.</p>
@@ -122,7 +122,7 @@
       </div>
       <label class="layer-checkbox">
         <input type="checkbox" id="togglePowerGrid" checked>
-        <span>⚡ Power Grid Network (V2G System)</span>
+        <span>Power Grid Network (V2G System)</span>
       </label>
       <div id="gridLegend" style="margin-left: 16px; font-size: 0.7em; color: #666; line-height: 1.5;">
         <div><span style="color: #e74c3c; font-size: 1.1em;">●</span> HV Buses (110 kV)</div>
@@ -156,9 +156,6 @@
     </div>
 
     <div id="side">
-      <button id="sideToggle" title="Collapse / Expand panel">
-        <span id="sideToggleArrow">&#9654;</span>
-      </button>
       <div id="tabs">
         <div class="tab" title="Options"><img src="/webWizard_example/images/generate.png" /></div>
       </div>
@@ -205,7 +202,7 @@
           <h4 id="simParamsToggle" class="collapsible-header">Scenario Parameters <span id="simParamsArrow" class="collapse-arrow">&#9660;</span></h4>
           <div class="options open" id="simParamsBody">
 
-            <div class="param-group-label">🚗 Traffic</div>
+            <div class="param-group-label">Traffic</div>
             <label class="param-label">Vehicles
               <input id="paramNumPersons" type="number" value="250" min="1" max="5000" step="1" class="param-input" title="Total number of vehicles (persons) in the simulation" />
             </label>
@@ -213,7 +210,7 @@
               <input id="paramEvShare" type="number" value="0.6" min="0" max="1" step="0.05" class="param-input" title="Fraction of vehicles that are electric (0.0 – 1.0)" />
             </label>
 
-            <div class="param-group-label">� Trip Generation Model</div>
+            <div class="param-group-label">Trip Generation Model</div>
             <label class="param-label">Model Type
               <select id="paramTripModel" class="param-input" title="Simple: home-work-home only. Realistic: multi-activity chains">
                 <option value="realistic">Realistic (Multi-Activity)</option>
@@ -227,7 +224,7 @@
               </select>
             </label>
 
-            <div class="param-group-label">👥 User Demographics (Realistic Model)</div>
+            <div class="param-group-label">User Demographics (Realistic Model)</div>
             <label class="param-label">Working Persons %
               <input id="paramWorkingPersonRatio" type="number" value="0.65" min="0" max="1" step="0.05" class="param-input" title="Fraction of working persons (0.0 – 1.0)" />
             </label>
@@ -241,7 +238,7 @@
               <input id="paramRandomSeed" type="number" value="42" min="1" max="99999" step="1" class="param-input" title="Seed for reproducible random generation" />
             </label>
 
-            <div class="param-group-label">�🔋 Battery</div>
+            <div class="param-group-label">Battery</div>
             <label class="param-label">Capacity (Wh)
               <input id="paramBatteryCapacity" type="number" value="80000" min="1000" max="500000" step="1000" class="param-input" title="Maximum battery capacity in Wh" />
             </label>
@@ -249,7 +246,7 @@
               <input id="paramBatteryActual" type="number" value="40000" min="0" max="500000" step="1000" class="param-input" title="Actual battery capacity at simulation start in Wh" />
             </label>
 
-            <div class="param-group-label">⚡ Charging</div>
+            <div class="param-group-label">Charging</div>
             <label class="param-label">Max Power (kW)
               <input id="paramMaxChargingPower" type="number" value="200" min="1" max="1000" step="1" class="param-input" title="Maximum charging power per station in kW" />
             </label>
@@ -263,7 +260,7 @@
               <input id="paramStationfinderRadius" type="number" value="3000" min="100" max="50000" step="100" class="param-input" title="Search radius for the station finder device in meters" />
             </label>
 
-            <div class="param-group-label">🏠 Home / V2G</div>
+            <div class="param-group-label">Home / V2G</div>
             <label class="param-label">Home Charging %
               <input id="paramHomeChargingPct" type="number" value="0.05" min="0" max="1" step="0.01" class="param-input" title="Fraction of EVs with home charging (0.0 – 1.0)" />
             </label>
