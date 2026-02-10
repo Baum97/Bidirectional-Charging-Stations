@@ -5,7 +5,7 @@ import xml.etree.ElementTree as ET
 import sys
 import os
 
-def generate_trips(netfile, input_csvs, output_dir):
+def generate_trips(netfile, input_csvs, output_dir, sim_params=None):
     """
     Generate trips based on POI edges and save them to an XML file.
 
@@ -13,17 +13,23 @@ def generate_trips(netfile, input_csvs, output_dir):
         netfile (str): Path to the SUMO network file.
         input_csvs (list): List of input CSV files containing POI edges.
         output_dir (str): Directory to save the generated trips XML file.
+        sim_params (dict, optional): Scenario parameters from the UI.
 
     Returns:
         str: Path to the generated trips XML file.
     """
-    # Configuration
-    num_persons = 250
+    if sim_params is None:
+        sim_params = {}
+    # Configuration (overridable via sim_params)
+    num_persons = int(sim_params.get('num_persons', 250))
     morning_depart_interval = (23400, 32400)  # 6:30 - 9:00
     work_duration = 8 * 3600  # 8 hrs in sec
     home_evening_duration_range = (6 * 3600, 14 * 3600)  # 6-14 hours at home (variable)
-    ev_share = 0.6  # part of electrical cars
+    ev_share = float(sim_params.get('ev_share', 0.6))  # part of electrical cars
     num_evs = int(num_persons * ev_share)
+    battery_capacity = str(int(sim_params.get('battery_capacity', 80000)))
+    battery_actual = str(int(sim_params.get('battery_actual', 40000)))
+    stationfinder_radius = str(int(sim_params.get('stationfinder_radius', 3000)))
 
     # Load network and define edges
     def edge_allows_passenger(edge):
@@ -98,8 +104,8 @@ def generate_trips(netfile, input_csvs, output_dir):
     )
     # Battery configuration
     ET.SubElement(vtype_ev, 'param', key="has.battery.device", value="true")
-    ET.SubElement(vtype_ev, 'param', key="device.battery.capacity", value="80000")
-    ET.SubElement(vtype_ev, 'param', key="device.battery.actualBatteryCapacity", value="40000")
+    ET.SubElement(vtype_ev, 'param', key="device.battery.capacity", value=battery_capacity)
+    ET.SubElement(vtype_ev, 'param', key="device.battery.actualBatteryCapacity", value=battery_actual)
     # Rerouting configuration
     ET.SubElement(vtype_ev, 'param', key="has.rerouting.device", value="true")
     ET.SubElement(vtype_ev, 'param', key="device.rerouting.probability", value="1")
@@ -107,7 +113,7 @@ def generate_trips(netfile, input_csvs, output_dir):
     ET.SubElement(vtype_ev, 'param', key="has.stationfinder.device", value="true")
     ET.SubElement(vtype_ev, 'param', key="device.stationfinder.rescueTime", value="1800")
     ET.SubElement(vtype_ev, 'param', key="device.stationfinder.reserveFactor", value="1.2")
-    ET.SubElement(vtype_ev, 'param', key="device.stationfinder.radius", value="3000")
+    ET.SubElement(vtype_ev, 'param', key="device.stationfinder.radius", value=stationfinder_radius)
     # Energy parameters
     ET.SubElement(vtype_ev, 'param', key="maximumPower", value="150000")
     ET.SubElement(vtype_ev, 'param', key="recuperationEfficiency", value="0.00")

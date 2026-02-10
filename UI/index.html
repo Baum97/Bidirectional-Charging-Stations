@@ -201,9 +201,60 @@
         <div class="container" >
           <h4>Options</h4>
           <div class="options open" id="general-options">
-            <label>Duration <input id="duration" type="number" value="3600" min="0" step="1" style="float:none" /></label>
+            <label>Duration (seconds) <input id="duration" type="number" value="3600" min="0" step="1" style="float:none" title="Simulation time cap in seconds. 0 = no limit." /></label>
             <label>Left Hand Traffic <input id="leftHand" type="checkbox" /></label>
             <label>Satellite background <input id="decal" type="checkbox" /></label>
+          </div>
+        </div>
+
+        <div class="container">
+          <h4 id="simParamsToggle" class="collapsible-header">Scenario Parameters <span id="simParamsArrow" class="collapse-arrow">&#9660;</span></h4>
+          <div class="options open" id="simParamsBody">
+
+            <div class="param-group-label">🚗 Traffic</div>
+            <label class="param-label">Vehicles
+              <input id="paramNumPersons" type="number" value="250" min="1" max="5000" step="1" class="param-input" title="Total number of vehicles (persons) in the simulation" />
+            </label>
+            <label class="param-label">EV Share
+              <input id="paramEvShare" type="number" value="0.6" min="0" max="1" step="0.05" class="param-input" title="Fraction of vehicles that are electric (0.0 – 1.0)" />
+            </label>
+
+            <div class="param-group-label">🔋 Battery</div>
+            <label class="param-label">Capacity (Wh)
+              <input id="paramBatteryCapacity" type="number" value="80000" min="1000" max="500000" step="1000" class="param-input" title="Maximum battery capacity in Wh" />
+            </label>
+            <label class="param-label">Initial SOC (Wh)
+              <input id="paramBatteryActual" type="number" value="40000" min="0" max="500000" step="1000" class="param-input" title="Actual battery capacity at simulation start in Wh" />
+            </label>
+
+            <div class="param-group-label">⚡ Charging</div>
+            <label class="param-label">Max Power (kW)
+              <input id="paramMaxChargingPower" type="number" value="200" min="1" max="1000" step="1" class="param-input" title="Maximum charging power per station in kW" />
+            </label>
+            <label class="param-label">Ramp-up (s)
+              <input id="paramRampupDuration" type="number" value="20" min="0" max="300" step="1" class="param-input" title="Seconds to ramp up to full charging power" />
+            </label>
+            <label class="param-label">SOC Δ Threshold
+              <input id="paramSocChangeThreshold" type="number" value="0.05" min="0.001" max="1" step="0.01" class="param-input" title="SOC change threshold for charging detection" />
+            </label>
+            <label class="param-label">Finder Radius (m)
+              <input id="paramStationfinderRadius" type="number" value="3000" min="100" max="50000" step="100" class="param-input" title="Search radius for the station finder device in meters" />
+            </label>
+
+            <div class="param-group-label">🏠 Home / V2G</div>
+            <label class="param-label">Home Charging %
+              <input id="paramHomeChargingPct" type="number" value="0.05" min="0" max="1" step="0.01" class="param-input" title="Fraction of EVs with home charging (0.0 – 1.0)" />
+            </label>
+            <label class="param-label">V2G SOC Threshold
+              <input id="paramV2gSocThreshold" type="number" value="0.50" min="0" max="1" step="0.05" class="param-input" title="Discharge only if SOC above this threshold" />
+            </label>
+            <label class="param-label">V2G Discharge (kW)
+              <input id="paramV2gDischargePower" type="number" value="50" min="0" max="500" step="1" class="param-input" title="Max V2G discharge power per vehicle in kW" />
+            </label>
+            <label class="param-label">Grid Warn Threshold
+              <input id="paramGridCapWarning" type="number" value="0.90" min="0" max="1" step="0.05" class="param-input" title="Trigger V2G when grid utilization exceeds this fraction" />
+            </label>
+
           </div>
         </div>
 

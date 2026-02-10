@@ -49,6 +49,41 @@ if (gridPowerToggleBtn && gridPowerFlyout) {
   });
 }
 
+// ===== Scenario Parameters collapse toggle =====
+const simParamsToggle = document.getElementById('simParamsToggle');
+const simParamsBody = document.getElementById('simParamsBody');
+const simParamsArrow = document.getElementById('simParamsArrow');
+if (simParamsToggle && simParamsBody) {
+  simParamsToggle.addEventListener('click', () => {
+    simParamsBody.classList.toggle('open');
+    if (simParamsArrow) {
+      simParamsArrow.classList.toggle('collapsed', !simParamsBody.classList.contains('open'));
+    }
+  });
+}
+
+/**
+ * Collect all scenario parameter values from the UI inputs.
+ * Returns a plain object that will be sent as `params` in the build request.
+ */
+function collectSimParams() {
+  return {
+    duration:                      parseInt(document.getElementById('duration').value, 10) || 0,
+    num_persons:                   parseInt(document.getElementById('paramNumPersons').value, 10) || 250,
+    ev_share:                      parseFloat(document.getElementById('paramEvShare').value) || 0.6,
+    battery_capacity:              parseInt(document.getElementById('paramBatteryCapacity').value, 10) || 80000,
+    battery_actual:                parseInt(document.getElementById('paramBatteryActual').value, 10) || 40000,
+    max_charging_power_kw:         parseInt(document.getElementById('paramMaxChargingPower').value, 10) || 200,
+    rampup_duration:               parseInt(document.getElementById('paramRampupDuration').value, 10) || 20,
+    soc_change_threshold:          parseFloat(document.getElementById('paramSocChangeThreshold').value) || 0.05,
+    stationfinder_radius:          parseInt(document.getElementById('paramStationfinderRadius').value, 10) || 3000,
+    home_charging_percentage:      parseFloat(document.getElementById('paramHomeChargingPct').value) || 0.05,
+    v2g_soc_threshold:             parseFloat(document.getElementById('paramV2gSocThreshold').value) || 0.50,
+    v2g_discharge_power_kw:        parseInt(document.getElementById('paramV2gDischargePower').value, 10) || 50,
+    grid_capacity_warning_threshold: parseFloat(document.getElementById('paramGridCapWarning').value) || 0.90,
+  };
+}
+
 // ===== Map + bbox selection (Leaflet) =====
 const map = L.map('map').setView([52.52, 13.4], 14);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -872,7 +907,7 @@ let lastScenarioDir = null;
 
 // Patch sendToLocal to remember the scenarioDir
 async function sendToLocal(bounds, scenario) {
-  const body = { bbox: getBboxArray(bounds), scenario };
+  const body = { bbox: getBboxArray(bounds), scenario, params: collectSimParams() };
   const buildMode = document.getElementById('buildMode')?.value || 'build';
   const endpoint = buildMode === 'buildWithTraci' ? '/buildWithTraci' : '/build';
   const mode = buildMode === 'buildWithTraci' ? 'with TraCI simulation' : 'standard';
@@ -900,7 +935,7 @@ async function sendToLocal(bounds, scenario) {
 
 
 async function downloadOSMData(bounds, scenario) {
-  const body = { bbox: getBboxArray(bounds), scenario };
+  const body = { bbox: getBboxArray(bounds), scenario, params: collectSimParams() };
   const buildMode = document.getElementById('buildMode')?.value || 'build';
   const endpoint = buildMode === 'buildWithTraci' ? '/buildWithTraci' : '/build';
   const mode = buildMode === 'buildWithTraci' ? 'with TraCI simulation' : 'standard';

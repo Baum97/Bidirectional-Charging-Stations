@@ -20,11 +20,21 @@ from power_grid_manager import PowerGridManager
 # Accept scenario directory as command line argument
 SCENARIO_DIR = sys.argv[1] if len(sys.argv) > 1 else "../data/scenarios/default"
 SUMO_CONFIG = os.path.join(SCENARIO_DIR, "sim.sumocfg")
+
+# Load UI-provided simulation parameters (written by biflex_local_runner)
+import json as _json_params
+_sim_params_file = os.path.join(SCENARIO_DIR, "sim_params.json")
+_sim_params = {}
+if os.path.exists(_sim_params_file):
+    with open(_sim_params_file, 'r') as _f:
+        _sim_params = _json_params.load(_f)
+    print(f"[CONFIG] Loaded UI simulation parameters from sim_params.json")
+
 TRACKING_INTERVAL = 1                     # 1 sec timestep
-RAMPUP_DURATION = 20                      # seconds (ramp up over 20s)
-MAX_CHARGING_POWER_KW = 200               # kW (server default)
+RAMPUP_DURATION = int(_sim_params.get('rampup_duration', 20))            # seconds (ramp up)
+MAX_CHARGING_POWER_KW = int(_sim_params.get('max_charging_power_kw', 200))  # kW (server default)
 POSITION_TOLERANCE = 1.0
-SOC_CHANGE_THRESHOLD = 0.05               # detect charging
+SOC_CHANGE_THRESHOLD = float(_sim_params.get('soc_change_threshold', 0.05))  # detect charging
 
 # EV type detection: Match base type and unique types for wallbox owners
 # Pattern: "veh_ev" or "veh_ev_personXXX"
@@ -48,10 +58,10 @@ else:
     print(f"[CONFIG] Using default grid power: {MAX_TOTAL_GRID_POWER_KW} kW (no grid_config.json)")
 
 # Home charging station configuration
-HOME_CHARGING_PERCENTAGE = 0.05           # 5% of EVs have home charging
-V2G_SOC_THRESHOLD = 0.50                  # Discharge if SOC > 50%
-V2G_DISCHARGE_POWER_KW = 50               # Max discharge power per vehicle
-GRID_CAPACITY_WARNING_THRESHOLD = 0.90    # Trigger V2G if grid at 90% capacity
+HOME_CHARGING_PERCENTAGE = float(_sim_params.get('home_charging_percentage', 0.05))  # % of EVs have home charging
+V2G_SOC_THRESHOLD = float(_sim_params.get('v2g_soc_threshold', 0.50))               # Discharge if SOC > threshold
+V2G_DISCHARGE_POWER_KW = int(_sim_params.get('v2g_discharge_power_kw', 50))         # Max discharge power per vehicle
+GRID_CAPACITY_WARNING_THRESHOLD = float(_sim_params.get('grid_capacity_warning_threshold', 0.90))  # Trigger V2G threshold
 
 # Create logs directory in scenario folder
 LOGS_DIR = os.path.join(SCENARIO_DIR, "traci_logs")
@@ -351,8 +361,16 @@ def main():
     chart_power_timeline = []  # List of (sim_time, total_demand_kw) for power timeline
     chart_v2g_timeline = []    # List of (sim_time, v2g_discharge_kw) for V2G timeline
 
+    # Optional simulation time cap from UI parameters
+    _sim_duration_cap = int(_sim_params.get('duration', 0))
+
     while traci.simulation.getMinExpectedNumber() > 0:
         sim_time = traci.simulation.getTime()
+
+        # Stop if duration cap is set and reached
+        if _sim_duration_cap > 0 and sim_time >= _sim_duration_cap:
+            print(f"[INFO] Simulation duration cap reached ({_sim_duration_cap}s). Stopping.")
+            break
 
         # Reset energy pool requests at the start of each step
         energy_pool.reset_requests()

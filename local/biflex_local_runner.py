@@ -419,8 +419,9 @@ def copy_vehicle_types_additional(scenario):
     print("[INFO] Default vehicle_types.add.xml copied successfully.")
 
 
-def create_sumo_config(net_file, trips_file, additional_files, base_dir):
+def create_sumo_config(net_file, trips_file, additional_files, base_dir, stationfinder_radius=3000, duration=0):
     print("[INFO] Writing detailed SUMO configuration file...")
+    end_tag = f"        <end value=\"{duration}\"/>\n" if duration and duration > 0 else ""
     cfg = (
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
         "<sumoConfiguration xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"http://sumo.dlr.de/xsd/sumoConfiguration.xsd\">\n"
@@ -440,6 +441,7 @@ def create_sumo_config(net_file, trips_file, additional_files, base_dir):
         "    <time>\n"
         "        <begin value=\"0\"/>\n"
         "        <step-length value=\"10\"/>\n"
+        + end_tag +
         "    </time>\n"
         "    <processing>\n"
         "        <ignore-route-errors value=\"true\"/>\n"
@@ -454,7 +456,7 @@ def create_sumo_config(net_file, trips_file, additional_files, base_dir):
         "        <device.stationfinder.rescueTime value=\"0\"/>\n"
         "        <device.stationfinder.reserveFactor value=\"1.3\"/>\n"
         "        <device.stationfinder.emptyThreshold value=\"0.05\"/>\n"
-        "        <device.stationfinder.radius value=\"3000\"/>\n"
+        f"        <device.stationfinder.radius value=\"{stationfinder_radius}\"/>\n"
         "    </processing>\n"
         "    <routing>\n"
         "        <device.rerouting.adaptation-steps value=\"36\"/>\n"
@@ -882,11 +884,18 @@ class Handler(BaseHTTPRequestHandler):
                 data = json.loads(raw.decode("utf-8") or "{}")
                 bbox = data.get("bbox")
                 scenario = data.get("scenario") or "scenario"
+                sim_params = data.get("params") or {}
 
                 # Step 1: Download OSM data -> returns full path to the file
                 # COMMENTED OUT: Reusing OSM data from scenario_20260208_215130 instead of downloading
                 osm_file = download_osm_data(bbox, scenario)
                 scen_dir = os.path.dirname(osm_file)
+
+                # Save simulation parameters for downstream scripts
+                sim_params_file = os.path.join(scen_dir, "sim_params.json")
+                with open(sim_params_file, 'w', encoding='utf-8') as f:
+                    json.dump(sim_params, f, indent=2)
+                print(f"[INFO] Simulation parameters saved -> {sim_params_file}")
                 
                 # Extract real already existing charging stations
                 real_charging_stations = extract_real_charging_stations(osm_file)
@@ -913,8 +922,13 @@ class Handler(BaseHTTPRequestHandler):
                 print(f"[INFO] Generating vehicle trips")
                 # edge_files is already a list from assign_poi_to_edges
                 edge_files_list = edge_files if isinstance(edge_files, list) else list(edge_files.values())
-                trips_file = generate_trips(net_file, edge_files_list, scen_dir)
-                print(f"[INFO] Trips generated -> {trips_file}")
+                _duration = int(sim_params.get('duration', 0))
+                if 0 < _duration < 36000:
+                    trips_file = generate_trips_test(net_file, edge_files_list, scen_dir, sim_params=sim_params)
+                    print(f"[INFO] FAST trips generated (duration {_duration}s < 10h threshold) -> {trips_file}")
+                else:
+                    trips_file = generate_trips(net_file, edge_files_list, scen_dir, sim_params=sim_params)
+                    print(f"[INFO] Full trips generated -> {trips_file}")
 
                 # Step 5.5: Build synthetic power grid from OSM road network
                 print(f"[INFO] Building synthetic power grid from OSM road network")
@@ -1022,7 +1036,9 @@ class Handler(BaseHTTPRequestHandler):
                     tree.write(combined_add_path, encoding='utf-8', xml_declaration=True)
 
                 # Step 8: Create sim.sumocfg
-                create_sumo_config(net_file, trips_file, "combined_additional.xml", scen_dir)
+                create_sumo_config(net_file, trips_file, "combined_additional.xml", scen_dir,
+                                   stationfinder_radius=sim_params.get('stationfinder_radius', 3000),
+                                   duration=sim_params.get('duration', 0))
 
                 # Step 9: Run simulation to generate logs
                 print("[INFO] Running SUMO simulation...")
@@ -1147,10 +1163,17 @@ class Handler(BaseHTTPRequestHandler):
                 data = json.loads(raw.decode("utf-8") or "{}")
                 bbox = data.get("bbox")
                 scenario = data.get("scenario") or "scenario"
+                sim_params = data.get("params") or {}
 
                 # Step 1: Download OSM data -> returns full path to the file
                 osm_file = download_osm_data(bbox, scenario)
                 scen_dir = os.path.dirname(osm_file)
+
+                # Save simulation parameters for downstream scripts (performativeMainSim2 reads these)
+                sim_params_file = os.path.join(scen_dir, "sim_params.json")
+                with open(sim_params_file, 'w', encoding='utf-8') as f:
+                    json.dump(sim_params, f, indent=2)
+                print(f"[INFO] Simulation parameters saved -> {sim_params_file}")
 
                 # Extract real already existing charging stations
                 real_charging_stations = extract_real_charging_stations(osm_file)
@@ -1176,13 +1199,13 @@ class Handler(BaseHTTPRequestHandler):
                 # edge_files is already a list from assign_poi_to_edges
                 edge_files_list = edge_files if isinstance(edge_files, list) else list(edge_files.values())
                 
-                # FAST TEST MODE: 100 cars, 10 hour simulation (uncomment for quick testing)
-                trips_file = generate_trips_test(net_file, edge_files_list, scen_dir)
-                print(f"[INFO] TEST TRIPS generated (100 cars, ~10h sim) -> {trips_file}")
-                
-                # FULL MODE: 250 cars, 30 hour simulation (commented out)
-                # trips_file = generate_trips(net_file, edge_files_list, scen_dir)
-                # print(f"[INFO] Trips generated -> {trips_file}")
+                _duration = int(sim_params.get('duration', 0))
+                if 0 < _duration < 36000:
+                    trips_file = generate_trips_test(net_file, edge_files_list, scen_dir, sim_params=sim_params)
+                    print(f"[INFO] FAST trips generated (duration {_duration}s < 10h threshold) -> {trips_file}")
+                else:
+                    trips_file = generate_trips(net_file, edge_files_list, scen_dir, sim_params=sim_params)
+                    print(f"[INFO] Full trips generated -> {trips_file}")
 
                 # Step 5.5: Build synthetic power grid from OSM road network
                 print(f"[INFO] Building synthetic power grid from OSM road network")
@@ -1404,7 +1427,9 @@ class Handler(BaseHTTPRequestHandler):
                     wallbox_homes_geojson = None
 
                 # Step 9: Create sim.sumocfg
-                create_sumo_config(net_file, trips_file, "combined_additional.xml", scen_dir)
+                create_sumo_config(net_file, trips_file, "combined_additional.xml", scen_dir,
+                                   stationfinder_radius=sim_params.get('stationfinder_radius', 3000),
+                                   duration=sim_params.get('duration', 0))
 
                 # Step 9b: Calculate dynamic grid power based on map area
                 try:
