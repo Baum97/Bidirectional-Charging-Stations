@@ -358,7 +358,7 @@ def main():
     step = 0
     
     # Chart data collection
-    chart_power_timeline = []  # List of (sim_time, total_demand_kw) for power timeline
+    chart_power_timeline = []  # List of {time, demand_kw, usage_kw} for power timeline (requested vs actual)
     chart_v2g_timeline = []    # List of (sim_time, v2g_discharge_kw) for V2G timeline
 
     # Optional simulation time cap from UI parameters
@@ -704,7 +704,12 @@ def main():
         
         # Collect chart data: power timeline and V2G timeline
         total_demand = energy_pool.get_total_requested_power()
-        chart_power_timeline.append({'time': sim_time, 'demand_kw': round(total_demand, 1)})
+        total_usage = energy_pool.get_total_power_usage()
+        chart_power_timeline.append({
+            'time': sim_time, 
+            'demand_kw': round(total_demand, 1),
+            'usage_kw': round(total_usage, 1)
+        })
         
         # V2G supply (negative values in requests become positive discharge)
         v2g_discharge = 0
@@ -712,8 +717,8 @@ def main():
             v2g_discharge = abs(sum(energy_pool.v2g_stations.values()))
         chart_v2g_timeline.append({'time': sim_time, 'v2g_kw': round(v2g_discharge, 1)})
         
-        # Track peak grid usage (based on actual requests this step, not stale setpoints)
-        step_usage = energy_pool.get_total_requested_power()
+        # Track peak grid usage (based on actual delivered power after throttling)
+        step_usage = energy_pool.get_total_power_usage()
         if step_usage > peak_grid_usage_kw:
             peak_grid_usage_kw = step_usage
         
@@ -763,11 +768,13 @@ def main():
     for dp in chart_power_timeline:
         bucket = int(dp['time'] / (bucket_size * 10)) * (bucket_size * 10)
         if bucket not in timeline_buckets:
-            timeline_buckets[bucket] = []
-        timeline_buckets[bucket].append(dp['demand_kw'])
+            timeline_buckets[bucket] = {'demand': [], 'usage': []}
+        timeline_buckets[bucket]['demand'].append(dp['demand_kw'])
+        timeline_buckets[bucket]['usage'].append(dp['usage_kw'])
     
     timeline_times = sorted(timeline_buckets.keys())
-    timeline_demands = [sum(timeline_buckets[t]) / len(timeline_buckets[t]) for t in timeline_times]
+    timeline_demands = [sum(timeline_buckets[t]['demand']) / len(timeline_buckets[t]['demand']) for t in timeline_times]
+    timeline_usage = [sum(timeline_buckets[t]['usage']) / len(timeline_buckets[t]['usage']) for t in timeline_times]
     
     # Time labels
     time_labels = []
@@ -787,6 +794,15 @@ def main():
                 "data": [round(d, 1) for d in timeline_demands],
                 "borderColor": "rgb(75, 145, 255)",
                 "backgroundColor": "rgba(75, 145, 255, 0.1)",
+                "borderWidth": 2,
+                "fill": True,
+                "tension": 0.3
+            },
+            {
+                "label": "Actual Usage (kW)",
+                "data": [round(u, 1) for u in timeline_usage],
+                "borderColor": "rgb(54, 162, 235)",
+                "backgroundColor": "rgba(54, 162, 235, 0.2)",
                 "borderWidth": 2,
                 "fill": True,
                 "tension": 0.3
