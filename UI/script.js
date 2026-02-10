@@ -98,26 +98,28 @@ function showPowerGrid(geojson) {
   const powerLayer = L.geoJSON(geojson, {
     style: function (feature) {
       const p = feature.properties || {};
-      const color = p.color || '#999999';
       
       let weight = 2;
-      let opacity = 0.9;
+      let opacity = 0.65;
       let dashArray = null;
       let lineCap = 'round';
       let lineJoin = 'round';
+      let color = '#4B90FF';  // Consistent blue for all power lines
       
       if (p.type === 'bus') {
         weight = 0;  // buses are points, handled by pointToLayer
       } else if (p.type === 'transformer') {
         weight = 0;  // transformers are points
       } else if (p.type === 'line') {
-        // Power distribution lines - very wide for visibility
-        weight = 7;
-        opacity = 1.0;
+        // Power distribution lines - thinner, blue, subtle
+        weight = 3;
+        opacity = 0.65;
+        color = '#4B90FF';
       } else if (p.type === 'station_connection') {
-        weight = 4;
-        opacity = 0.85;
-        dashArray = '8, 5';
+        weight = 2;
+        opacity = 0.65;
+        dashArray = '6, 4';
+        color = '#6DB3FF';  // Lighter blue for connections
       }
 
       return {
@@ -131,18 +133,17 @@ function showPowerGrid(geojson) {
     },
     pointToLayer: function (feature, latlng) {
       const p = feature.properties || {};
-      const color = p.color || '#999999';
       
       if (p.type === 'transformer') {
-        // Transformers: rotated square (diamond / Raute shape) using DivIcon
-        const size = p.trafo_type === 'HV/MV' ? 22 : 18;
+        // Transformers: rotated square (diamond) - blue theme
+        const size = p.trafo_type === 'HV/MV' ? 20 : 16;
         const half = size / 2;
         const diamondIcon = L.divIcon({
           className: 'grid-diamond-marker',
-          html: `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="filter: drop-shadow(0 1px 3px rgba(0,0,0,0.4));">
+          html: `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));">
             <rect x="${half * 0.29}" y="${half * 0.29}" width="${size * 0.71}" height="${size * 0.71}"
                   transform="rotate(45 ${half} ${half})"
-                  fill="${color}" stroke="#fff" stroke-width="2.5" rx="2"/>
+                  fill="#4B90FF" stroke="#ffffff" stroke-width="1.5" rx="1"/>
           </svg>`,
           iconSize: [size, size],
           iconAnchor: [half, half]
@@ -150,25 +151,30 @@ function showPowerGrid(geojson) {
         return L.marker(latlng, { icon: diamondIcon });
       }
       
-      // Buses: clean circles, sized and colored by voltage level
-      let radius = 8;
-      let weight = 3;
+      // Buses: circles in blue theme, smaller and more subtle
+      let radius = 6;
+      let weight = 2.5;
+      let fillColor = '#4B90FF';
+      
       if (p.bus_type === 'HV') {
-        radius = 13;
-        weight = 4;
-      } else if (p.bus_type === 'MV') {
         radius = 10;
         weight = 3;
-      } else if (p.bus_type === 'LV') {
+        fillColor = '#2E5CC8';  // Darker blue for HV
+      } else if (p.bus_type === 'MV') {
         radius = 8;
         weight = 2.5;
+        fillColor = '#4B90FF';  // Medium blue for MV
+      } else if (p.bus_type === 'LV') {
+        radius = 6;
+        weight = 2;
+        fillColor = '#6DB3FF';  // Lighter blue for LV
       }
       
       return L.circleMarker(latlng, {
         radius: radius,
         color: '#ffffff',
-        fillColor: color,
-        fillOpacity: 1.0,
+        fillColor: fillColor,
+        fillOpacity: 0.85,
         weight: weight
       });
     },
@@ -207,19 +213,20 @@ function showPowerGrid(geojson) {
       layer.on('mouseover', function() {
         if (p.type === 'line') {
           this.setStyle({
-            weight: 10,
+            weight: 5,
             opacity: 1.0,
-            color: p.color
+            color: '#2E5CC8'  // Darker blue on hover
           });
         } else if (p.type === 'station_connection') {
           this.setStyle({
-            weight: 6,
+            weight: 4,
             opacity: 1.0,
-            dashArray: '8, 5'
+            dashArray: '6, 4',
+            color: '#4B90FF'
           });
         } else if (p.type === 'bus' && feature.geometry.type === 'Point') {
-          this.setRadius(this.options.radius + 4);
-          this.setStyle({ weight: 4 });
+          this.setRadius(this.options.radius + 3);
+          this.setStyle({ weight: 3, fillOpacity: 1.0 });
         } else if (p.type === 'transformer') {
           // DivIcon markers don't have setRadius — handled by CSS
         }
@@ -229,21 +236,22 @@ function showPowerGrid(geojson) {
       layer.on('mouseout', function() {
         if (p.type === 'line') {
           this.setStyle({
-            weight: 7,
-            opacity: 1.0,
-            color: p.color
+            weight: 3,
+            opacity: 0.65,
+            color: '#4B90FF'
           });
         } else if (p.type === 'station_connection') {
           this.setStyle({
-            weight: 4,
-            opacity: 0.85,
-            dashArray: '8, 5'
+            weight: 2,
+            opacity: 0.65,
+            dashArray: '6, 4',
+            color: '#6DB3FF'
           });
         } else if (p.type === 'bus') {
-          const baseRadius = p.bus_type === 'HV' ? 13 : (p.bus_type === 'MV' ? 10 : 8);
+          const baseRadius = p.bus_type === 'HV' ? 10 : (p.bus_type === 'MV' ? 8 : 6);
           this.setRadius(baseRadius);
-          const weight = p.bus_type === 'HV' ? 4 : (p.bus_type === 'MV' ? 3 : 2.5);
-          this.setStyle({ weight: weight });
+          const weight = p.bus_type === 'HV' ? 3 : (p.bus_type === 'MV' ? 2.5 : 2);
+          this.setStyle({ weight: weight, fillOpacity: 0.85 });
         } else if (p.type === 'transformer') {
           // DivIcon marker — no-op on mouseout
         }
