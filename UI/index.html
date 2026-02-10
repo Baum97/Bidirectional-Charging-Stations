@@ -62,23 +62,26 @@
         <div class="pg-stat-row"><span class="pg-label">Peak usage</span><span id="v2gGridPeak" class="pg-value">–</span></div>
 
         <div class="pg-stat-divider"></div>
-        <button id="toggleChartsBtn" class="v2g-charts-btn" style="display:none;">📈 View Charts & Analysis</button>
+
+        <!-- Toggle for Grid Power Analysis flyout -->
+        <div class="grid-power-header" id="gridPowerToggle">
+          <span id="gridPowerArrow" class="grid-power-arrow">&#9654;</span>
+          <span>📊 Grid Power Analysis</span>
+        </div>
       </div>
     </div>
 
-    <!-- Charts & Analysis Modal Window -->
-    <div id="chartsModal" class="charts-modal" style="display:none;">
-      <div class="charts-modal-content">
-        <div class="charts-header">
-          <h2>📊 Grid Power Analysis</h2>
-          <button class="charts-close-btn" id="closeChartsBtn">&times;</button>
-        </div>
-        <div class="charts-container">
-          <div class="chart-panel active">
-            <h3>Grid Power Demand Over Time</h3>
-            <p class="chart-description">Total power demand vs grid limit. Shows when throttling occurs.</p>
-            <canvas id="gridPowerChart" style="max-height: 350px;"></canvas>
-          </div>
+    <!-- Grid Power Analysis Flyout Panel (slides out to the right of V2G panel) -->
+    <div id="gridPowerFlyout" class="grid-power-flyout">
+      <div class="grid-power-flyout-header">
+        <h4>📊 Grid Power Analysis</h4>
+      </div>
+      <div class="grid-power-flyout-body">
+        <p id="gridPowerNoData" class="chart-description" style="color:#999; text-align:center; margin:18px 0;">No chart data yet. Run a simulation first.</p>
+        <div class="chart-panel active">
+          <h3>Grid Power Demand Over Time</h3>
+          <p class="chart-description">Total power demand vs grid limit. Shows when throttling occurs.</p>
+          <canvas id="gridPowerChart" style="max-height: 280px;"></canvas>
         </div>
       </div>
     </div>

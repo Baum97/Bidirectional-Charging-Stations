@@ -35,6 +35,20 @@ if (sideToggleBtn) {
   });
 }
 
+// ===== Grid Power Analysis flyout toggle =====
+const gridPowerToggleBtn = document.getElementById('gridPowerToggle');
+const gridPowerFlyout = document.getElementById('gridPowerFlyout');
+const gridPowerArrow = document.getElementById('gridPowerArrow');
+
+if (gridPowerToggleBtn && gridPowerFlyout) {
+  gridPowerToggleBtn.addEventListener('click', () => {
+    const isOpen = gridPowerFlyout.classList.toggle('open');
+    if (gridPowerArrow) {
+      gridPowerArrow.classList.toggle('expanded', isOpen);
+    }
+  });
+}
+
 // ===== Map + bbox selection (Leaflet) =====
 const map = L.map('map').setView([52.52, 13.4], 14);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -332,28 +346,25 @@ function showV2GStats(v2gStats) {
 let chartsInstances = {};
 
 function showChartsButton(chartsData) {
-  const btn = document.getElementById('toggleChartsBtn');
-  if (btn && chartsData) {
-    btn.style.display = 'block';
-  }
+  // No longer needed — section is always visible
 }
 
 function initializeCharts(chartsData) {
   if (!chartsData) return;
 
-  // Modal controls
-  const modal = document.getElementById('chartsModal');
-  const toggleBtn = document.getElementById('toggleChartsBtn');
-  const closeBtn = document.getElementById('closeChartsBtn');
+  // Hide the "no data" placeholder
+  const noData = document.getElementById('gridPowerNoData');
+  if (noData) noData.style.display = 'none';
 
-  toggleBtn.onclick = () => { modal.style.display = 'block'; renderAllCharts(chartsData); };
-  closeBtn.onclick = () => { modal.style.display = 'none'; };
+  // Auto-expand the flyout when chart data arrives
+  const flyout = document.getElementById('gridPowerFlyout');
+  const arrow = document.getElementById('gridPowerArrow');
+  if (flyout) {
+    flyout.classList.add('open');
+    if (arrow) arrow.classList.add('expanded');
+  }
 
-  // Click outside to close
-  modal.onclick = (e) => {
-    if (e.target === modal) modal.style.display = 'none';
-  };
-
+  renderAllCharts(chartsData);
   console.log('Grid power chart initialized');
 }
 
@@ -365,6 +376,12 @@ function renderAllCharts(chartsData) {
 function renderGridPowerChart(data) {
   const ctx = document.getElementById('gridPowerChart');
   if (!ctx) return;
+
+  // Hide "no data" message and show chart
+  const noDataMsg = document.getElementById('noDataMessage');
+  const chartPanel = document.getElementById('chartPanel');
+  if (noDataMsg) noDataMsg.style.display = 'none';
+  if (chartPanel) chartPanel.style.display = 'block';
 
   // Destroy existing chart
   if (chartsInstances.gridPower) chartsInstances.gridPower.destroy();
