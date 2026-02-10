@@ -839,6 +839,96 @@ def main():
         else:
             public_sessions.append(s)
 
+    # ----------------------------------------
+    # PER-STATION STATISTICS
+    # ----------------------------------------
+    from collections import defaultdict
+    
+    station_stats = defaultdict(lambda: {
+        'station_id': '',
+        'charging_sessions': 0,
+        'unique_vehicles': set(),
+        'total_energy_charged_kwh': 0.0,
+        'total_energy_discharged_kwh': 0.0,
+        'net_energy_kwh': 0.0,
+        'max_power_demanded_kw': 0.0,
+        'is_wallbox': False
+    })
+    
+    # Process all charging sessions to build per-station stats
+    for session in charging_sessions_log:
+        sid = session.get('station_id', '')
+        if not sid:
+            continue
+            
+        station_stats[sid]['station_id'] = sid
+        station_stats[sid]['charging_sessions'] += 1
+        station_stats[sid]['unique_vehicles'].add(session.get('veh_id', ''))
+        station_stats[sid]['total_energy_charged_kwh'] += session.get('energy_kwh', 0.0)
+        station_stats[sid]['total_energy_discharged_kwh'] += session.get('v2g_energy_kwh', 0.0)
+        station_stats[sid]['net_energy_kwh'] += session.get('net_energy_kwh', 0.0)
+        station_stats[sid]['is_wallbox'] = sid.startswith('wallbox_')
+        
+    # Load charging station power info from XML files
+    station_power_map = {}  # station_id -> power_kw
+    
+    # Read from combined_additional.xml or individual charging station files
+    additional_files = [
+        os.path.join(SCENARIO_DIR, "combined_additional.xml"),
+        os.path.join(SCENARIO_DIR, "osm.chargingstations.xml"),
+        os.path.join(SCENARIO_DIR, "private_wallboxes.xml")
+    ]
+    
+    for xml_file in additional_files:
+        if os.path.exists(xml_file):
+            try:
+                tree = ET.parse(xml_file)
+                root = tree.getroot()
+                for cs in root.findall('.//chargingStation'):
+                    cs_id = cs.get('id')
+                    power_w = float(cs.get('power', 0))
+                    if cs_id and power_w > 0:
+                        station_power_map[cs_id] = power_w / 1000.0  # Convert to kW
+            except Exception:
+                pass
+    
+    # Track max power from evse_objects (for dynamic stations)
+    for sid, evse in evse_objects.items():
+        max_power_w = getattr(evse, 'chargingpower', 0)
+        if max_power_w > 0:
+            station_power_map[sid] = max_power_w / 1000.0
+    
+    # Apply power info to all station stats
+    for sid in station_stats:
+        if sid in station_power_map:
+            station_stats[sid]['max_power_demanded_kw'] = station_power_map[sid]
+        elif sid.startswith('real_cs_'):
+            # Default for real charging stations if not found
+            station_stats[sid]['max_power_demanded_kw'] = 50.0
+        elif sid.startswith('wallbox_'):
+            # Default for wallboxes
+            station_stats[sid]['max_power_demanded_kw'] = 11.0
+    
+    # Convert sets to counts for JSON serialization
+    station_stats_serializable = {}
+    for sid, stats in station_stats.items():
+        station_stats_serializable[sid] = {
+            'station_id': stats['station_id'],
+            'charging_sessions': stats['charging_sessions'],
+            'unique_vehicles': len(stats['unique_vehicles']),
+            'total_energy_charged_kwh': round(stats['total_energy_charged_kwh'], 2),
+            'total_energy_discharged_kwh': round(stats['total_energy_discharged_kwh'], 2),
+            'net_energy_kwh': round(stats['net_energy_kwh'], 2),
+            'max_power_kw': round(stats['max_power_demanded_kw'], 1),
+            'is_wallbox': stats['is_wallbox']
+        }
+    
+    # Save per-station statistics
+    station_stats_file = os.path.join(LOGS_DIR, "station_statistics.json")
+    with open(station_stats_file, 'w', encoding='utf-8') as f:
+        _json.dump(station_stats_serializable, f, indent=2)
+    print(f"[LOG] Per-station statistics written: {station_stats_file}")
+
     total_public_energy = sum(s.get('energy_kwh', 0) for s in public_sessions)
     total_wallbox_charge_energy = sum(s.get('energy_kwh', 0) for s in wallbox_sessions)
     total_wallbox_v2g_energy = sum(s.get('v2g_energy_kwh', 0) for s in wallbox_sessions)

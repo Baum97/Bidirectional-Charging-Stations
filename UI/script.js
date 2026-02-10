@@ -582,7 +582,30 @@ function showChargingStations(geojson, skipFitBounds = false) {
       const props = feature.properties || {};
       const name = props.name || "Unknown Station";
       const capacity = props.capacity || "Unknown Capacity";
-      layer.bindPopup(`<strong>${name}</strong><br>Capacity: ${capacity}`);
+      const stationId = props.id || props.station_id || "N/A";
+      const sessions = props.charging_sessions ?? 'N/A';
+      const vehicles = props.unique_vehicles ?? 'N/A';
+      const energyCharged = props.total_energy_charged_kwh ?? 0;
+      const maxPowerKw = props.max_power_kw ?? 'N/A';
+      
+      let popupContent = `<div style="min-width:220px;">
+        <strong>${name}</strong><br>
+        <div style="margin-top:8px; padding:8px; background:#f5f5f5; border-radius:4px;">
+          <div style="margin-bottom:4px;"><strong>Station ID:</strong> ${stationId}</div>
+          <div style="margin-bottom:4px;"><strong>Capacity:</strong> ${capacity}</div>`;
+      
+      if (sessions !== 'N/A') {
+        popupContent += `
+          <div style="margin-bottom:4px;"><strong>Charging Sessions:</strong> ${sessions}</div>
+          <div style="margin-bottom:4px;"><strong>Vehicles Charged:</strong> ${vehicles}</div>
+          <div style="margin-bottom:4px;"><strong>Energy Delivered:</strong> ${energyCharged.toFixed(1)} kWh</div>
+          <div style="margin-bottom:4px;"><strong>Max Power:</strong> ${maxPowerKw} kW</div>`;
+      } else {
+        popupContent += `<div style="margin-top:4px; color:#999; font-style:italic;">No simulation data available yet.</div>`;
+      }
+      
+      popupContent += `</div></div>`;
+      layer.bindPopup(popupContent);
     },
   });
 
@@ -873,12 +896,37 @@ function showWallboxHomes(wallboxHomesGeoJSON) {
     },
     onEachFeature: function (feature, layer) {
       const props = feature.properties || {};
-      const popupContent = `
-        <strong>🏠 Home with Private Wallbox</strong><br>
-        <em>Person: ${props.person_id || 'N/A'}</em><br>
-        <small>⚡ 11 kW Private Charging (Restricted Access)</small><br>
-        <small>Vehicle: ${props.vehicle_type || 'N/A'}</small>
-      `;
+      const personId = props.person_id || 'N/A';
+      const stationId = props.station_id || 'N/A';
+      const sessions = props.charging_sessions ?? 'N/A';
+      const vehicles = props.unique_vehicles ?? 'N/A';
+      const energyCharged = props.total_energy_charged_kwh ?? 0;
+      const energyDischarged = props.total_energy_discharged_kwh ?? 0;
+      const netEnergy = props.net_energy_kwh ?? 0;
+      const maxPowerKw = props.max_power_kw ?? 11;
+      
+      let popupContent = `<div style="min-width:240px;">
+        <strong>Home with Private Wallbox</strong><br>
+        <div style="margin-top:8px; padding:8px; background:#f5f5f5; border-radius:4px;">
+          <div style="margin-bottom:4px;"><strong>Owner:</strong> ${personId}</div>
+          <div style="margin-bottom:4px;"><strong>Station ID:</strong> ${stationId}</div>
+          <div style="margin-bottom:4px;"><strong>Vehicle:</strong> ${props.vehicle_type || 'N/A'}</div>`;
+      
+      if (sessions !== 'N/A') {
+        popupContent += `
+          <div style="margin-top:8px; padding-top:8px; border-top:1px solid #ddd;">
+            <div style="margin-bottom:4px;"><strong>Charging Sessions:</strong> ${sessions}</div>
+            <div style="margin-bottom:4px;"><strong>Vehicles Served:</strong> ${vehicles}</div>
+            <div style="margin-bottom:4px;"><strong>Energy Charged:</strong> ${energyCharged.toFixed(1)} kWh</div>
+            <div style="margin-bottom:4px; color:#d32f2f;"><strong>Energy Discharged (V2G):</strong> ${energyDischarged.toFixed(1)} kWh</div>
+            <div style="margin-bottom:4px; font-weight:bold;"><strong>Net Energy:</strong> ${netEnergy.toFixed(1)} kWh</div>
+            <div style="margin-bottom:4px;"><strong>Max Power:</strong> ${maxPowerKw} kW</div>
+          </div>`;
+      } else {
+        popupContent += `<div style="margin-top:4px; color:#999; font-style:italic;">No simulation data available yet.</div>`;
+      }
+      
+      popupContent += `</div></div>`;
       layer.bindPopup(popupContent);
     }
   });

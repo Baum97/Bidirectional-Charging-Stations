@@ -911,6 +911,7 @@ def extract_real_charging_stations(osm_file):
         if amenity == "charging_station":
             nid = n.get("id")
             lon, lat = nodes[nid]
+            station_id = f"real_cs_{nid}"
             feature = {
                 "type": "Feature",
                 "geometry": {
@@ -918,10 +919,12 @@ def extract_real_charging_stations(osm_file):
                     "coordinates": [lon, lat],
                 },
                 "properties": {
+                    "station_id": station_id,
+                    "id": station_id,
                     "osm_id": nid,
-                    "name": tags.get("name"),
+                    "name": tags.get("name") or f"Station {nid}",
                     "operator": tags.get("operator"),
-                    "capacity": tags.get("capacity"),
+                    "capacity": tags.get("capacity") or "Unknown",
                 },
             }
             features.append(feature)
@@ -1541,6 +1544,52 @@ class Handler(BaseHTTPRequestHandler):
                 if os.path.exists(charts_file):
                     with open(charts_file, 'r', encoding='utf-8') as f:
                         charts_data = json.load(f)
+
+                # Read per-station statistics
+                station_stats_file = os.path.join(traci_logs_dir, "station_statistics.json")
+                station_stats = None
+                if os.path.exists(station_stats_file):
+                    with open(station_stats_file, 'r', encoding='utf-8') as f:
+                        station_stats = json.load(f)
+                    print(f"[INFO] Loaded statistics for {len(station_stats)} charging stations")
+
+                # Enrich GeoJSON with per-station statistics
+                if station_stats:
+                    # Enrich public charging stations
+                    if real_charging_stations and 'features' in real_charging_stations:
+                        enriched_count = 0
+                        for feature in real_charging_stations['features']:
+                            props = feature.get('properties', {})
+                            station_id = props.get('id') or props.get('station_id')
+                            if station_id and station_id in station_stats:
+                                stats = station_stats[station_id]
+                                props['charging_sessions'] = stats.get('charging_sessions', 0)
+                                props['unique_vehicles'] = stats.get('unique_vehicles', 0)
+                                props['total_energy_charged_kwh'] = stats.get('total_energy_charged_kwh', 0)
+                                props['max_power_kw'] = stats.get('max_power_kw', 50)  # Default to 50 kW if not found
+                                enriched_count += 1
+                        print(f"[INFO] Enriched {enriched_count}/{len(real_charging_stations['features'])} public charging stations with simulation data")
+                                
+                    # Enrich wallbox homes
+                    if wallbox_homes_geojson and 'features' in wallbox_homes_geojson:
+                        enriched_count = 0
+                        for feature in wallbox_homes_geojson['features']:
+                            props = feature.get('properties', {})
+                            person_id = props.get('person_id')
+                            if person_id:
+                                # Wallbox station_id format: wallbox_person{N}
+                                wallbox_station_id = f"wallbox_{person_id}"
+                                if wallbox_station_id in station_stats:
+                                    stats = station_stats[wallbox_station_id]
+                                    props['station_id'] = wallbox_station_id
+                                    props['charging_sessions'] = stats.get('charging_sessions', 0)
+                                    props['unique_vehicles'] = stats.get('unique_vehicles', 0)
+                                    props['total_energy_charged_kwh'] = stats.get('total_energy_charged_kwh', 0)
+                                    props['total_energy_discharged_kwh'] = stats.get('total_energy_discharged_kwh', 0)
+                                    props['net_energy_kwh'] = stats.get('net_energy_kwh', 0)
+                                    props['max_power_kw'] = stats.get('max_power_kw', 11)  # Default to 11 kW if not found
+                                    enriched_count += 1
+                        print(f"[INFO] Enriched {enriched_count}/{len(wallbox_homes_geojson['features'])} wallbox homes with simulation data")
 
                 # Respond with success
                 log_status("Pipeline completed successfully!")
