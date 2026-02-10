@@ -39,7 +39,6 @@ from mainGenerateTrips import generate_trips
 from mainGenerateChargingStations import generate_charging_stations
 from generate_private_wallboxes import generate_private_wallboxes
 from power_grid_manager import PowerGridManager
-from generate_public_charging_stations import generate_public_charging_stations
 
 # Fast test versions for quick iteration (100 cars, 10h simulation)
 from mainGenerateTrips_test import generate_trips_test
@@ -808,6 +807,77 @@ def read_poi_files(poi_files):
     return poi_geojson
 
 
+def create_osm_chargingstations_file(real_charging_stations, scen_dir, net_file):
+    """
+    Create osm.chargingstations.xml from real OSM charging stations.
+    Creates an empty file if no stations exist to prevent SUMO errors.
+    
+    Args:
+        real_charging_stations (dict): GeoJSON FeatureCollection of charging stations
+        scen_dir (str): Scenario directory
+        net_file (str): Path to SUMO network file
+    
+    Returns:
+        str: Path to created osm.chargingstations.xml file
+    """
+    import sumolib
+    
+    output_file = os.path.join(scen_dir, "osm.chargingstations.xml")
+    root = ET.Element("additional")
+    
+    features = real_charging_stations.get('features', [])
+    
+    if features and os.path.exists(net_file):
+        try:
+            net = sumolib.net.readNet(net_file)
+            count = 0
+            
+            for feature in features:
+                coords = feature['geometry']['coordinates']
+                lon, lat = coords[0], coords[1]
+                
+                # Convert lon/lat to x/y
+                x, y = net.convertLonLat2XY(lon, lat)
+                
+                # Find nearest edge
+                edges = net.getNeighboringEdges(x, y, r=100)  # Search within 100m
+                if edges:
+                    # Get closest edge
+                    closest_edge, dist = min(edges, key=lambda e: e[1])
+                    lane = closest_edge.getLane(0)
+                    lane_id = lane.getID()
+                    lane_length = lane.getLength()
+                    
+                    # Place at middle of lane
+                    start_pos = lane_length / 2
+                    end_pos = min(start_pos + 5, lane_length - 0.1)
+                    
+                    if start_pos < end_pos:
+                        cs_id = f"real_cs_{feature['properties'].get('osm_id', count)}"
+                        ET.SubElement(
+                            root, "chargingStation",
+                            id=cs_id,
+                            lane=lane_id,
+                            startPos=str(round(start_pos, 2)),
+                            endPos=str(round(end_pos, 2)),
+                            power="50000",  # 50 kW for real stations
+                            chargeInTransit="0",
+                            chargeDelay="200.0"
+                        )
+                        count += 1
+            
+            print(f"[INFO] Mapped {count} real OSM charging stations to SUMO network")
+        except Exception as e:
+            print(f"[WARNING] Could not map real charging stations to network: {e}")
+    
+    # Write XML file (empty if no stations)
+    tree = ET.ElementTree(root)
+    tree.write(output_file, encoding='utf-8', xml_declaration=True)
+    print(f"[INFO] Created {output_file} with {len(root)} stations")
+    
+    return output_file
+
+
 def extract_real_charging_stations(osm_file):
     """
     Extract real charging stations from an OSM file.
@@ -960,62 +1030,15 @@ class Handler(BaseHTTPRequestHandler):
                     print(f"[WARNING] Grid construction failed - using fallback")
                     grid_manager = None
 
-                # Step 6: Generate public charging stations (grid-aware if grid available)
-                print(f"[INFO] Generating public charging stations")
-                charging_stations_file = generate_public_charging_stations(
-                    net_file, 
-                    scen_dir, 
-                    min_length=50,
-                    power_grid_manager=grid_manager,
-                    max_stations=100  # Limit to 100 best locations
-                )
-                print(f"[INFO] Public charging stations generated -> {charging_stations_file}")
-                
-                # Connect generated public stations to grid
-                if grid_manager and grid_build_success and net:
-                    print(f"[INFO] Connecting generated public charging stations to grid")
-                    # Parse charging stations XML to get locations
-                    cs_tree = ET.parse(charging_stations_file)
-                    cs_root = cs_tree.getroot()
-                    public_stations_for_grid = []
-                    
-                    for cs_elem in cs_root.findall('.//chargingStation'):
-                        cs_id = cs_elem.get('id')
-                        lane_id = cs_elem.get('lane')
-                        
-                        # Get lane coordinates from SUMO network
-                        try:
-                            edge_id = lane_id.rsplit('_', 1)[0]
-                            edge = net.getEdge(edge_id)
-                            lane = edge.getLane(0)
-                            lane_shape = lane.getShape()
-                            if lane_shape:
-                                mid_idx = len(lane_shape) // 2
-                                x, y = lane_shape[mid_idx]
-                                
-                                # Convert SUMO coords to lon/lat for grid manager
-                                lon, lat = net.convertXY2LonLat(x, y)
-                                
-                                public_stations_for_grid.append({
-                                    'id': cs_id,
-                                    'lon': lon,
-                                    'lat': lat,
-                                    'power_kw': 200.0,
-                                    'type': 'public'
-                                })
-                        except Exception as e:
-                            print(f"[WARNING] Could not get coords for {cs_id}: {e}")
-                    
-                    if public_stations_for_grid:
-                        grid_manager.assign_charging_stations_to_grid(public_stations_for_grid)
-                        grid_manager.save(grid_file)  # Re-save with all stations
-                        print(f"[INFO] Connected {len(public_stations_for_grid)} public stations to grid")
+                # Step 6: Create osm.chargingstations.xml from real OSM data
+                print(f"[INFO] Creating osm.chargingstations.xml from real OSM data")
+                create_osm_chargingstations_file(real_charging_stations, scen_dir, net_file)
 
                 # Step 7: Combine additional files
                 copy_default_combined_additional(scenario)
                 copy_vehicle_types_additional(scenario)
                 
-                # Update combined_additional.xml to use public_chargingstations.xml instead of osm.chargingstations.xml
+                # Update combined_additional.xml to keep real OSM charging stations
                 combined_add_path = os.path.join(scen_dir, "combined_additional.xml")
                 if os.path.exists(combined_add_path):
                     tree = ET.parse(combined_add_path)
@@ -1027,11 +1050,8 @@ class Handler(BaseHTTPRequestHandler):
                             root.remove(include)
                             print(f"[INFO] Removed private_wallboxes.xml from combined_additional.xml")
                     
-                    # Replace osm.chargingstations.xml with public_chargingstations.xml
-                    for include in root.findall('include'):
-                        if include.get('href') == 'osm.chargingstations.xml':
-                            include.set('href', 'public_chargingstations.xml')
-                            print(f"[INFO] Updated combined_additional.xml to use public_chargingstations.xml")
+                    # Keep real OSM charging stations (osm.chargingstations.xml)
+                    print(f"[INFO] Using real OSM charging stations from osm.chargingstations.xml")
                     
                     tree.write(combined_add_path, encoding='utf-8', xml_declaration=True)
 
@@ -1131,11 +1151,7 @@ class Handler(BaseHTTPRequestHandler):
                     "realChargingStations": real_charging_stations,
                     "heatmapGeoJSON": heatmap_geojson,
                     "heatmapData": heatmap_data,
-                    "trafficHeatmap": traffic_heatmap_data,
-                    "chargingStations": {
-                        "file": os.path.basename(charging_stations_file),
-                        "description": "Public charging stations"
-                    }
+                    "trafficHeatmap": traffic_heatmap_data
                 }
                 json.dumps(resp, indent=2)
                 payload = json.dumps(resp).encode("utf-8")
@@ -1243,56 +1259,9 @@ class Handler(BaseHTTPRequestHandler):
                     print(f"[WARNING] Grid construction failed - using fallback")
                     grid_manager = None
 
-                # Step 6: Generate public charging stations (grid-aware if grid available)
-                print(f"[INFO] Generating public charging stations")
-                charging_stations_file = generate_public_charging_stations(
-                    net_file, 
-                    scen_dir, 
-                    min_length=50,
-                    power_grid_manager=grid_manager if grid_build_success else None,
-                    max_stations=100  # Limit to 100 best locations
-                )
-                print(f"[INFO] Public charging stations generated -> {charging_stations_file}")
-                
-                # Connect generated public stations to grid
-                if grid_manager and grid_build_success and net:
-                    print(f"[INFO] Connecting generated public charging stations to grid")
-                    # Parse charging stations XML to get locations
-                    cs_tree = ET.parse(charging_stations_file)
-                    cs_root = cs_tree.getroot()
-                    public_stations_for_grid = []
-                    
-                    for cs_elem in cs_root.findall('.//chargingStation'):
-                        cs_id = cs_elem.get('id')
-                        lane_id = cs_elem.get('lane')
-                        
-                        # Get lane coordinates from SUMO network
-                        try:
-                            edge_id = lane_id.rsplit('_', 1)[0]
-                            edge = net.getEdge(edge_id)
-                            lane = edge.getLane(0)
-                            lane_shape = lane.getShape()
-                            if lane_shape:
-                                mid_idx = len(lane_shape) // 2
-                                x, y = lane_shape[mid_idx]
-                                
-                                # Convert SUMO coords to lon/lat
-                                lon, lat = net.convertXY2LonLat(x, y)
-                                
-                                public_stations_for_grid.append({
-                                    'id': cs_id,
-                                    'lon': lon,
-                                    'lat': lat,
-                                    'power_kw': 200.0,
-                                    'type': 'public'
-                                })
-                        except Exception as e:
-                            pass
-                    
-                    if public_stations_for_grid:
-                        grid_manager.assign_charging_stations_to_grid(public_stations_for_grid)
-                        grid_manager.save(grid_file)  # Re-save with all stations
-                        print(f"[INFO] Connected {len(public_stations_for_grid)} public stations to grid")
+                # Step 6: Create osm.chargingstations.xml from real OSM data
+                print(f"[INFO] Creating osm.chargingstations.xml from real OSM data")
+                create_osm_chargingstations_file(real_charging_stations, scen_dir, net_file)
 
                 # Step 7: Copy default additional files (BEFORE wallbox generation so we can modify combined_additional.xml)
                 copy_default_combined_additional(scenario)
@@ -1367,11 +1336,8 @@ class Handler(BaseHTTPRequestHandler):
                                     root.remove(include)
                                     print(f"[INFO] Removed private_wallboxes.xml from SUMO - TraCI manages wallboxes")
                             
-                            # Replace osm.chargingstations.xml with public_chargingstations.xml
-                            for include in root.findall('include'):
-                                if include.get('href') == 'osm.chargingstations.xml':
-                                    include.set('href', 'public_chargingstations.xml')
-                                    print(f"[INFO] Updated combined_additional.xml to use public_chargingstations.xml")
+                            # Keep real OSM charging stations (osm.chargingstations.xml)
+                            print(f"[INFO] Using real OSM charging stations from osm.chargingstations.xml")
                             
                             # Replace vehicle_types.add.xml include with wallbox_vehicle_types.add.xml
                             for include in root.findall('include'):
@@ -1590,10 +1556,6 @@ class Handler(BaseHTTPRequestHandler):
                     "heatmapData": heatmap_data,
                     "trafficHeatmap": traffic_heatmap_data,
                     "wallboxHomes": wallbox_homes_geojson,
-                    "chargingStations": {
-                        "file": os.path.basename(charging_stations_file),
-                        "description": "Public charging stations"
-                    },
                     "traciSimulation": traci_summary,
                     "v2gStats": v2g_stats,
                     "chartsData": charts_data,
