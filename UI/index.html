@@ -15,6 +15,9 @@
       crossorigin=""
     />
 
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+
     <!-- Local styles -->
     <link rel="stylesheet" href="/webWizard_example/style.css" onerror="this.remove();" />
     <link rel="stylesheet" href="/style.css" />
@@ -73,6 +76,26 @@
         <div class="pg-stat-section">📊 Grid</div>
         <div class="pg-stat-row"><span class="pg-label">Max grid power</span><span id="v2gGridMax" class="pg-value">–</span></div>
         <div class="pg-stat-row"><span class="pg-label">Peak usage</span><span id="v2gGridPeak" class="pg-value">–</span></div>
+
+        <div class="pg-stat-divider"></div>
+        <button id="toggleChartsBtn" class="v2g-charts-btn" style="display:none;">📈 View Charts & Analysis</button>
+      </div>
+    </div>
+
+    <!-- Charts & Analysis Modal Window -->
+    <div id="chartsModal" class="charts-modal" style="display:none;">
+      <div class="charts-modal-content">
+        <div class="charts-header">
+          <h2>📊 Grid Power Analysis</h2>
+          <button class="charts-close-btn" id="closeChartsBtn">&times;</button>
+        </div>
+        <div class="charts-container">
+          <div class="chart-panel active">
+            <h3>Grid Power Demand Over Time</h3>
+            <p class="chart-description">Total power demand vs grid limit. Shows when throttling occurs.</p>
+            <canvas id="gridPowerChart" style="max-height: 350px;"></canvas>
+          </div>
+        </div>
       </div>
     </div>
 

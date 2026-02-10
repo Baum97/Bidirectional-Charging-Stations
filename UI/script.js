@@ -319,6 +319,75 @@ function showV2GStats(v2gStats) {
   console.log('V2G stats displayed:', v2gStats);
 }
 
+// --- Charts & Analysis ---
+
+let chartsInstances = {};
+
+function showChartsButton(chartsData) {
+  const btn = document.getElementById('toggleChartsBtn');
+  if (btn && chartsData) {
+    btn.style.display = 'block';
+  }
+}
+
+function initializeCharts(chartsData) {
+  if (!chartsData) return;
+
+  // Modal controls
+  const modal = document.getElementById('chartsModal');
+  const toggleBtn = document.getElementById('toggleChartsBtn');
+  const closeBtn = document.getElementById('closeChartsBtn');
+
+  toggleBtn.onclick = () => { modal.style.display = 'block'; renderAllCharts(chartsData); };
+  closeBtn.onclick = () => { modal.style.display = 'none'; };
+
+  // Click outside to close
+  modal.onclick = (e) => {
+    if (e.target === modal) modal.style.display = 'none';
+  };
+
+  console.log('Grid power chart initialized');
+}
+
+function renderAllCharts(chartsData) {
+  if (!chartsData) return;
+  if (chartsData.type === 'line') renderGridPowerChart(chartsData);
+}
+
+function renderGridPowerChart(data) {
+  const ctx = document.getElementById('gridPowerChart');
+  if (!ctx) return;
+
+  // Destroy existing chart
+  if (chartsInstances.gridPower) chartsInstances.gridPower.destroy();
+
+  chartsInstances.gridPower = new Chart(ctx, {
+    type: data.type,
+    data: {
+      labels: data.labels,
+      datasets: data.datasets
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: { display: true, position: 'top' },
+        tooltip: { mode: 'index', intersect: false }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: { display: true, text: 'Power (kW)' }
+        },
+        x: {
+          title: { display: true, text: 'Time (H:MM)' }
+        }
+      }
+    }
+  });
+}
+
+
 // --- Power Grid Statistics Panel ---
 function showPowerGridStats(stats) {
   const panel = document.getElementById('powerGridStats');
@@ -885,6 +954,13 @@ async function downloadOSMData(bounds, scenario) {
     if (j.v2gStats) {
       console.log("V2G stats:", j.v2gStats);
       showV2GStats(j.v2gStats);
+    }
+
+    // Initialize and show charts if available
+    if (j.chartsData) {
+      console.log("Charts data:", j.chartsData);
+      showChartsButton(j.chartsData);
+      initializeCharts(j.chartsData);
     }
 
     // Show TraCI simulation results if available

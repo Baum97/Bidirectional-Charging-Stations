@@ -1419,6 +1419,14 @@ class Handler(BaseHTTPRequestHandler):
                     print(f"[INFO] V2G summary loaded: {v2g_stats.get('v2g', {}).get('active_vehicles', 0)} V2G vehicles, "
                           f"{v2g_stats.get('v2g', {}).get('total_discharged_kwh', 0):.2f} kWh discharged")
 
+                # Read charts data for UI visualization
+                charts_file = os.path.join(traci_logs_dir, "charts_data.json")
+                charts_data = None
+                if os.path.exists(charts_file):
+                    with open(charts_file, 'r', encoding='utf-8') as f:
+                        charts_data = json.load(f)
+                    print(f"[INFO] Charts data loaded: {len(charts_data)} chart datasets")
+
                 # Respond with success
                 resp = {
                     "ok": True,
@@ -1440,6 +1448,7 @@ class Handler(BaseHTTPRequestHandler):
                     },
                     "traciSimulation": traci_summary,
                     "v2gStats": v2g_stats,
+                    "chartsData": charts_data,
                     "note": "TraCI simulation with V2G + dynamic home charging + private wallboxes (50% of EV owners) - heatmaps show effects of smart charging control"
                 }
                 json.dumps(resp, indent=2)

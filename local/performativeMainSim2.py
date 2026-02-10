@@ -346,6 +346,10 @@ def main():
     start_time = time.time()
 
     step = 0
+    
+    # Chart data collection
+    chart_power_timeline = []  # List of (sim_time, total_demand_kw) for power timeline
+    chart_v2g_timeline = []    # List of (sim_time, v2g_discharge_kw) for V2G timeline
 
     while traci.simulation.getMinExpectedNumber() > 0:
         sim_time = traci.simulation.getTime()
@@ -680,6 +684,16 @@ def main():
         # Results are used by get_available_power_for_station() in the next step
         energy_pool.finalize_step()
         
+        # Collect chart data: power timeline and V2G timeline
+        total_demand = energy_pool.get_total_requested_power()
+        chart_power_timeline.append({'time': sim_time, 'demand_kw': round(total_demand, 1)})
+        
+        # V2G supply (negative values in requests become positive discharge)
+        v2g_discharge = 0
+        if hasattr(energy_pool, 'v2g_stations'):
+            v2g_discharge = abs(sum(energy_pool.v2g_stations.values()))
+        chart_v2g_timeline.append({'time': sim_time, 'v2g_kw': round(v2g_discharge, 1)})
+        
         # Track peak grid usage (based on actual requests this step, not stale setpoints)
         step_usage = energy_pool.get_total_requested_power()
         if step_usage > peak_grid_usage_kw:
@@ -721,6 +735,62 @@ def main():
         print(f"[LOG] Charging sessions written: {sessions_file}")
 
     # ----------------------------------------------------
+    # GENERATE SIMPLE GRID POWER CHART FOR UI
+    # ========================================
+    import json as _json
+    
+    # Resample power timeline to 2-minute buckets
+    bucket_size = 12  # 12 * 10-second steps = 2 minutes
+    timeline_buckets = {}
+    for dp in chart_power_timeline:
+        bucket = int(dp['time'] / (bucket_size * 10)) * (bucket_size * 10)
+        if bucket not in timeline_buckets:
+            timeline_buckets[bucket] = []
+        timeline_buckets[bucket].append(dp['demand_kw'])
+    
+    timeline_times = sorted(timeline_buckets.keys())
+    timeline_demands = [sum(timeline_buckets[t]) / len(timeline_buckets[t]) for t in timeline_times]
+    
+    # Time labels
+    time_labels = []
+    for t in timeline_times:
+        mins = int(t // 60)
+        hours = mins // 60
+        mins = mins % 60
+        time_labels.append(f"{hours}:{mins:02d}")
+    
+    # Grid Power Chart (the working one)
+    charts_data = {
+        "type": "line",
+        "labels": time_labels,
+        "datasets": [
+            {
+                "label": "Total Demand (kW)",
+                "data": [round(d, 1) for d in timeline_demands],
+                "borderColor": "rgb(75, 145, 255)",
+                "backgroundColor": "rgba(75, 145, 255, 0.1)",
+                "borderWidth": 2,
+                "fill": True,
+                "tension": 0.3
+            },
+            {
+                "label": f"Grid Limit ({MAX_TOTAL_GRID_POWER_KW} kW)",
+                "data": [MAX_TOTAL_GRID_POWER_KW] * len(time_labels),
+                "borderColor": "rgb(255, 99, 99)",
+                "borderDash": [5, 5],
+                "borderWidth": 2,
+                "fill": False,
+                "pointRadius": 0
+            }
+        ]
+    }
+    
+    charts_file = os.path.join(LOGS_DIR, "charts_data.json")
+    with open(charts_file, 'w', encoding='utf-8') as f:
+        _json.dump(charts_data, f, indent=2)
+    print(f"[LOG] Grid power chart written: {charts_file}")
+
+    # ----------------------------------------
     # V2G / CHARGING SUMMARY STATISTICS
     # ----------------------------------------------------
     import json as _json
