@@ -12,14 +12,15 @@ def process_sumo_logs(fcd_file, battery_file, additional_file, output):
     # ----------------------------------------------------------
     # 0) Charging-Station fetch data
     # ----------------------------------------------------------
-    print("Loading charging stations...")
-
     charging_stations = []
 
     try:
+        import os
         tree = ET.parse(additional_file)
         root = tree.getroot()
+        base_dir = os.path.dirname(additional_file)
 
+        # Load charging stations directly from this file
         for cs in root.findall(".//chargingStation"):
             charging_stations.append({
                 "id": cs.get("id"),
@@ -28,10 +29,30 @@ def process_sumo_logs(fcd_file, battery_file, additional_file, output):
                 "endPos": float(cs.get("endPos"))
             })
 
-        print(f"Found {len(charging_stations)} charging stations.")
+        # Follow <include> tags to load stations from referenced files
+        for include in root.findall(".//include"):
+            href = include.get("href")
+            if href and ("chargingstation" in href.lower() or "wallbox" in href.lower() or "suggested" in href.lower()):
+                included_file = os.path.join(base_dir, href)
+                if os.path.exists(included_file):
+                    try:
+                        inc_tree = ET.parse(included_file)
+                        inc_root = inc_tree.getroot()
+                        for cs in inc_root.findall(".//chargingStation"):
+                            charging_stations.append({
+                                "id": cs.get("id"),
+                                "lane": cs.get("lane"),
+                                "startPos": float(cs.get("startPos")),
+                                "endPos": float(cs.get("endPos"))
+                            })
+                    except Exception:
+                        pass  # Skip files that can't be parsed
 
-    except Exception as e:
-        print("Could not load additional file:", e)
+        if charging_stations:
+            print(f"  Loaded {len(charging_stations)} charging stations for analysis")
+
+    except Exception:
+        pass  # Not critical - analysis works without station mapping
 
     def find_station(lane, pos):
         """Return charging station ID if vehicle is inside one."""
@@ -43,8 +64,6 @@ def process_sumo_logs(fcd_file, battery_file, additional_file, output):
     # ----------------------------------------------------------
     # 1) FCD-Data
     # ----------------------------------------------------------
-    print("Reading FCD data...")
-
     with gzip.open(fcd_file, "rt") as f:
         tree = ET.parse(f)
 
@@ -73,12 +92,10 @@ def process_sumo_logs(fcd_file, battery_file, additional_file, output):
             })
 
     df_fcd = pd.DataFrame(fcd_data)
-    print(f"FCD rows: {len(df_fcd)}")
 
     # ----------------------------------------------------------
     # 2) Battery-Daten (SOC, Charging)
     # ----------------------------------------------------------
-    print("Reading Battery data...")
 
     def get_float_safe(element, key):
         val = element.get(key)
@@ -110,12 +127,9 @@ def process_sumo_logs(fcd_file, battery_file, additional_file, output):
                  "energyRegenerated", "energyCharged"]
     )
 
-    print(f"Battery rows: {len(df_bat)}")
-
     # ----------------------------------------------------------
     # 3) MERGE
     # ----------------------------------------------------------
-    print("Merging data...")
 
     df = pd.merge(df_fcd, df_bat, on=["time", "veh_id"], how="left")
 
@@ -125,8 +139,6 @@ def process_sumo_logs(fcd_file, battery_file, additional_file, output):
     # ----------------------------------------------------------
     # 4) Charging-Station-Erkennung
     # ----------------------------------------------------------
-    print("Detecting charging events...")
-
     def detect_charging(row):
         # lädt, wenn energyCharged > 0 oder SOC steigt
         is_charging = False
@@ -147,6 +159,3 @@ def process_sumo_logs(fcd_file, battery_file, additional_file, output):
     # 5) Speichern
     # ----------------------------------------------------------
     df.to_csv(output, index=False)
-
-    print("\nCSV written:", output)
-    print("Total rows:", len(df))

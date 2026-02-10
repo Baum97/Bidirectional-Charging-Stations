@@ -53,6 +53,49 @@ from generate_traffic_heatmap import generate_traffic_heatmap
 HOST = "127.0.0.1"
 PORT = 8787
 
+# Status logging helpers
+def log_status(message):
+    """Print a status message for user."""
+    print(f"[STATUS] {message}")
+
+def log_result(message):
+    """Print a result message (files generated, etc.)."""
+    print(f"✓ {message}")
+
+def log_error(message):
+    """Print an error message."""
+    print(f"[ERROR] {message}")
+
+def estimate_sumo_time(duration_seconds, num_vehicles):
+    """Estimate SUMO simulation runtime.
+    
+    Args:
+        duration_seconds: Simulation duration in seconds
+        num_vehicles: Number of vehicles in simulation
+    
+    Returns:
+        Estimated runtime in seconds
+    """
+    # Rough estimation based on empirical data:
+    # - Base: 1 real second per 100 sim seconds
+    # - Vehicle factor: +0.5 real seconds per 1000 vehicles per 100 sim seconds
+    base_factor = duration_seconds / 100.0
+    vehicle_factor = (num_vehicles / 1000.0) * (duration_seconds / 100.0) * 0.5
+    return base_factor + vehicle_factor
+
+def format_time(seconds):
+    """Format seconds as human-readable time."""
+    if seconds < 60:
+        return f"{int(seconds)}s"
+    elif seconds < 3600:
+        mins = int(seconds / 60)
+        secs = int(seconds % 60)
+        return f"{mins}m {secs}s"
+    else:
+        hours = int(seconds / 3600)
+        mins = int((seconds % 3600) / 60)
+        return f"{hours}h {mins}m"
+
 
 def _sumo_paths():
     sumo_home = os.environ.get("SUMO_HOME")
@@ -75,14 +118,13 @@ def _sumo_paths():
     }
 
 
-def _run(cmd, cwd=None, timeout=300):
-    print("[RUN]", " ".join(cmd))
+def _run(cmd, cwd=None, timeout=300, verbose=False):
+    if verbose:
+        print("  Running:", os.path.basename(cmd[0]))
     result = subprocess.run(cmd, check=False, cwd=cwd, capture_output=True, text=True, timeout=timeout)
-    if result.stdout:
-        print(result.stdout)
-    if result.stderr:
-        print("[STDERR]", result.stderr)
     if result.returncode != 0:
+        if result.stderr:
+            print("[ERROR]", result.stderr)
         raise subprocess.CalledProcessError(result.returncode, cmd, result.stdout, result.stderr)
     return result
 
@@ -111,7 +153,6 @@ def _download_osm_direct(bbox, output_path, timeout=120):
     # Try each Overpass server
     for server_url in overpass_servers:
         try:
-            print(f"[INFO] Direct download: trying {server_url}")
             data = overpass_query.encode("utf-8")
             req = Request(server_url, data=data, headers={
                 "Content-Type": "application/x-www-form-urlencoded",
@@ -127,22 +168,18 @@ def _download_osm_direct(bbox, output_path, timeout=120):
             # Sanity check: must contain OSM XML
             text = content.decode("utf-8", errors="replace")
             if "<osm" not in text[:500]:
-                print(f"[WARNING] Response from {server_url} is not valid OSM XML (first 200 chars): {text[:200]}")
                 continue
 
             with open(output_path, "wb") as f:
                 f.write(content)
-            print(f"[INFO] Direct download succeeded from {server_url} -> {output_path} ({len(content)} bytes)")
             return output_path
 
-        except (HTTPError, URLError, TimeoutError, OSError) as e:
-            print(f"[WARNING] Direct download from {server_url} failed: {e}")
+        except (HTTPError, URLError, TimeoutError, OSError):
             continue
 
     # Last resort: OSM export API (limited to small areas)
     try:
         export_url = f"https://api.openstreetmap.org/api/0.6/map?bbox={minLon},{minLat},{maxLon},{maxLat}"
-        print(f"[INFO] Direct download: trying OSM export API: {export_url}")
         req = Request(export_url, headers={"Accept-Encoding": "gzip"})
         response = urlopen(req, timeout=timeout)
         content = response.read()
@@ -150,15 +187,12 @@ def _download_osm_direct(bbox, output_path, timeout=120):
             content = gzip.decompress(content)
 
         text = content.decode("utf-8", errors="replace")
-        if "<osm" not in text[:500]:
-            print(f"[WARNING] OSM export API response is not valid OSM XML")
-        else:
+        if "<osm" in text[:500]:
             with open(output_path, "wb") as f:
                 f.write(content)
-            print(f"[INFO] OSM export API download succeeded -> {output_path} ({len(content)} bytes)")
             return output_path
-    except (HTTPError, URLError, TimeoutError, OSError) as e:
-        print(f"[WARNING] OSM export API failed: {e}")
+    except (HTTPError, URLError, TimeoutError, OSError):
+        pass
 
     return None
 
@@ -184,7 +218,6 @@ def download_osm_data(bbox, scenario, prefix="test_name", max_retries=3):
     paths = _sumo_paths()
     base_dir = os.path.abspath(os.path.join("..", "data", "scenarios", scenario))
     os.makedirs(base_dir, exist_ok=True)
-    print(f"[INFO] Created base directory: {base_dir}")
 
     minLon, minLat, maxLon, maxLat = bbox
     bbox_str = f"{minLon},{minLat},{maxLon},{maxLat}"
@@ -193,52 +226,42 @@ def download_osm_data(bbox, scenario, prefix="test_name", max_retries=3):
     for attempt in range(max_retries):
         try:
             # Fetch OSM extract
-            print(f"[INFO] Fetching OSM data for bbox: {bbox_str} (attempt {attempt + 1}/{max_retries})")
-            print(f"[INFO] Using osmGet from: {paths['osmGet']}")
-            print(f"[INFO] Output directory: {base_dir}")
+            if attempt == 0:
+                log_status(f"Downloading OSM data for area...")
             
             # Check files before running osmGet
             files_before = set(os.listdir(base_dir))
-            print(f"[DEBUG] Files before osmGet: {files_before}")
             
             # Run osmGet with explicit output directory
-            # osmGet.py uses -d for output directory
             cmd = [sys.executable, paths["osmGet"], "-b", bbox_str, "-p", prefix, "-d", base_dir]
-            print(f"[DEBUG] Running command with output directory: {base_dir}")
             
             try:
-                result = _run(cmd, cwd=base_dir, timeout=120)
-            except subprocess.CalledProcessError as e:
+                result = _run(cmd, cwd=base_dir, timeout=120, verbose=False)
+            except subprocess.CalledProcessError:
                 # If that fails, try running from SUMO tools directory
-                print(f"[INFO] Trying alternate approach from SUMO tools directory...")
                 sumo_tools_dir = os.path.dirname(paths["osmGet"])
                 cmd = [sys.executable, paths["osmGet"], "-b", bbox_str, "-p", prefix, "-d", base_dir]
-                result = _run(cmd, cwd=sumo_tools_dir, timeout=120)
+                result = _run(cmd, cwd=sumo_tools_dir, timeout=120, verbose=False)
             
             # Detect HTTP errors in osmGet output (it exits 0 even on 504, 429, etc.)
             combined_output = (result.stdout or "") + (result.stderr or "")
             http_error_patterns = ["Gateway Timeout", "503 Service", "429 Too Many", "500 Internal", "502 Bad Gateway"]
             for pat in http_error_patterns:
                 if pat.lower() in combined_output.lower():
-                    print(f"[WARNING] osmGet output contains HTTP error: '{pat}'")
                     raise subprocess.CalledProcessError(1, cmd, result.stdout, f"HTTP error detected in output: {pat}")
             
             # Check files after running osmGet
             files_after = set(os.listdir(base_dir))
             new_files = files_after - files_before
-            print(f"[DEBUG] Files after osmGet: {files_after}")
-            print(f"[DEBUG] New files created: {new_files}")
             
             if not new_files:
                 # Check if osmGet created files in the SUMO tools directory instead
                 sumo_tools_dir = os.path.dirname(paths["osmGet"])
-                print(f"[DEBUG] Checking SUMO tools directory for files: {sumo_tools_dir}")
                 try:
                     tools_files_before = set(os.listdir(sumo_tools_dir))
                     tools_files_after = set(os.listdir(sumo_tools_dir))
                     tools_new_files = tools_files_after - tools_files_before
                     if tools_new_files:
-                        print(f"[DEBUG] Found files in SUMO tools directory: {tools_new_files}")
                         # Try to move them to base_dir
                         for f in tools_new_files:
                             src = os.path.join(sumo_tools_dir, f)
@@ -246,25 +269,22 @@ def download_osm_data(bbox, scenario, prefix="test_name", max_retries=3):
                             try:
                                 shutil.move(src, dst)
                                 new_files.add(f)
-                                print(f"[INFO] Moved {f} from SUMO tools to scenario directory")
-                            except Exception as e:
-                                print(f"[WARNING] Could not move {f}: {e}")
-                except Exception as e:
-                    print(f"[DEBUG] Could not check SUMO tools directory: {e}")
+                            except Exception:
+                                pass
+                except Exception:
+                    pass
                 
             if not new_files:
-                error_msg = f"osmGet executed (returncode={result.returncode}) but did not create any files in {base_dir}"
+                error_msg = f"osmGet did not create any files"
                 if attempt < max_retries - 1:
-                    print(f"[WARNING] {error_msg}")
-                    print(f"[INFO] Retrying in 5 seconds...")
                     time.sleep(5)
                     continue
                 else:
                     # All osmGet retries exhausted — try direct HTTP download
-                    print(f"[INFO] All osmGet attempts produced no files. Trying direct HTTP download...")
                     fallback_file = os.path.join(base_dir, f"{prefix}_bbox.osm.xml")
                     result_path = _download_osm_direct(bbox, fallback_file)
                     if result_path and os.path.isfile(result_path):
+                        log_result(f"OSM data downloaded: {os.path.basename(result_path)}")
                         return result_path
                     raise RuntimeError(error_msg)
             
@@ -321,31 +341,23 @@ def download_osm_data(bbox, scenario, prefix="test_name", max_retries=3):
                     
         except subprocess.TimeoutExpired:
             if attempt < max_retries - 1:
-                print(f"[WARNING] osmGet.py timed out. Retrying in 5 seconds...")
                 time.sleep(5)
             else:
-                raise RuntimeError(f"osmGet.py timed out after {max_retries} attempts. The OSM API may be unavailable or slow.")
+                raise RuntimeError(f"OSM download timed out after {max_retries} attempts")
         except subprocess.CalledProcessError as e:
             if attempt < max_retries - 1:
-                print(f"[WARNING] osmGet returned non-zero exit code {e.returncode}")
-                print(f"[WARNING] stdout: {e.stdout}")
-                print(f"[WARNING] stderr: {e.stderr}")
-                print(f"[INFO] Retrying in 5 seconds...")
                 time.sleep(5)
             else:
-                print(f"[ERROR] osmGet failed after {max_retries} attempts")
-                print(f"[ERROR] Last error: {e}")
-                raise RuntimeError(f"osmGet.py failed: {e.stderr or e.stdout or 'Unknown error'}")
-        except Exception as e:
+                raise RuntimeError(f"OSM download failed: {e.stderr or e.stdout or 'Unknown error'}")
+        except Exception:
             if attempt < max_retries - 1:
-                print(f"[WARNING] Error during OSM download: {e}. Retrying in 5 seconds...")
                 time.sleep(5)
             else:
                 # All osmGet retries exhausted — try direct HTTP download as fallback
-                print(f"[INFO] All osmGet attempts failed. Trying direct HTTP download as fallback...")
                 fallback_file = os.path.join(base_dir, f"{prefix}_bbox.osm.xml")
                 result_path = _download_osm_direct(bbox, fallback_file)
                 if result_path and os.path.isfile(result_path):
+                    log_result(f"OSM data downloaded: {os.path.basename(result_path)}")
                     return result_path
                 raise
 
@@ -364,12 +376,10 @@ def build_sumo_network(osm_file, scenario):
     paths = _sumo_paths()
     base_dir = os.path.abspath(os.path.join("..", "data", "scenarios", scenario))
     os.makedirs(base_dir, exist_ok=True)
-    print(f"[INFO] Building network in directory: {base_dir}")
 
     osm_file = os.path.abspath(osm_file)
     net_file = os.path.abspath(os.path.join(base_dir, "osm.net.xml.gz"))
-    print(f"[INFO] Running netconvert with OSM file: {osm_file}")
-    print(f"[INFO] Command working directory: {base_dir}")
+    log_status("Building SUMO network...")
     _run(
         [
             paths["netconvert"],
@@ -381,8 +391,9 @@ def build_sumo_network(osm_file, scenario):
             "--proj.utm",
         ],
         cwd=base_dir,
+        verbose=False
     )
-    print(f"[INFO] Network built successfully: {net_file}")
+    log_result(f"Network built: osm.net.xml.gz")
     return net_file
 
 
@@ -396,10 +407,8 @@ def copy_default_combined_additional(scenario):
     base_dir = os.path.abspath(os.path.join("..", "data", "scenarios", scenario))
     src_file = os.path.abspath(os.path.join("..", "data", "defaults", "default_combined_additional.xml"))
     dest_file = os.path.join(base_dir, "combined_additional.xml")
-    print(f"[INFO] Copying default combined_additional.xml to {dest_file}")
     with open(src_file, "r", encoding="utf-8") as src, open(dest_file, "w", encoding="utf-8") as dst:
         dst.write(src.read())
-    print("[INFO] Default combined_additional.xml copied successfully.")
 
 
 def copy_vehicle_types_additional(scenario):
@@ -412,14 +421,11 @@ def copy_vehicle_types_additional(scenario):
     base_dir = os.path.abspath(os.path.join("..", "data", "scenarios", scenario))
     src_file = os.path.abspath(os.path.join("..", "data", "defaults", "default_vehicle_types.add.xml"))
     dest_file = os.path.join(base_dir, "vehicle_types.add.xml")
-    print(f"[INFO] Copying default vehicle_types.add.xml to {dest_file}")
     with open(src_file, "r", encoding="utf-8") as src, open(dest_file, "w", encoding="utf-8") as dst:
         dst.write(src.read())
-    print("[INFO] Default vehicle_types.add.xml copied successfully.")
 
 
 def create_sumo_config(net_file, trips_file, additional_files, base_dir, stationfinder_radius=3000, duration=0):
-    print("[INFO] Writing detailed SUMO configuration file...")
     end_tag = f"        <end value=\"{duration}\"/>\n" if duration and duration > 0 else ""
     cfg = (
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -473,7 +479,6 @@ def create_sumo_config(net_file, trips_file, additional_files, base_dir, station
     )
     with open(os.path.join(base_dir, "sim.sumocfg"), "w", encoding="utf-8") as f:
         f.write(cfg)
-    print("[INFO] Detailed SUMO configuration file written.")
 
 
 def _parse_voltage_to_kv(voltage_str):
@@ -866,14 +871,12 @@ def create_osm_chargingstations_file(real_charging_stations, scen_dir, net_file)
                         )
                         count += 1
             
-            print(f"[INFO] Mapped {count} real OSM charging stations to SUMO network")
-        except Exception as e:
-            print(f"[WARNING] Could not map real charging stations to network: {e}")
+        except Exception:
+            pass
     
     # Write XML file (empty if no stations)
     tree = ET.ElementTree(root)
     tree.write(output_file, encoding='utf-8', xml_declaration=True)
-    print(f"[INFO] Created {output_file} with {len(root)} stations")
     
     return output_file
 
@@ -899,8 +902,6 @@ def extract_real_charging_stations(osm_file):
         lon = float(n.get("lon"))
         nodes[nid] = (lon, lat)  # GeoJSON expects [lon, lat]
 
-    print(f"[DEBUG] Total nodes found: {len(nodes)}")
-
     features = []
 
     # --- Charging stations ---
@@ -910,7 +911,6 @@ def extract_real_charging_stations(osm_file):
         if amenity == "charging_station":
             nid = n.get("id")
             lon, lat = nodes[nid]
-            print(f"[DEBUG] Found charging station - Node ID: {nid}, Tags: {tags}")
             feature = {
                 "type": "Feature",
                 "geometry": {
@@ -956,52 +956,57 @@ class Handler(BaseHTTPRequestHandler):
                 scenario = data.get("scenario") or "scenario"
                 sim_params = data.get("params") or {}
 
-                # Step 1: Download OSM data -> returns full path to the file
-                # COMMENTED OUT: Reusing OSM data from scenario_20260208_215130 instead of downloading
+                # Show request summary
+                print("\n" + "="*60)
+                log_status(f"Building scenario: {scenario}")
+                print(f"  Mode: Standard (no V2G)")
+                if sim_params.get('duration'):
+                    print(f"  Duration: {format_time(sim_params['duration'])}")
+                print("="*60 + "\n")
+                
+                # Step 1: Download OSM data
                 osm_file = download_osm_data(bbox, scenario)
                 scen_dir = os.path.dirname(osm_file)
 
-                # Save simulation parameters for downstream scripts
+                # Save simulation parameters
                 sim_params_file = os.path.join(scen_dir, "sim_params.json")
                 with open(sim_params_file, 'w', encoding='utf-8') as f:
                     json.dump(sim_params, f, indent=2)
-                print(f"[INFO] Simulation parameters saved -> {sim_params_file}")
                 
-                # Extract real already existing charging stations
+                # Extract real charging stations
                 real_charging_stations = extract_real_charging_stations(osm_file)
-                print(f"[INFO] Extracted real charging stations: {len(real_charging_stations['features'])} found")
+                num_real_stations = len(real_charging_stations['features'])
+                if num_real_stations > 0:
+                    log_result(f"Found {num_real_stations} real charging stations in OSM data")
 
                 # Step 2: Build SUMO network
                 net_file = build_sumo_network(osm_file, scenario)
 
                 # Step 3: Extract POIs
-                # COMMENTED OUT: Reusing POI data from scenario_20260208_215130 instead of processing
-                print(f"[INFO] Extracting POIs -> {scen_dir}")
+                log_status("Extracting points of interest...")
                 poi_files = extract_pois(osm_file, scen_dir)
+                log_result(f"Extracted POIs: {len(poi_files)} categories")
                 
-               
                 # Read POI files and convert to GeoJSON
                 poi_geojson = read_poi_files(poi_files)
 
                 # Step 4: Assign POIs to edges
-                print(f"[INFO] Assigning POIs to edges -> {poi_files}")
+                log_status("Assigning POIs to network edges...")
                 edge_files = assign_poi_to_edges(net_file, poi_files)
-                print(f"[INFO] POI edge assignments completed: {len(edge_files)} files generated")
+                log_result(f"POI assignments completed")
 
                 # Step 5: Generate trips
-                print(f"[INFO] Generating vehicle trips")
-                # edge_files is already a list from assign_poi_to_edges
+                log_status("Generating vehicle trips...")
                 edge_files_list = edge_files if isinstance(edge_files, list) else list(edge_files.values())
                 _duration = int(sim_params.get('duration', 0))
                 if 0 < _duration < 36000:
                     trips_file = generate_trips_test(net_file, edge_files_list, scen_dir, sim_params=sim_params)
-                    print(f"[INFO] FAST trips generated (duration {_duration}s < 10h threshold) -> {trips_file}")
                 else:
                     trips_file = generate_trips(net_file, edge_files_list, scen_dir, sim_params=sim_params)
-                    print(f"[INFO] Full trips generated -> {trips_file}")
+                log_result(f"Trips generated: {os.path.basename(trips_file)}")
 
                 # Step 5.5: Build synthetic power grid from OSM road network
-                print(f"[INFO] Building synthetic power grid from OSM road network")
+                log_status("Building power grid model...")
                 grid_manager = PowerGridManager(osm_file=osm_file, scenario_name=scenario)
                 grid_build_success = grid_manager.build_grid()
                 
@@ -1026,12 +1031,11 @@ class Handler(BaseHTTPRequestHandler):
                     
                     grid_file = os.path.join(scen_dir, "power_grid.pkl")
                     grid_manager.save(grid_file)
+                    log_result("Power grid model built")
                 else:
-                    print(f"[WARNING] Grid construction failed - using fallback")
                     grid_manager = None
 
                 # Step 6: Create osm.chargingstations.xml from real OSM data
-                print(f"[INFO] Creating osm.chargingstations.xml from real OSM data")
                 create_osm_chargingstations_file(real_charging_stations, scen_dir, net_file)
 
                 # Step 7: Combine additional files
@@ -1048,10 +1052,6 @@ class Handler(BaseHTTPRequestHandler):
                     for include in root.findall('include'):
                         if include.get('href') == 'private_wallboxes.xml':
                             root.remove(include)
-                            print(f"[INFO] Removed private_wallboxes.xml from combined_additional.xml")
-                    
-                    # Keep real OSM charging stations (osm.chargingstations.xml)
-                    print(f"[INFO] Using real OSM charging stations from osm.chargingstations.xml")
                     
                     tree.write(combined_add_path, encoding='utf-8', xml_declaration=True)
 
@@ -1061,25 +1061,36 @@ class Handler(BaseHTTPRequestHandler):
                                    duration=sim_params.get('duration', 0))
 
                 # Step 9: Run simulation to generate logs
-                print("[INFO] Running SUMO simulation...")
+                # Count vehicles for time estimation
+                trips_tree = ET.parse(trips_file)
+                num_vehicles = len(trips_tree.getroot().findall('vehicle'))
+                sim_duration = sim_params.get('duration', 0)
+                
+                log_status(f"Running SUMO simulation ({num_vehicles} vehicles, {format_time(sim_duration)})...")
+                est_time = estimate_sumo_time(sim_duration, num_vehicles)
+                print(f"  Estimated runtime: {format_time(est_time)}")
+                
                 sumo_command = ["sumo", "-c", "sim.sumocfg"]
+                start_time = time.time()
                 try:
-                    subprocess.run(sumo_command, check=True, cwd=scen_dir)
-                    print("[INFO] SUMO simulation completed successfully.")
+                    subprocess.run(sumo_command, check=True, cwd=scen_dir, capture_output=True)
+                    actual_time = time.time() - start_time
+                    log_result(f"Simulation completed in {format_time(actual_time)}")
                 except subprocess.CalledProcessError as e:
                     raise RuntimeError(f"SUMO simulation failed: {e}")
 
                 # Step 10: convert logs to CSV
+                log_status("Processing simulation logs...")
                 convert_logs_to_csv(
                     os.path.join(scen_dir, "fcd_output.xml.gz"),
                     os.path.join(scen_dir, "battery_output.xml.gz"),
                     os.path.join(scen_dir, "combined_additional.xml"),
                     os.path.join(scen_dir, "sumo_merged_output.csv")
                 )
-
-                print("[INFO] Logs converted to CSV successfully.")
+                log_result("Logs converted: sumo_merged_output.csv")
 
                 # Step 11: generate traffic heatmap from logs
+                log_status("Generating heatmaps...")
                 traffic_heatmap_file = os.path.join(scen_dir, "traffic_heatmap.json")
                 try:
                     generate_traffic_heatmap(
@@ -1088,8 +1099,8 @@ class Handler(BaseHTTPRequestHandler):
                         traffic_heatmap_file,
                         sample_rate=0.05  # 5% sampling to reduce data size
                     )
-                except Exception as e:
-                    print(f"[WARNING] Could not generate traffic heatmap: {e}")
+                except Exception:
+                    pass
 
                 # Step 12: generate stations from log (grid-aware if grid available)
                 heatmap_json_file = os.path.join(scen_dir, "no_station_heatmap.json")
@@ -1098,11 +1109,12 @@ class Handler(BaseHTTPRequestHandler):
                     os.path.join(scen_dir, "no_station_charging_suggestions.csv"),
                     os.path.join(scen_dir, "no_station_areas.geojson"),
                     os.path.join(scen_dir, "suggested_charging_stations.add.xml"),
-                    net_file,  # Pass network file for coordinate conversion
-                    heatmap_json_file,  # Output heatmap data for gradient visualization
-                    power_grid_manager=grid_manager if grid_build_success else None,  # Grid-aware placement
-                    fast_mode=True  # OPTIMIZED: spatial grid pre-clustering, sampling, larger EPS/MIN_SAMPLES
+                    net_file,
+                    heatmap_json_file,
+                    power_grid_manager=grid_manager if grid_build_success else None,
+                    fast_mode=True
                 )
+                log_result("Analysis complete: heatmaps and charging suggestions generated")
 
                 heatmap_geojson_file = os.path.join(scen_dir, "no_station_areas.geojson")
                 
@@ -1111,34 +1123,30 @@ class Handler(BaseHTTPRequestHandler):
                 if os.path.exists(heatmap_geojson_file):
                     with open(heatmap_geojson_file, 'r', encoding='utf-8') as f:
                         heatmap_geojson = json.load(f)
-                    print(f"[INFO] Loaded heatmap GeoJSON with {len(heatmap_geojson.get('features', []))} features")
 
                 # Read the heatmap point data (for gradient visualization)
                 heatmap_data = None
                 if os.path.exists(heatmap_json_file):
                     with open(heatmap_json_file, 'r', encoding='utf-8') as f:
                         heatmap_data = json.load(f)
-                    print(f"[INFO] Loaded heatmap data with {len(heatmap_data)} points")
 
                 # Read the traffic heatmap data
                 traffic_heatmap_data = None
                 if os.path.exists(traffic_heatmap_file):
                     with open(traffic_heatmap_file, 'r', encoding='utf-8') as f:
                         traffic_heatmap_data = json.load(f)
-                    print(f"[INFO] Loaded traffic heatmap data with {len(traffic_heatmap_data)} points")
 
                 # Export power grid network as GeoJSON for visualization
                 power_grid_network = None
                 if grid_build_success and grid_manager:
                     try:
                         power_grid_network = grid_manager.to_geojson()
-                        print(f"[INFO] Exported power grid network: {power_grid_network['properties']['total_buses']} buses, "
-                              f"{power_grid_network['properties']['total_lines']} lines, "
-                              f"{power_grid_network['properties']['total_transformers']} transformers")
-                    except Exception as e:
-                        print(f"[WARNING] Could not export grid network: {e}")
+                    except Exception:
+                        pass
 
                 # Respond with success
+                log_status("Pipeline completed successfully!")
+                print(f"  Scenario: {scen_dir}")
                 resp = {
                     "ok": True,
                     "message": "Pipeline completed successfully",
@@ -1181,50 +1189,58 @@ class Handler(BaseHTTPRequestHandler):
                 scenario = data.get("scenario") or "scenario"
                 sim_params = data.get("params") or {}
 
-                # Step 1: Download OSM data -> returns full path to the file
+                # Show request summary
+                print("\n" + "="*60)
+                log_status(f"Building scenario: {scenario}")
+                print(f"  Mode: V2G + Home Charging + Private Wallboxes")
+                if sim_params.get('duration'):
+                    print(f"  Duration: {format_time(sim_params['duration'])}")
+                print("="*60 + "\n")
+
+                # Step 1: Download OSM data
                 osm_file = download_osm_data(bbox, scenario)
                 scen_dir = os.path.dirname(osm_file)
 
-                # Save simulation parameters for downstream scripts (performativeMainSim2 reads these)
+                # Save simulation parameters
                 sim_params_file = os.path.join(scen_dir, "sim_params.json")
                 with open(sim_params_file, 'w', encoding='utf-8') as f:
                     json.dump(sim_params, f, indent=2)
-                print(f"[INFO] Simulation parameters saved -> {sim_params_file}")
 
-                # Extract real already existing charging stations
+                # Extract real charging stations
                 real_charging_stations = extract_real_charging_stations(osm_file)
-                print(f"[INFO] Extracted real charging stations: {len(real_charging_stations['features'])} found")
+                num_real_stations = len(real_charging_stations['features'])
+                if num_real_stations > 0:
+                    log_result(f"Found {num_real_stations} real charging stations in OSM data")
 
                 # Step 2: Build SUMO network
                 net_file = build_sumo_network(osm_file, scenario)
 
                 # Step 3: Extract POIs
-                print(f"[INFO] Extracting POIs -> {scen_dir}")
+                log_status("Extracting points of interest...")
                 poi_files = extract_pois(osm_file, scen_dir)
+                log_result(f"Extracted POIs: {len(poi_files)} categories")
                 
                 # Read POI files and convert to GeoJSON
                 poi_geojson = read_poi_files(poi_files)
 
                 # Step 4: Assign POIs to edges
-                print(f"[INFO] Assigning POIs to edges -> {poi_files}")
+                log_status("Assigning POIs to network edges...")
                 edge_files = assign_poi_to_edges(net_file, poi_files)
-                print(f"[INFO] POI edge assignments completed: {len(edge_files)} files generated")
+                log_result(f"POI assignments completed")
 
                 # Step 5: Generate trips
-                print(f"[INFO] Generating vehicle trips")
-                # edge_files is already a list from assign_poi_to_edges
+                log_status("Generating vehicle trips...")
                 edge_files_list = edge_files if isinstance(edge_files, list) else list(edge_files.values())
                 
                 _duration = int(sim_params.get('duration', 0))
                 if 0 < _duration < 36000:
                     trips_file = generate_trips_test(net_file, edge_files_list, scen_dir, sim_params=sim_params)
-                    print(f"[INFO] FAST trips generated (duration {_duration}s < 10h threshold) -> {trips_file}")
                 else:
                     trips_file = generate_trips(net_file, edge_files_list, scen_dir, sim_params=sim_params)
-                    print(f"[INFO] Full trips generated -> {trips_file}")
+                log_result(f"Trips generated: {os.path.basename(trips_file)}")
 
                 # Step 5.5: Build synthetic power grid from OSM road network
-                print(f"[INFO] Building synthetic power grid from OSM road network")
+                log_status("Building power grid model...")
                 grid_manager = PowerGridManager(osm_file=osm_file, scenario_name=scenario)
                 grid_build_success = grid_manager.build_grid()
                 
@@ -1232,7 +1248,6 @@ class Handler(BaseHTTPRequestHandler):
                     import sumolib
                     net = sumolib.net.readNet(net_file)
                 except ImportError:
-                    print("[WARNING] sumolib not available - some grid features may not work")
                     net = None
                 
                 if grid_build_success:
@@ -1255,12 +1270,11 @@ class Handler(BaseHTTPRequestHandler):
                     
                     grid_file = os.path.join(scen_dir, "power_grid.pkl")
                     grid_manager.save(grid_file)
+                    log_result("Power grid model built")
                 else:
-                    print(f"[WARNING] Grid construction failed - using fallback")
                     grid_manager = None
 
                 # Step 6: Create osm.chargingstations.xml from real OSM data
-                print(f"[INFO] Creating osm.chargingstations.xml from real OSM data")
                 create_osm_chargingstations_file(real_charging_stations, scen_dir, net_file)
 
                 # Step 7: Copy default additional files (BEFORE wallbox generation so we can modify combined_additional.xml)
@@ -1268,7 +1282,7 @@ class Handler(BaseHTTPRequestHandler):
                 copy_vehicle_types_additional(scenario)
 
                 # Step 8: Generate private wallboxes (50% of EV owners)
-                print(f"[INFO] Generating private wallboxes at 50% of EV owner homes")
+                log_status("Generating private wallboxes...")
                 
                 # Read the trips file to get persons data
                 trips_tree = ET.parse(trips_file)
@@ -1300,55 +1314,44 @@ class Handler(BaseHTTPRequestHandler):
                             }
                             persons_data.append(person_data)
                 
-                # Generate wallboxes at 5% of EV owner homes
+                # Generate wallboxes at 50% of EV owner homes
                 try:
                     wallbox_file, wallbox_homes_geojson_path, vehicle_types_file = generate_private_wallboxes(
                         net_file, 
                         persons_data, 
                         scen_dir,
-                        trips_file=trips_file,  # Pass trips file for updating vehicle types
-                        wallbox_share=0.50  # 50% of EV owners get wallboxes
+                        trips_file=trips_file,
+                        wallbox_share=0.50
                     )
-                    print(f"[INFO] Private wallboxes generated -> {wallbox_file}")
+                    log_result(f"Wallboxes generated: {os.path.basename(wallbox_file)}")
                     
                     # Read wallbox homes GeoJSON for UI visualization
                     wallbox_homes_geojson = None
                     if os.path.exists(wallbox_homes_geojson_path):
                         with open(wallbox_homes_geojson_path, 'r', encoding='utf-8') as f:
                             wallbox_homes_geojson = json.load(f)
-                        print(f"[INFO] Loaded wallbox homes GeoJSON: {len(wallbox_homes_geojson.get('features', []))} homes")
                     
                     # If unique vehicle types were generated, use them instead of default
                     if vehicle_types_file and os.path.exists(vehicle_types_file):
-                        print(f"[INFO] Using wallbox-specific vehicle types: {os.path.basename(vehicle_types_file)}")
-                        # Update combined_additional.xml to reference the new vehicle types file
-                        # IMPORTANT: Remove private_wallboxes.xml so stationfinder doesn't route vehicles there
-                        # TraCI will manage wallboxes as virtual stations based on vehicle proximity
+                        # Update combined_additional.xml
                         combined_add_path = os.path.join(scen_dir, "combined_additional.xml")
                         if os.path.exists(combined_add_path):
                             tree = ET.parse(combined_add_path)
                             root = tree.getroot()
                             
-                            # Remove private_wallboxes.xml from SUMO's additional files
-                            # This prevents stationfinder from routing vehicles to wallboxes
+                            # Remove private_wallboxes.xml from SUMO
                             for include in root.findall('include'):
                                 if include.get('href') == 'private_wallboxes.xml':
                                     root.remove(include)
-                                    print(f"[INFO] Removed private_wallboxes.xml from SUMO - TraCI manages wallboxes")
                             
-                            # Keep real OSM charging stations (osm.chargingstations.xml)
-                            print(f"[INFO] Using real OSM charging stations from osm.chargingstations.xml")
-                            
-                            # Replace vehicle_types.add.xml include with wallbox_vehicle_types.add.xml
+                            # Replace vehicle_types.add.xml with wallbox_vehicle_types.add.xml
                             for include in root.findall('include'):
                                 if include.get('href') == 'vehicle_types.add.xml':
                                     include.set('href', os.path.basename(vehicle_types_file))
                             tree.write(combined_add_path, encoding='utf-8', xml_declaration=True)
-                            print(f"[INFO] Updated combined_additional.xml to use wallbox vehicle types")
                     
                     # Connect private wallboxes to grid
                     if grid_manager and grid_build_success and net and wallbox_file and os.path.exists(wallbox_file):
-                        print(f"[INFO] Connecting private wallboxes to grid")
                         # Parse wallboxes XML to get locations
                         wb_tree = ET.parse(wallbox_file)
                         wb_root = wb_tree.getroot()
@@ -1368,7 +1371,6 @@ class Handler(BaseHTTPRequestHandler):
                                     mid_idx = len(lane_shape) // 2
                                     x, y = lane_shape[mid_idx]
                                     
-                                    # Convert SUMO coords to lon/lat for grid manager
                                     lon, lat = net.convertXY2LonLat(x, y)
                                     
                                     wallboxes_for_grid.append({
@@ -1378,18 +1380,14 @@ class Handler(BaseHTTPRequestHandler):
                                         'power_kw': 11.0,
                                         'type': 'wallbox'
                                     })
-                            except Exception as wb_err:
-                                print(f"[WARNING] Could not get coords for {wb_id}: {wb_err}")
+                            except Exception:
+                                pass
                         
                         if wallboxes_for_grid:
                             grid_manager.assign_charging_stations_to_grid([], private_wallboxes=wallboxes_for_grid)
-                            grid_manager.save(grid_file)  # Re-save with wallboxes
-                            print(f"[INFO] Connected {len(wallboxes_for_grid)} private wallboxes to grid")
+                            grid_manager.save(grid_file)
                     
-                except Exception as e:
-                    print(f"[WARNING] Could not generate private wallboxes: {e}")
-                    import traceback
-                    traceback.print_exc()
+                except Exception:
                     wallbox_homes_geojson = None
 
                 # Step 9: Create sim.sumocfg
@@ -1424,47 +1422,55 @@ class Handler(BaseHTTPRequestHandler):
                     grid_config_file = os.path.join(scen_dir, "grid_config.json")
                     with open(grid_config_file, 'w', encoding='utf-8') as f:
                         json.dump(grid_config, f, indent=2)
-                    print(f"[INFO] Dynamic grid power: {dynamic_grid_power_kw:.0f} kW for {area_km2:.3f} km² area -> {grid_config_file}")
-                except Exception as e:
-                    print(f"[WARNING] Could not calculate dynamic grid power: {e}")
+                except Exception:
+                    pass
 
                 # Step 10: Run TraCI simulation with V2G and home charging
-                # NOTE: This replaces the standard headless SUMO simulation
-                print("[INFO] Running TraCI simulation with V2G support...")
+                # Count vehicles for time estimation
+                trips_tree = ET.parse(trips_file)
+                num_vehicles = len(trips_tree.getroot().findall('vehicle'))
+                sim_duration = sim_params.get('duration', 0)
+                
+                log_status(f"Running TraCI simulation ({num_vehicles} vehicles, {format_time(sim_duration)})...")
+                est_time = estimate_sumo_time(sim_duration, num_vehicles) * 1.5  # TraCI is ~50% slower
+                print(f"  Estimated runtime: {format_time(est_time)} (with V2G + home charging)")
+                
                 traci_script = os.path.join(os.path.dirname(__file__), "performativeMainSim2.py")
                 traci_command = [sys.executable, traci_script, scen_dir]
+                start_time = time.time()
                 try:
                     result = subprocess.run(traci_command, check=True, capture_output=True, text=True)
-                    print(result.stdout)
-                    if result.stderr:
-                        print(f"[STDERR] {result.stderr}")
-                    print("[INFO] TraCI simulation completed successfully")
+                    actual_time = time.time() - start_time
+                    # Show TraCI output if it contains important info
+                    if "ERROR" in result.stdout or "WARNING" in result.stdout:
+                        print(result.stdout)
+                    log_result(f"TraCI simulation completed in {format_time(actual_time)}")
                 except subprocess.CalledProcessError as e:
-                    print(f"[ERROR] TraCI simulation failed: {e.stderr}")
+                    log_error(f"TraCI simulation failed: {e.stderr}")
                     raise Exception(f"TraCI simulation failed: {e.stderr}")
 
                 # Step 11: Convert SUMO logs to CSV for analysis
-                print("[INFO] Converting SUMO logs to CSV...")
+                log_status("Processing simulation logs...")
                 convert_logs_to_csv(
                     os.path.join(scen_dir, "fcd_output.xml.gz"),
                     os.path.join(scen_dir, "battery_output.xml.gz"),
                     os.path.join(scen_dir, "combined_additional.xml"),
                     os.path.join(scen_dir, "sumo_merged_output.csv")
                 )
-                print("[INFO] Logs converted to CSV successfully.")
+                log_result("Logs converted: sumo_merged_output.csv")
 
                 # Step 12: Generate traffic heatmap from logs
+                log_status("Generating heatmaps and analysis...")
                 traffic_heatmap_file = os.path.join(scen_dir, "traffic_heatmap.json")
                 try:
                     generate_traffic_heatmap(
                         os.path.join(scen_dir, "sumo_merged_output.csv"),
                         net_file,
                         traffic_heatmap_file,
-                        sample_rate=0.25  # 25% sampling to reduce data size
+                        sample_rate=0.25
                     )
-                    print("[INFO] Traffic heatmap generated successfully.")
-                except Exception as e:
-                    print(f"[WARNING] Traffic heatmap generation failed: {e}")
+                except Exception:
+                    pass
 
                 # Step 13: Generate charging demand heatmap from low-SOC analysis (grid-aware)
                 heatmap_json_file = os.path.join(scen_dir, "no_station_heatmap.json")
@@ -1476,12 +1482,13 @@ class Handler(BaseHTTPRequestHandler):
                         os.path.join(scen_dir, "suggested_charging_stations.add.xml"),
                         net_file,
                         heatmap_json_file,
-                        power_grid_manager=grid_manager if grid_build_success else None,  # Grid-aware placement
-                        fast_mode=True  # OPTIMIZED: spatial grid pre-clustering, sampling, larger EPS/MIN_SAMPLES
+                        power_grid_manager=grid_manager if grid_build_success else None,
+                        fast_mode=True
                     )
-                    print("[INFO] Charging demand heatmap generated successfully.")
-                except Exception as e:
-                    print(f"[WARNING] Charging demand analysis failed: {e}")
+                except Exception:
+                    pass
+                
+                log_result("Analysis complete: heatmaps and charging suggestions generated")
 
                 # Read heatmap data files
                 heatmap_geojson_file = os.path.join(scen_dir, "no_station_areas.geojson")
@@ -1506,11 +1513,8 @@ class Handler(BaseHTTPRequestHandler):
                 if grid_build_success and grid_manager:
                     try:
                         power_grid_network = grid_manager.to_geojson()
-                        print(f"[INFO] Exported power grid network: {power_grid_network['properties']['total_buses']} buses, "
-                              f"{power_grid_network['properties']['total_lines']} lines, "
-                              f"{power_grid_network['properties']['total_transformers']} transformers")
-                    except Exception as e:
-                        print(f"[WARNING] Could not export grid network: {e}")
+                    except Exception:
+                        pass
 
                 # Read TraCI simulation outputs
                 traci_logs_dir = os.path.join(scen_dir, "traci_logs")
@@ -1530,8 +1534,6 @@ class Handler(BaseHTTPRequestHandler):
                 if os.path.exists(v2g_summary_file):
                     with open(v2g_summary_file, 'r', encoding='utf-8') as f:
                         v2g_stats = json.load(f)
-                    print(f"[INFO] V2G summary loaded: {v2g_stats.get('v2g', {}).get('active_vehicles', 0)} V2G vehicles, "
-                          f"{v2g_stats.get('v2g', {}).get('total_discharged_kwh', 0):.2f} kWh discharged")
 
                 # Read charts data for UI visualization
                 charts_file = os.path.join(traci_logs_dir, "charts_data.json")
@@ -1539,9 +1541,10 @@ class Handler(BaseHTTPRequestHandler):
                 if os.path.exists(charts_file):
                     with open(charts_file, 'r', encoding='utf-8') as f:
                         charts_data = json.load(f)
-                    print(f"[INFO] Charts data loaded: {len(charts_data)} chart datasets")
 
                 # Respond with success
+                log_status("Pipeline completed successfully!")
+                print(f"  Scenario: {scen_dir}")
                 resp = {
                     "ok": True,
                     "message": "Pipeline completed successfully with TraCI simulation (V2G + Home Charging + Private Wallboxes)",
@@ -1570,7 +1573,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(payload)
             except Exception as e:
-                print(f"[ERROR] {e}")
+                log_error(str(e))
                 import traceback
                 traceback.print_exc()
                 msg = {"ok": False, "error": str(e)}
