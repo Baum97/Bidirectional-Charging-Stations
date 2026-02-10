@@ -219,7 +219,35 @@
               <input id="paramEvShare" type="number" value="0.6" min="0" max="1" step="0.05" class="param-input" title="Fraction of vehicles that are electric (0.0 – 1.0)" />
             </label>
 
-            <div class="param-group-label">🔋 Battery</div>
+            <div class="param-group-label">� Trip Generation Model</div>
+            <label class="param-label">Model Type
+              <select id="paramTripModel" class="param-input" title="Simple: home-work-home only. Realistic: multi-activity chains">
+                <option value="realistic">Realistic (Multi-Activity)</option>
+                <option value="simple">Simple (Home-Work-Home)</option>
+              </select>
+            </label>
+            <label class="param-label">Day Pattern
+              <select id="paramDayPattern" class="param-input" title="Weekday or weekend travel patterns">
+                <option value="weekday">Weekday</option>
+                <option value="weekend">Weekend</option>
+              </select>
+            </label>
+
+            <div class="param-group-label">👥 User Demographics (Realistic Model)</div>
+            <label class="param-label">Working Persons %
+              <input id="paramWorkingPersonRatio" type="number" value="0.65" min="0" max="1" step="0.05" class="param-input" title="Fraction of working persons (0.0 – 1.0)" />
+            </label>
+            <label class="param-label">Students %
+              <input id="paramStudentRatio" type="number" value="0.15" min="0" max="1" step="0.05" class="param-input" title="Fraction of students (0.0 – 1.0)" />
+            </label>
+            <label class="param-label">Car Dependent %
+              <input id="paramCarDependentRatio" type="number" value="0.40" min="0" max="1" step="0.05" class="param-input" title="Fraction of car-dependent users (0.0 – 1.0)" />
+            </label>
+            <label class="param-label">Random Seed
+              <input id="paramRandomSeed" type="number" value="42" min="1" max="99999" step="1" class="param-input" title="Seed for reproducible random generation" />
+            </label>
+
+            <div class="param-group-label">�🔋 Battery</div>
             <label class="param-label">Capacity (Wh)
               <input id="paramBatteryCapacity" type="number" value="80000" min="1000" max="500000" step="1000" class="param-input" title="Maximum battery capacity in Wh" />
             </label>

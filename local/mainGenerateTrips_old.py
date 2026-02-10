@@ -1,10 +1,3 @@
-"""
-Trip generation with configurable mobility models.
-
-Supports both simple home-work-home patterns and realistic activity chains
-based on the ev_mobility_model approach (MIT License, Jonas Schlund 2022).
-"""
-
 import sumolib
 import csv
 import random
@@ -12,14 +5,9 @@ import xml.etree.ElementTree as ET
 import sys
 import os
 
-
 def generate_trips(netfile, input_csvs, output_dir, sim_params=None):
     """
     Generate trips based on POI edges and save them to an XML file.
-    
-    This function now supports two modes:
-    - 'simple': Original home-work-home pattern
-    - 'realistic': Improved multi-activity trip chains (default)
 
     Args:
         netfile (str): Path to the SUMO network file.
@@ -29,30 +17,6 @@ def generate_trips(netfile, input_csvs, output_dir, sim_params=None):
 
     Returns:
         str: Path to the generated trips XML file.
-    """
-    if sim_params is None:
-        sim_params = {}
-    
-    # Check which model to use
-    trip_model = sim_params.get('trip_model', 'realistic')  # 'simple' or 'realistic'
-    
-    if trip_model == 'realistic':
-        try:
-            # Use the improved mobility model
-            from mainGenerateTrips_improved import generate_trips as generate_realistic
-            return generate_realistic(netfile, input_csvs, output_dir, sim_params)
-        except Exception as e:
-            print(f"⚠️  Warning: Realistic model failed ({e}), falling back to simple model")
-            trip_model = 'simple'
-    
-    # Fall back to simple model
-    return _generate_trips_simple(netfile, input_csvs, output_dir, sim_params)
-
-
-def _generate_trips_simple(netfile, input_csvs, output_dir, sim_params=None):
-    """
-    Simple trip generation: home-work-home pattern.
-    Original implementation kept for compatibility.
     """
     if sim_params is None:
         sim_params = {}

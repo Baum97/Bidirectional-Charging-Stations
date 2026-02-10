@@ -71,6 +71,15 @@ function collectSimParams() {
     duration:                      parseInt(document.getElementById('duration').value, 10) || 0,
     num_persons:                   parseInt(document.getElementById('paramNumPersons').value, 10) || 250,
     ev_share:                      parseFloat(document.getElementById('paramEvShare').value) || 0.6,
+    
+    // Trip generation model parameters
+    trip_model:                    document.getElementById('paramTripModel')?.value || 'realistic',
+    use_weekday_pattern:           document.getElementById('paramDayPattern')?.value === 'weekday',
+    working_person_ratio:          parseFloat(document.getElementById('paramWorkingPersonRatio')?.value) || 0.65,
+    student_ratio:                 parseFloat(document.getElementById('paramStudentRatio')?.value) || 0.15,
+    car_dependent_ratio:           parseFloat(document.getElementById('paramCarDependentRatio')?.value) || 0.40,
+    random_seed:                   parseInt(document.getElementById('paramRandomSeed')?.value, 10) || 42,
+    
     battery_capacity:              parseInt(document.getElementById('paramBatteryCapacity').value, 10) || 80000,
     battery_actual:                parseInt(document.getElementById('paramBatteryActual').value, 10) || 40000,
     max_charging_power_kw:         parseInt(document.getElementById('paramMaxChargingPower').value, 10) || 200,
