@@ -23,10 +23,15 @@ import os
 import sys
 import subprocess
 import shutil
+import time
 import xml.etree.ElementTree as ET
 import re
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse
+from urllib.request import urlopen, Request
+from urllib.error import URLError, HTTPError
+import gzip
+import io
 
 from extract_pois import extract_pois
 from getPOIEdgeIDs import assign_poi_to_edges
@@ -71,25 +76,105 @@ def _sumo_paths():
     }
 
 
-def _run(cmd, cwd=None):
+def _run(cmd, cwd=None, timeout=300):
     print("[RUN]", " ".join(cmd))
-    result = subprocess.run(cmd, check=False, cwd=cwd, capture_output=True, text=True)
+    result = subprocess.run(cmd, check=False, cwd=cwd, capture_output=True, text=True, timeout=timeout)
     if result.stdout:
         print(result.stdout)
     if result.stderr:
         print("[STDERR]", result.stderr)
     if result.returncode != 0:
         raise subprocess.CalledProcessError(result.returncode, cmd, result.stdout, result.stderr)
+    return result
 
 
-def download_osm_data(bbox, scenario, prefix="test_name"):
+def _download_osm_direct(bbox, output_path, timeout=120):
+    """
+    Fallback: download OSM data directly via HTTP when osmGet.py fails.
+    Tries multiple Overpass API servers, then falls back to the OSM map API.
+    """
+    minLon, minLat, maxLon, maxLat = bbox
+
+    # Overpass QL query for the bounding box
+    overpass_query = (
+        f'[out:xml][timeout:180];'
+        f'(node({minLat},{minLon},{maxLat},{maxLon});'
+        f'<;);'
+        f'out meta;'
+    )
+
+    overpass_servers = [
+        "https://overpass-api.de/api/interpreter",
+        "https://overpass.kumi.systems/api/interpreter",
+        "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
+    ]
+
+    # Try each Overpass server
+    for server_url in overpass_servers:
+        try:
+            print(f"[INFO] Direct download: trying {server_url}")
+            data = overpass_query.encode("utf-8")
+            req = Request(server_url, data=data, headers={
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Accept-Encoding": "gzip",
+            })
+            response = urlopen(req, timeout=timeout)
+            content = response.read()
+
+            # Decompress if gzipped
+            if response.headers.get("Content-Encoding") == "gzip":
+                content = gzip.decompress(content)
+
+            # Sanity check: must contain OSM XML
+            text = content.decode("utf-8", errors="replace")
+            if "<osm" not in text[:500]:
+                print(f"[WARNING] Response from {server_url} is not valid OSM XML (first 200 chars): {text[:200]}")
+                continue
+
+            with open(output_path, "wb") as f:
+                f.write(content)
+            print(f"[INFO] Direct download succeeded from {server_url} -> {output_path} ({len(content)} bytes)")
+            return output_path
+
+        except (HTTPError, URLError, TimeoutError, OSError) as e:
+            print(f"[WARNING] Direct download from {server_url} failed: {e}")
+            continue
+
+    # Last resort: OSM export API (limited to small areas)
+    try:
+        export_url = f"https://api.openstreetmap.org/api/0.6/map?bbox={minLon},{minLat},{maxLon},{maxLat}"
+        print(f"[INFO] Direct download: trying OSM export API: {export_url}")
+        req = Request(export_url, headers={"Accept-Encoding": "gzip"})
+        response = urlopen(req, timeout=timeout)
+        content = response.read()
+        if response.headers.get("Content-Encoding") == "gzip":
+            content = gzip.decompress(content)
+
+        text = content.decode("utf-8", errors="replace")
+        if "<osm" not in text[:500]:
+            print(f"[WARNING] OSM export API response is not valid OSM XML")
+        else:
+            with open(output_path, "wb") as f:
+                f.write(content)
+            print(f"[INFO] OSM export API download succeeded -> {output_path} ({len(content)} bytes)")
+            return output_path
+    except (HTTPError, URLError, TimeoutError, OSError) as e:
+        print(f"[WARNING] OSM export API failed: {e}")
+
+    return None
+
+
+def download_osm_data(bbox, scenario, prefix="test_name", max_retries=3):
     """
     Downloads OSM data for the given bounding box and scenario.
+    Retries on failure to handle transient network issues.
+    Falls back to direct HTTP download if osmGet.py fails.
 
     Args:
         bbox (list): Bounding box [minLon, minLat, maxLon, maxLat].
         scenario (str): Scenario name.
         prefix (str): Prefix for the OSM file.
+        max_retries (int): Number of retry attempts.
 
     Returns:
         str: Path to the downloaded OSM file.
@@ -98,41 +183,172 @@ def download_osm_data(bbox, scenario, prefix="test_name"):
         raise ValueError("bbox must be [minLon, minLat, maxLon, maxLat]")
 
     paths = _sumo_paths()
-    base_dir = os.path.join("..", "data", "scenarios", scenario)
+    base_dir = os.path.abspath(os.path.join("..", "data", "scenarios", scenario))
     os.makedirs(base_dir, exist_ok=True)
     print(f"[INFO] Created base directory: {base_dir}")
 
     minLon, minLat, maxLon, maxLat = bbox
     bbox_str = f"{minLon},{minLat},{maxLon},{maxLat}"
 
-    # Fetch OSM extract
-    print(f"[INFO] Fetching OSM data for bbox: {bbox_str}")
-    _run([sys.executable, paths["osmGet"], "-b", bbox_str, "-p", prefix], cwd=base_dir)
+    # Retry loop for transient network failures
+    for attempt in range(max_retries):
+        try:
+            # Fetch OSM extract
+            print(f"[INFO] Fetching OSM data for bbox: {bbox_str} (attempt {attempt + 1}/{max_retries})")
+            print(f"[INFO] Using osmGet from: {paths['osmGet']}")
+            print(f"[INFO] Output directory: {base_dir}")
+            
+            # Check files before running osmGet
+            files_before = set(os.listdir(base_dir))
+            print(f"[DEBUG] Files before osmGet: {files_before}")
+            
+            # Run osmGet with explicit output directory
+            # osmGet.py uses -d for output directory
+            cmd = [sys.executable, paths["osmGet"], "-b", bbox_str, "-p", prefix, "-d", base_dir]
+            print(f"[DEBUG] Running command with output directory: {base_dir}")
+            
+            try:
+                result = _run(cmd, cwd=base_dir, timeout=120)
+            except subprocess.CalledProcessError as e:
+                # If that fails, try running from SUMO tools directory
+                print(f"[INFO] Trying alternate approach from SUMO tools directory...")
+                sumo_tools_dir = os.path.dirname(paths["osmGet"])
+                cmd = [sys.executable, paths["osmGet"], "-b", bbox_str, "-p", prefix, "-d", base_dir]
+                result = _run(cmd, cwd=sumo_tools_dir, timeout=120)
+            
+            # Detect HTTP errors in osmGet output (it exits 0 even on 504, 429, etc.)
+            combined_output = (result.stdout or "") + (result.stderr or "")
+            http_error_patterns = ["Gateway Timeout", "503 Service", "429 Too Many", "500 Internal", "502 Bad Gateway"]
+            for pat in http_error_patterns:
+                if pat.lower() in combined_output.lower():
+                    print(f"[WARNING] osmGet output contains HTTP error: '{pat}'")
+                    raise subprocess.CalledProcessError(1, cmd, result.stdout, f"HTTP error detected in output: {pat}")
+            
+            # Check files after running osmGet
+            files_after = set(os.listdir(base_dir))
+            new_files = files_after - files_before
+            print(f"[DEBUG] Files after osmGet: {files_after}")
+            print(f"[DEBUG] New files created: {new_files}")
+            
+            if not new_files:
+                # Check if osmGet created files in the SUMO tools directory instead
+                sumo_tools_dir = os.path.dirname(paths["osmGet"])
+                print(f"[DEBUG] Checking SUMO tools directory for files: {sumo_tools_dir}")
+                try:
+                    tools_files_before = set(os.listdir(sumo_tools_dir))
+                    tools_files_after = set(os.listdir(sumo_tools_dir))
+                    tools_new_files = tools_files_after - tools_files_before
+                    if tools_new_files:
+                        print(f"[DEBUG] Found files in SUMO tools directory: {tools_new_files}")
+                        # Try to move them to base_dir
+                        for f in tools_new_files:
+                            src = os.path.join(sumo_tools_dir, f)
+                            dst = os.path.join(base_dir, f)
+                            try:
+                                shutil.move(src, dst)
+                                new_files.add(f)
+                                print(f"[INFO] Moved {f} from SUMO tools to scenario directory")
+                            except Exception as e:
+                                print(f"[WARNING] Could not move {f}: {e}")
+                except Exception as e:
+                    print(f"[DEBUG] Could not check SUMO tools directory: {e}")
+                
+            if not new_files:
+                error_msg = f"osmGet executed (returncode={result.returncode}) but did not create any files in {base_dir}"
+                if attempt < max_retries - 1:
+                    print(f"[WARNING] {error_msg}")
+                    print(f"[INFO] Retrying in 5 seconds...")
+                    time.sleep(5)
+                    continue
+                else:
+                    # All osmGet retries exhausted — try direct HTTP download
+                    print(f"[INFO] All osmGet attempts produced no files. Trying direct HTTP download...")
+                    fallback_file = os.path.join(base_dir, f"{prefix}_bbox.osm.xml")
+                    result_path = _download_osm_direct(bbox, fallback_file)
+                    if result_path and os.path.isfile(result_path):
+                        return result_path
+                    raise RuntimeError(error_msg)
+            
+            # Determine the produced OSM file
+            print("[INFO] Determining the produced OSM file...")
+            allowed_suffixes = (".osm.xml", ".osm", ".osm.gz", ".osm.bz2", ".pbf", ".osm.pbf")
+            osm_file = None
+            
+            dir_contents = sorted(files_after)
+            print(f"[DEBUG] Directory contents: {dir_contents}")
+            
+            # First, try to find by prefix pattern
+            for fname in dir_contents:
+                low = fname.lower()
+                print(f"[DEBUG] Checking file: {fname} (starts with 'map'={low.startswith('map')}, starts with '{prefix}_bbox'={low.startswith(f'{prefix}_bbox')})")
+                if (low.startswith("map") or low.startswith(f"{prefix}_bbox")) and any(
+                    low.endswith(s) for s in allowed_suffixes
+                ):
+                    osm_file = fname
+                    break
+            
+            # If not found by prefix, look for ANY OSM file in new files
+            if not osm_file and new_files:
+                print(f"[DEBUG] Prefix pattern not found, checking new files for OSM extensions: {new_files}")
+                for fname in new_files:
+                    low = fname.lower()
+                    if any(low.endswith(s) for s in allowed_suffixes):
+                        osm_file = fname
+                        print(f"[INFO] Found OSM file by extension: {fname}")
+                        break
 
-    # Determine the produced OSM file
-    print("[INFO] Determining the produced OSM file...")
-    allowed_suffixes = (".osm.xml", ".osm", ".osm.gz", ".osm.bz2", ".pbf", ".osm.pbf")
-    osm_file = None
-    for fname in sorted(os.listdir(base_dir)):
-        low = fname.lower()
-        if (low.startswith("map") or low.startswith(f"{prefix}_bbox")) and any(
-            low.endswith(s) for s in allowed_suffixes
-        ):
-            osm_file = fname
-            break
-
-    if not osm_file:
-        listing = "\n".join(sorted(os.listdir(base_dir)))
-        raise RuntimeError(
-            "osmGet did not produce an OSM file matching 'map*' or "
-            "'<prefix>_bbox*' with suffixes {}. Directory contents:\n{}".format(
-                ", ".join(allowed_suffixes), listing
-            )
-        )
-
-    osm_file_path = os.path.abspath(os.path.join(base_dir, osm_file))
-    print(f"[INFO] Found OSM file: {osm_file_path}")
-    return osm_file_path
+            if osm_file:
+                osm_file_path = os.path.join(base_dir, osm_file)
+                print(f"[INFO] Found OSM file: {osm_file_path}")
+                return osm_file_path
+            else:
+                error_msg = (
+                    f"osmGet created files but none matched expected pattern 'map*' or '{prefix}_bbox*' "
+                    f"with suffixes {', '.join(allowed_suffixes)}. Created files: {new_files}"
+                )
+                if attempt < max_retries - 1:
+                    print(f"[WARNING] {error_msg}")
+                    # Clean up created files for next attempt
+                    for f in new_files:
+                        try:
+                            os.remove(os.path.join(base_dir, f))
+                        except:
+                            pass
+                    print(f"[INFO] Retrying in 5 seconds...")
+                    time.sleep(5)
+                    continue
+                else:
+                    raise RuntimeError(error_msg)
+                    
+        except subprocess.TimeoutExpired:
+            if attempt < max_retries - 1:
+                print(f"[WARNING] osmGet.py timed out. Retrying in 5 seconds...")
+                time.sleep(5)
+            else:
+                raise RuntimeError(f"osmGet.py timed out after {max_retries} attempts. The OSM API may be unavailable or slow.")
+        except subprocess.CalledProcessError as e:
+            if attempt < max_retries - 1:
+                print(f"[WARNING] osmGet returned non-zero exit code {e.returncode}")
+                print(f"[WARNING] stdout: {e.stdout}")
+                print(f"[WARNING] stderr: {e.stderr}")
+                print(f"[INFO] Retrying in 5 seconds...")
+                time.sleep(5)
+            else:
+                print(f"[ERROR] osmGet failed after {max_retries} attempts")
+                print(f"[ERROR] Last error: {e}")
+                raise RuntimeError(f"osmGet.py failed: {e.stderr or e.stdout or 'Unknown error'}")
+        except Exception as e:
+            if attempt < max_retries - 1:
+                print(f"[WARNING] Error during OSM download: {e}. Retrying in 5 seconds...")
+                time.sleep(5)
+            else:
+                # All osmGet retries exhausted — try direct HTTP download as fallback
+                print(f"[INFO] All osmGet attempts failed. Trying direct HTTP download as fallback...")
+                fallback_file = os.path.join(base_dir, f"{prefix}_bbox.osm.xml")
+                result_path = _download_osm_direct(bbox, fallback_file)
+                if result_path and os.path.isfile(result_path):
+                    return result_path
+                raise
 
 
 def build_sumo_network(osm_file, scenario):
@@ -669,26 +885,9 @@ class Handler(BaseHTTPRequestHandler):
 
                 # Step 1: Download OSM data -> returns full path to the file
                 # COMMENTED OUT: Reusing OSM data from scenario_20260208_215130 instead of downloading
-                # osm_file = download_osm_data(bbox, scenario)
-                
-                # Create new scenario directory
-                base_dir = os.path.join("..", "data", "scenarios", scenario)
-                os.makedirs(base_dir, exist_ok=True)
-                print(f"[INFO] Created scenario directory: {base_dir}")
-                
-                # Copy OSM file from previous scenario
-                source_osm = os.path.abspath(os.path.join("..", "data", "scenarios", "scenario_20260208_215130", "test_name_bbox.osm.xml"))
-                target_osm = os.path.join(base_dir, "test_name_bbox.osm.xml")
-                
-                if not os.path.exists(source_osm):
-                    raise FileNotFoundError(f"Source OSM file not found: {source_osm}")
-                
-                shutil.copy2(source_osm, target_osm)
-                print(f"[INFO] Copied OSM data from scenario_20260208_215130 -> {target_osm}")
-                
-                osm_file = os.path.abspath(target_osm)
+                osm_file = download_osm_data(bbox, scenario)
                 scen_dir = os.path.dirname(osm_file)
-
+                
                 # Extract real already existing charging stations
                 real_charging_stations = extract_real_charging_stations(osm_file)
                 print(f"[INFO] Extracted real charging stations: {len(real_charging_stations['features'])} found")
@@ -698,54 +897,22 @@ class Handler(BaseHTTPRequestHandler):
 
                 # Step 3: Extract POIs
                 # COMMENTED OUT: Reusing POI data from scenario_20260208_215130 instead of processing
-                # print(f"[INFO] Extracting POIs -> {scen_dir}")
-                # poi_files = extract_pois(osm_file, scen_dir)
+                print(f"[INFO] Extracting POIs -> {scen_dir}")
+                poi_files = extract_pois(osm_file, scen_dir)
                 
-                # Copy POI files from previous scenario
-                source_scenario_dir = os.path.abspath(os.path.join("..", "data", "scenarios", "scenario_20260208_215130"))
-                poi_file_names = [
-                    "poi_offices.csv",
-                    "poi_others.csv",
-                    "poi_residential.csv"
-                ]
-                poi_files = []  # Changed to list for read_poi_files()
-                for poi_file in poi_file_names:
-                    source_poi = os.path.join(source_scenario_dir, poi_file)
-                    target_poi = os.path.join(scen_dir, poi_file)
-                    if os.path.exists(source_poi):
-                        shutil.copy2(source_poi, target_poi)
-                        poi_files.append(target_poi)  # Append file path to list
-                print(f"[INFO] Copied {len(poi_files)} POI files from scenario_20260208_215130")
-                
+               
                 # Read POI files and convert to GeoJSON
                 poi_geojson = read_poi_files(poi_files)
 
                 # Step 4: Assign POIs to edges
-                # COMMENTED OUT: Reusing edge assignments from scenario_20260208_215130 instead of processing
-                # print(f"[INFO] Assigning POIs to edges -> {poi_files}")
-                # edge_files = assign_poi_to_edges(net_file, poi_files)
-                
-                # Copy POI edge assignment files from previous scenario
-                edge_file_names = [
-                    "poi_offices_edges.csv",
-                    "poi_others_edges.csv",
-                    "poi_residential_edges.csv"
-                ]
-                edge_files = {}
-                for edge_file in edge_file_names:
-                    source_edge = os.path.join(source_scenario_dir, edge_file)
-                    target_edge = os.path.join(scen_dir, edge_file)
-                    if os.path.exists(source_edge):
-                        shutil.copy2(source_edge, target_edge)
-                        # Map the type to the file path
-                        poi_type = edge_file.replace("poi_", "").replace("_edges.csv", "")
-                        edge_files[poi_type] = target_edge
-                print(f"[INFO] Copied {len(edge_files)} POI edge assignment files from scenario_20260208_215130")
+                print(f"[INFO] Assigning POIs to edges -> {poi_files}")
+                edge_files = assign_poi_to_edges(net_file, poi_files)
+                print(f"[INFO] POI edge assignments completed: {len(edge_files)} files generated")
 
                 # Step 5: Generate trips
                 print(f"[INFO] Generating vehicle trips")
-                # Convert dict to list for generate_trips (expects list of file paths)
-                edge_files_list = list(edge_files.values())
+                # edge_files is already a list from assign_poi_to_edges
+                edge_files_list = edge_files if isinstance(edge_files, list) else list(edge_files.values())
                 trips_file = generate_trips(net_file, edge_files_list, scen_dir)
                 print(f"[INFO] Trips generated -> {trips_file}")
 
@@ -982,25 +1149,7 @@ class Handler(BaseHTTPRequestHandler):
                 scenario = data.get("scenario") or "scenario"
 
                 # Step 1: Download OSM data -> returns full path to the file
-                # COMMENTED OUT: Reusing OSM data from scenario_20260208_215130 instead of downloading
-                # osm_file = download_osm_data(bbox, scenario)
-                
-                # Create new scenario directory
-                base_dir = os.path.join("..", "data", "scenarios", scenario)
-                os.makedirs(base_dir, exist_ok=True)
-                print(f"[INFO] Created scenario directory: {base_dir}")
-                
-                # Copy OSM file from previous scenario
-                source_osm = os.path.abspath(os.path.join("..", "data", "scenarios", "scenario_20260208_215130", "test_name_bbox.osm.xml"))
-                target_osm = os.path.join(base_dir, "test_name_bbox.osm.xml")
-                
-                if not os.path.exists(source_osm):
-                    raise FileNotFoundError(f"Source OSM file not found: {source_osm}")
-                
-                shutil.copy2(source_osm, target_osm)
-                print(f"[INFO] Copied OSM data from scenario_20260208_215130 -> {target_osm}")
-                
-                osm_file = os.path.abspath(target_osm)
+                osm_file = download_osm_data(bbox, scenario)
                 scen_dir = os.path.dirname(osm_file)
 
                 # Extract real already existing charging stations
@@ -1011,55 +1160,21 @@ class Handler(BaseHTTPRequestHandler):
                 net_file = build_sumo_network(osm_file, scenario)
 
                 # Step 3: Extract POIs
-                # COMMENTED OUT: Reusing POI data from scenario_20260208_215130 instead of processing
-                # print(f"[INFO] Extracting POIs -> {scen_dir}")
-                # poi_files = extract_pois(osm_file, scen_dir)
-                
-                # Copy POI files from previous scenario
-                source_scenario_dir = os.path.abspath(os.path.join("..", "data", "scenarios", "scenario_20260208_215130"))
-                poi_file_names = [
-                    "poi_offices.csv",
-                    "poi_others.csv",
-                    "poi_residential.csv"
-                ]
-                poi_files = []  # Changed to list for read_poi_files()
-                for poi_file in poi_file_names:
-                    source_poi = os.path.join(source_scenario_dir, poi_file)
-                    target_poi = os.path.join(scen_dir, poi_file)
-                    if os.path.exists(source_poi):
-                        shutil.copy2(source_poi, target_poi)
-                        poi_files.append(target_poi)  # Append file path to list
-                print(f"[INFO] Copied {len(poi_files)} POI files from scenario_20260208_215130")
+                print(f"[INFO] Extracting POIs -> {scen_dir}")
+                poi_files = extract_pois(osm_file, scen_dir)
                 
                 # Read POI files and convert to GeoJSON
                 poi_geojson = read_poi_files(poi_files)
 
                 # Step 4: Assign POIs to edges
-                # COMMENTED OUT: Reusing edge assignments from scenario_20260208_215130 instead of processing
-                # print(f"[INFO] Assigning POIs to edges -> {poi_files}")
-                # edge_files = assign_poi_to_edges(net_file, poi_files)
-                
-                # Copy POI edge assignment files from previous scenario
-                edge_file_names = [
-                    "poi_offices_edges.csv",
-                    "poi_others_edges.csv",
-                    "poi_residential_edges.csv"
-                ]
-                edge_files = {}
-                for edge_file in edge_file_names:
-                    source_edge = os.path.join(source_scenario_dir, edge_file)
-                    target_edge = os.path.join(scen_dir, edge_file)
-                    if os.path.exists(source_edge):
-                        shutil.copy2(source_edge, target_edge)
-                        # Map the type to the file path
-                        poi_type = edge_file.replace("poi_", "").replace("_edges.csv", "")
-                        edge_files[poi_type] = target_edge
-                print(f"[INFO] Copied {len(edge_files)} POI edge assignment files from scenario_20260208_215130")
+                print(f"[INFO] Assigning POIs to edges -> {poi_files}")
+                edge_files = assign_poi_to_edges(net_file, poi_files)
+                print(f"[INFO] POI edge assignments completed: {len(edge_files)} files generated")
 
                 # Step 5: Generate trips
-                print(f"[INFO] Generating vehicle trips -> {edge_files}")
-                # Convert dict to list for generate_trips (expects list of file paths)
-                edge_files_list = list(edge_files.values())
+                print(f"[INFO] Generating vehicle trips")
+                # edge_files is already a list from assign_poi_to_edges
+                edge_files_list = edge_files if isinstance(edge_files, list) else list(edge_files.values())
                 
                 # FAST TEST MODE: 100 cars, 10 hour simulation (uncomment for quick testing)
                 trips_file = generate_trips_test(net_file, edge_files_list, scen_dir)
