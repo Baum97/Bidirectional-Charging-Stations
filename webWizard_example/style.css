@@ -68,6 +68,7 @@ canvas {
 
 .controls.open {
     width: 250px;
+    height: 100%;
     visibility: visible;
 }
 
@@ -203,6 +204,13 @@ input[type=number] {
     background: #5F5FD3;
     border-radius: 2px;
     transition: 0.5s width;
+}
+
+.grid-power-flyout-header {
+    font-size: 1.25em;
+    font-weight: bold;
+    background: #333;
+    margin-bottom: 10px;
 }
 
 #general-options label {

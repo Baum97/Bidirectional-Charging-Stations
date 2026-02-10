@@ -527,26 +527,29 @@ img[src*="road.png"] {
   transform: translateX(-20px);
   opacity: 0;
   pointer-events: none;
-  transition: transform 0.3s ease, opacity 0.25s ease;
+  visibility: hidden;
+  transition: transform 0.3s ease, opacity 0.25s ease, visibility 0.3s ease;
 }
 
 .grid-power-flyout.open {
   transform: translateX(0);
   opacity: 1;
   pointer-events: auto;
+  visibility: visible;
 }
 
 .grid-power-flyout-header {
-  padding: 10px 14px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border-radius: 8px 8px 0 0;
+  padding: 0;
+  background: transparent;
+  border-bottom: 2px solid #27ae60;
 }
 
 .grid-power-flyout-header h4 {
-  margin: 0;
-  font-size: 13px;
+  margin: 12px 0 4px 12px;
+  padding-bottom: 6px;
+  font-size: 14px;
   font-weight: 700;
+  color: #333;
 }
 
 .grid-power-flyout-body {
