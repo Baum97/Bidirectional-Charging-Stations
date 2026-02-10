@@ -1,8 +1,9 @@
-def process_sumo_log_no_stations(default_log, out_csv, out_geojson, out_xml, net_file=None, out_heatmap_json=None, power_grid_manager=None, fast_mode=True):
+def process_sumo_log_no_stations(default_log, out_csv, out_geojson, out_xml, net_file=None, out_heatmap_json=None, power_grid_manager=None, fast_mode=True, existing_stations_file=None):
     import os
     import math
     import json
     from collections import defaultdict
+    import xml.etree.ElementTree as ET
 
     import numpy as np
     import pandas as pd
@@ -97,6 +98,225 @@ def process_sumo_log_no_stations(default_log, out_csv, out_geojson, out_xml, net
             return lane.getID() if lane else None
         except Exception:
             return None
+
+    def load_existing_charging_stations(stations_file, net):
+        """Load existing charging stations from XML file and get their SUMO coordinates.
+        
+        Uses sumolib to resolve lane positions to x,y coordinates.
+        Falls back to edge midpoint if interpolation fails.
+        """
+        existing_stations = []
+        if not stations_file or not os.path.exists(stations_file):
+            return existing_stations
+        
+        if not net or not HAS_SUMOLIB:
+            print("WARNING: Network file required to resolve charging station coordinates")
+            return existing_stations
+        
+        try:
+            tree = ET.parse(stations_file)
+            root = tree.getroot()
+            
+            for cs_elem in root.findall('.//chargingStation'):
+                cs_id = cs_elem.get('id')
+                lane_id = cs_elem.get('lane')
+                start_pos_str = cs_elem.get('startPos')
+                end_pos_str = cs_elem.get('endPos')
+                
+                if not lane_id:
+                    continue
+                
+                try:
+                    start_pos = float(start_pos_str) if start_pos_str else 0.0
+                except (ValueError, TypeError):
+                    start_pos = 0.0
+                
+                try:
+                    end_pos = float(end_pos_str) if end_pos_str else start_pos + 5.0
+                except (ValueError, TypeError):
+                    end_pos = start_pos + 5.0
+                
+                # Use midpoint of the charging station
+                mid_pos = (start_pos + end_pos) / 2.0
+                
+                # Try to get the lane directly
+                lane = None
+                try:
+                    lane = net.getLane(lane_id)
+                except Exception:
+                    pass
+                
+                if lane is None:
+                    # Try the edge ID (lane_id without the trailing _N)
+                    edge_id = lane_id.rsplit('_', 1)[0] if '_' in lane_id else lane_id
+                    try:
+                        edge = net.getEdge(edge_id)
+                        if edge and edge.getLanes():
+                            lane = edge.getLanes()[0]
+                    except Exception:
+                        pass
+                
+                if lane is None:
+                    print(f"  Warning: Lane/Edge not found for station {cs_id} (lane={lane_id})")
+                    continue
+                
+                # Get position using lane shape interpolation
+                shape = lane.getShape()
+                if not shape or len(shape) < 2:
+                    # Fallback: use edge shape
+                    try:
+                        edge = lane.getEdge()
+                        shape = edge.getShape() if edge else None
+                    except Exception:
+                        shape = None
+                
+                if not shape or len(shape) < 1:
+                    print(f"  Warning: No shape for station {cs_id}")
+                    continue
+                
+                # Interpolate position along shape at mid_pos
+                x, y = shape[0]
+                cumulative_dist = 0.0
+                found = False
+                
+                for idx in range(len(shape) - 1):
+                    p1 = shape[idx]
+                    p2 = shape[idx + 1]
+                    seg_len = math.sqrt((p2[0] - p1[0])**2 + (p2[1] - p1[1])**2)
+                    
+                    if cumulative_dist + seg_len >= mid_pos and seg_len > 0:
+                        t = (mid_pos - cumulative_dist) / seg_len
+                        t = max(0.0, min(1.0, t))
+                        x = p1[0] + t * (p2[0] - p1[0])
+                        y = p1[1] + t * (p2[1] - p1[1])
+                        found = True
+                        break
+                    cumulative_dist += seg_len
+                
+                if not found:
+                    # mid_pos beyond shape length - use last point
+                    x, y = shape[-1]
+                
+                existing_stations.append({
+                    'id': cs_id,
+                    'x': x,
+                    'y': y,
+                    'lane_id': lane_id,
+                    'mid_pos': mid_pos
+                })
+            
+            print(f"Loaded {len(existing_stations)} existing charging stations from {stations_file}")
+        except Exception as e:
+            print(f"Warning: Could not load existing charging stations: {e}")
+            import traceback
+            traceback.print_exc()
+        
+        return existing_stations
+
+    def is_near_existing_station(center_x, center_y, existing_stations, radius_m=500.0, cluster_radius=0.0):
+        """Check if a cluster polygon could overlap with any existing charging station area.
+        
+        The effective exclusion distance is radius_m + cluster_radius, so that
+        no part of the polygon can fall within radius_m of a station.
+        """
+        if not existing_stations:
+            return False, None, None
+        
+        effective_radius = radius_m + cluster_radius
+        min_distance = float('inf')
+        nearest_station = None
+        
+        for station in existing_stations:
+            dist = math.sqrt((center_x - station['x'])**2 + (center_y - station['y'])**2)
+            if dist < min_distance:
+                min_distance = dist
+                nearest_station = station['id']
+            
+            if dist <= effective_radius:
+                return True, dist, nearest_station
+        
+        return False, min_distance, nearest_station
+
+    def compute_cluster_quality_score(cluster_points, sim_hours):
+        """Multi-criteria scoring for cluster quality.
+        
+        Combines multiple factors beyond just low SOC count:
+        - unique_vehicles: Number of distinct vehicles affected (diversity of demand)
+        - soc_urgency: How critically low the SOC levels are (lower = more urgent)
+        - dwell_time: How long vehicles stay in the area with low SOC (longer = better location)
+        - temporal_spread: Demand across different time periods (wider = more consistent need)
+        - recurring_demand: Vehicles that return to the same area multiple times
+        
+        Returns a normalized score 0..1 (higher = better candidate for charging station).
+        """
+        points = cluster_points
+        
+        # 1. Unique vehicles (0..1) - more unique vehicles = stronger signal
+        if "veh_id" in points.columns:
+            unique_vehs = points["veh_id"].nunique()
+            total_points = len(points)
+            # Ratio of unique vehicles to total observations
+            # High ratio = many different vehicles, not just one stuck car
+            veh_diversity = min(1.0, unique_vehs / max(1, total_points) * 10.0)
+        else:
+            unique_vehs = 0
+            veh_diversity = 0.5  # neutral if unknown
+        
+        # 2. SOC urgency (0..1) - lower average SOC = more urgent need
+        mean_soc = float(points["soc_percent"].mean())
+        # SOC 0% -> urgency 1.0, SOC 30% -> urgency 0.0
+        soc_urgency = max(0.0, min(1.0, (SOC_THRESHOLD - mean_soc) / SOC_THRESHOLD))
+        
+        # 3. Dwell time (0..1) - how long vehicles stay at low SOC in this area
+        if "time" in points.columns and "veh_id" in points.columns:
+            # For each vehicle, compute time span in this cluster
+            veh_times = points.groupby("veh_id")["time"].agg(["min", "max"])
+            veh_dwell = (veh_times["max"] - veh_times["min"]).mean()
+            # Normalize: 300s (5min) dwell = 0.5, 1800s (30min) = 1.0
+            dwell_score = min(1.0, veh_dwell / 1800.0) if not np.isnan(veh_dwell) else 0.3
+        else:
+            dwell_score = 0.3  # neutral
+        
+        # 4. Temporal spread (0..1) - demand across different hours
+        if "time" in points.columns:
+            hours = (points["time"] / 3600.0).astype(int)
+            unique_hours = hours.nunique()
+            sim_hours_int = max(1, int(sim_hours))
+            # More hours with demand = more consistent need
+            temporal_spread = min(1.0, unique_hours / max(1, sim_hours_int))
+        else:
+            temporal_spread = 0.3
+        
+        # 5. Recurring demand (0..1) - vehicles returning to same area
+        if "veh_id" in points.columns:
+            veh_counts = points["veh_id"].value_counts()
+            avg_visits = float(veh_counts.mean())
+            # Average 3+ observations per vehicle = strong recurring signal
+            recurring = min(1.0, avg_visits / 5.0)
+        else:
+            recurring = 0.3
+        
+        # Weighted combination
+        score = (
+            0.25 * veh_diversity +     # 25% - many different vehicles need charging
+            0.25 * soc_urgency +        # 25% - critically low SOC levels
+            0.10 * dwell_score +        # 10% - vehicles stay long (good for charging)
+            0.15 * temporal_spread +    # 15% - consistent demand across time
+            0.25 * recurring            # 25% - vehicles return repeatedly
+        )
+        
+        return score, {
+            "unique_vehicles": int(unique_vehs) if "veh_id" in points.columns else 0,
+            "veh_diversity": round(veh_diversity, 3),
+            "soc_urgency": round(soc_urgency, 3),
+            "dwell_score": round(dwell_score, 3),
+            "temporal_spread": round(temporal_spread, 3),
+            "recurring": round(recurring, 3),
+            "total_score": round(score, 3)
+        }
+
+    # Minimum quality score threshold - clusters below this are not worth a station
+    MIN_QUALITY_SCORE = 0.15
 
     df = read_log(default_log)
     total_rows = len(df)
@@ -240,6 +460,8 @@ def process_sumo_log_no_stations(default_log, out_csv, out_geojson, out_xml, net
                 dists = np.sqrt((sub_subset["x"] - cx)**2 + (sub_subset["y"] - cy)**2)
                 max_dist = float(dists.max()) if len(dists) > 0 else 0.0
                 radius = max(25.0, max_dist + BUFFER_MARGIN)
+                # Select available columns for points
+                point_cols = [col for col in ["x","y","time","veh_id","soc_percent"] if col in sub_subset.columns]
                 clusters[cluster_counter] = {
                     "cluster": cluster_counter,
                     "center_x": cx,
@@ -247,7 +469,7 @@ def process_sumo_log_no_stations(default_log, out_csv, out_geojson, out_xml, net
                     "count": int(count),
                     "mean_soc": mean_soc,
                     "radius": radius,
-                    "points": sub_subset[["x","y","time","veh_id","soc_percent"]]
+                    "points": sub_subset[point_cols]
                 }
                 cluster_counter += 1
         else:
@@ -258,6 +480,7 @@ def process_sumo_log_no_stations(default_log, out_csv, out_geojson, out_xml, net
             dists = np.sqrt((subset["x"] - cx)**2 + (subset["y"] - cy)**2)
             max_dist = float(dists.max()) if len(dists) > 0 else 0.0
             radius = max(25.0, max_dist + BUFFER_MARGIN)
+            point_cols = [col for col in ["x","y","time","veh_id","soc_percent"] if col in subset.columns]
             clusters[cluster_counter] = {
                 "cluster": cluster_counter,
                 "center_x": cx,
@@ -265,7 +488,7 @@ def process_sumo_log_no_stations(default_log, out_csv, out_geojson, out_xml, net
                 "count": int(count),
                 "mean_soc": mean_soc,
                 "radius": radius,
-                "points": subset[["x","y","time","veh_id","soc_percent"]]
+                "points": subset[point_cols]
             }
             cluster_counter += 1
 
@@ -296,7 +519,38 @@ def process_sumo_log_no_stations(default_log, out_csv, out_geojson, out_xml, net
             print(f"Could not load network: {e}")
             net = None
 
+    # Load existing charging stations if provided
+    existing_stations = []
+    STATION_BUFFER = 100.0
+    if existing_stations_file:
+        existing_stations = load_existing_charging_stations(existing_stations_file, net)
+        if existing_stations:
+            print(f"Loaded {len(existing_stations)} existing stations - excluding new polygons within {STATION_BUFFER}m radius:")
+            for s in existing_stations:
+                print(f"  Station {s['id']}: SUMO coords ({s['x']:.1f}, {s['y']:.1f}) on lane {s['lane_id']}")
+        else:
+            print(f"WARNING: No station coordinates could be resolved from {existing_stations_file} (network required)")
+    
+    EXISTING_STATION_BUFFER = STATION_BUFFER  # meters - no polygon within this radius of existing stations
+
+    # Compute quality scores for all clusters
+    print(f"\nScoring {len(clusters)} clusters with multi-criteria analysis...")
+    skipped_quality = 0
+    skipped_station_proximity = 0
+
     for i, c in enumerate(sorted(clusters.values(), key=lambda x: x["count"], reverse=True)):
+        # Multi-criteria quality scoring
+        quality_score, score_details = compute_cluster_quality_score(c["points"], sim_hours)
+        c["quality_score"] = quality_score
+        c["score_details"] = score_details
+        
+        if quality_score < MIN_QUALITY_SCORE:
+            skipped_quality += 1
+            print(f"[SKIP] Cluster {c['cluster']} - quality score {quality_score:.3f} < {MIN_QUALITY_SCORE} "
+                  f"(vehicles={score_details['unique_vehicles']}, urgency={score_details['soc_urgency']:.2f}, "
+                  f"dwell={score_details['dwell_score']:.2f})")
+            continue
+
         est_chargers = estimate_chargers(c["count"], sim_hours, avg_session_kwh=AVG_SESSION_KWH,
                                          charger_kw=CHARGER_KW, utilization=UTILIZATION)
         
@@ -333,6 +587,20 @@ def process_sumo_log_no_stations(default_log, out_csv, out_geojson, out_xml, net
             except Exception as e:
                 print(f"[WARNING] Grid check failed for cluster {c['cluster']}: {e}")
         
+        # Check if cluster is too close to existing charging stations
+        if existing_stations:
+            is_near, distance, nearest_id = is_near_existing_station(
+                c["center_x"], c["center_y"], existing_stations,
+                radius_m=EXISTING_STATION_BUFFER,
+                cluster_radius=c["radius"]
+            )
+            if is_near:
+                skipped_station_proximity += 1
+                print(f"[SKIP] Cluster {c['cluster']} at ({c['center_x']:.1f}, {c['center_y']:.1f}) r={c['radius']:.0f}m - "
+                      f"too close to station '{nearest_id}' (distance: {distance:.1f}m, "
+                      f"effective limit: {EXISTING_STATION_BUFFER + c['radius']:.0f}m)")
+                continue
+        
         csv_rows.append({
             "cluster_id": c["cluster"],
             "center_x": c["center_x"],
@@ -341,6 +609,11 @@ def process_sumo_log_no_stations(default_log, out_csv, out_geojson, out_xml, net
             "mean_soc": c["mean_soc"],
             "radius_m": c["radius"],
             "estimated_chargers": est_chargers,
+            "quality_score": c["quality_score"],
+            "unique_vehicles": c["score_details"]["unique_vehicles"],
+            "soc_urgency": c["score_details"]["soc_urgency"],
+            "dwell_score": c["score_details"]["dwell_score"],
+            "temporal_spread": c["score_details"]["temporal_spread"],
             "grid_quality": grid_quality,
             "grid_capacity_kw": grid_capacity_kw,
             "grid_distance_m": grid_distance_m
@@ -364,6 +637,11 @@ def process_sumo_log_no_stations(default_log, out_csv, out_geojson, out_xml, net
             "count_low_soc": c["count"],
             "mean_soc": c["mean_soc"],
             "estimated_chargers": est_chargers,
+            "quality_score": round(c["quality_score"], 3),
+            "unique_vehicles": c["score_details"]["unique_vehicles"],
+            "soc_urgency": c["score_details"]["soc_urgency"],
+            "dwell_score": c["score_details"]["dwell_score"],
+            "temporal_spread": c["score_details"]["temporal_spread"],
             "grid_quality": grid_quality,
             "grid_capacity_kw": grid_capacity_kw,
             "grid_distance_m": grid_distance_m
@@ -412,11 +690,26 @@ def process_sumo_log_no_stations(default_log, out_csv, out_geojson, out_xml, net
     print("Wrote XML (or commented suggestions):", out_xml)
 
     # Export heatmap data (individual low-SOC points for gradient visualization)
+    # Filter out points near existing stations to avoid misleading heatmap blobs
     if out_heatmap_json:
         heatmap_points = []
+        filtered_near_station = 0
         for _, row in low_df.iterrows():
             x, y = row["x"], row["y"]
             soc = row["soc_percent"]
+            
+            # Skip heatmap points near existing charging stations
+            if existing_stations:
+                near_station = False
+                for station in existing_stations:
+                    dist = math.sqrt((x - station['x'])**2 + (y - station['y'])**2)
+                    if dist <= EXISTING_STATION_BUFFER:
+                        near_station = True
+                        filtered_near_station += 1
+                        break
+                if near_station:
+                    continue
+            
             # Convert to lat/lon if network available
             if net:
                 try:
@@ -431,10 +724,23 @@ def process_sumo_log_no_stations(default_log, out_csv, out_geojson, out_xml, net
                 intensity = max(0.1, (SOC_THRESHOLD - soc) / SOC_THRESHOLD)
                 heatmap_points.append([y, x, intensity])
         
+        if filtered_near_station > 0:
+            print(f"Heatmap: filtered {filtered_near_station} points near existing stations")
+        
         os.makedirs(os.path.dirname(out_heatmap_json), exist_ok=True)
         with open(out_heatmap_json, "w", encoding="utf-8") as f:
             json.dump(heatmap_points, f, indent=2)
         print(f"Wrote heatmap data ({len(heatmap_points)} points):", out_heatmap_json)
 
-    print("Done. Suggested clusters:", len(csv_rows))
+    print(f"\n{'='*60}")
+    print(f"RESULTS SUMMARY")
+    print(f"{'='*60}")
+    print(f"Total clusters found:           {len(clusters)}")
+    print(f"Skipped (low quality score):     {skipped_quality}")
+    print(f"Skipped (near existing station): {skipped_station_proximity}")
+    print(f"Final suggested locations:       {len(csv_rows)}")
+    if existing_stations:
+        print(f"Existing stations considered:    {len(existing_stations)}")
+        print(f"Exclusion radius:               {EXISTING_STATION_BUFFER}m")
+    print(f"{'='*60}")
     print("Tip: visualize the geojson in QGIS / any GeoJSON viewer.")

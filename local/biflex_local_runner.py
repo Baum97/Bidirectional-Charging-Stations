@@ -1115,7 +1115,8 @@ class Handler(BaseHTTPRequestHandler):
                     net_file,
                     heatmap_json_file,
                     power_grid_manager=grid_manager if grid_build_success else None,
-                    fast_mode=True
+                    fast_mode=True,
+                    existing_stations_file=os.path.join(scen_dir, "osm.chargingstations.xml")
                 )
                 log_result("Analysis complete: heatmaps and charging suggestions generated")
 
@@ -1486,7 +1487,8 @@ class Handler(BaseHTTPRequestHandler):
                         net_file,
                         heatmap_json_file,
                         power_grid_manager=grid_manager if grid_build_success else None,
-                        fast_mode=True
+                        fast_mode=True,
+                        existing_stations_file=os.path.join(scen_dir, "osm.chargingstations.xml")
                     )
                 except Exception:
                     pass
