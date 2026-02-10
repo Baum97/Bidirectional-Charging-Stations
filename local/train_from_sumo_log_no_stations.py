@@ -1,4 +1,4 @@
-def process_sumo_log_no_stations(default_log, out_csv, out_geojson, out_xml, net_file=None, out_heatmap_json=None, power_grid_manager=None):
+def process_sumo_log_no_stations(default_log, out_csv, out_geojson, out_xml, net_file=None, out_heatmap_json=None, power_grid_manager=None, fast_mode=True):
     import os
     import math
     import json
@@ -15,10 +15,23 @@ def process_sumo_log_no_stations(default_log, out_csv, out_geojson, out_xml, net
         sumolib = None
         HAS_SUMOLIB = False
 
-    SOC_THRESHOLD = 30.0      # percent
-    EPS_METERS = 25.0         # DBSCAN eps (reduced to prevent chain-linking)
-    MIN_SAMPLES = 5           # increased to require denser concentrations
-    MAX_CLUSTER_SIZE = 200    # max points per cluster before sub-clustering
+    # Fast mode: Optimized parameters for speed (default)
+    # Slow mode: Original parameters for granular clustering
+    if fast_mode:
+        SOC_THRESHOLD = 30.0      # percent
+        EPS_METERS = 35.0         # INCREASED from 25 - merges nearby clusters faster
+        MIN_SAMPLES = 10          # INCREASED from 5 - requires denser concentrations, fewer noise points
+        MAX_CLUSTER_SIZE = 300    # INCREASED from 200 - larger chunks, fewer splits
+        GRID_PRESCALE = 500.0     # NEW: Pre-cluster with spatial grid before DBSCAN (500m cells)
+        SAMPLE_RATE = 0.5         # NEW: Use 50% of low-SOC points, randomly sampled
+    else:
+        SOC_THRESHOLD = 30.0
+        EPS_METERS = 25.0
+        MIN_SAMPLES = 5
+        MAX_CLUSTER_SIZE = 200
+        GRID_PRESCALE = None      # Disable pre-clustering
+        SAMPLE_RATE = 1.0         # Use all points
+    
     SPEED_THRESHOLD = 2.0     # m/s - only consider stopped/slow vehicles
     BUFFER_MARGIN = 20.0      # meters added to cluster spread
     POLY_POINTS = 32
@@ -115,12 +128,56 @@ def process_sumo_log_no_stations(default_log, out_csv, out_geojson, out_xml, net
             print("No slow/stopped vehicles with low SOC. Nothing to do.")
             return
 
-    coords = low_df[["x","y"]].to_numpy()
-    # cluster
-    labels = cluster_low_soc_points(coords, eps=EPS_METERS, min_samples=MIN_SAMPLES)
-    low_df["cluster"] = labels
+    # OPTIMIZATION: Sample data for faster clustering if in fast_mode
+    if fast_mode and SAMPLE_RATE < 1.0:
+        sample_size = max(1000, int(len(low_df) * SAMPLE_RATE))  # At least 1000 samples
+        low_df = low_df.sample(n=sample_size, random_state=42).reset_index(drop=True)
+        print(f"Sampled {len(low_df)} points ({SAMPLE_RATE*100:.0f}%) for clustering")
 
-    # Split mega-clusters using grid-based spatial partitioning
+    coords = low_df[["x","y"]].to_numpy()
+    
+    # OPTIMIZATION: Pre-cluster with spatial grid before DBSCAN (divide-and-conquer)
+    if fast_mode and GRID_PRESCALE is not None:
+        print(f"Pre-clustering with {GRID_PRESCALE}m spatial grid...")
+        x_min, x_max, y_min, y_max = coords[:, 0].min(), coords[:, 0].max(), coords[:, 1].min(), coords[:, 1].max()
+        
+        # Create grid cells
+        x_cells = int(np.ceil((x_max - x_min) / GRID_PRESCALE))
+        y_cells = int(np.ceil((y_max - y_min) / GRID_PRESCALE))
+        
+        # Assign each point to a grid cell
+        low_df["grid_x"] = ((coords[:, 0] - x_min) / GRID_PRESCALE).astype(int).clip(0, x_cells - 1)
+        low_df["grid_y"] = ((coords[:, 1] - y_min) / GRID_PRESCALE).astype(int).clip(0, y_cells - 1)
+        
+        # Cluster within each grid cell
+        all_labels = np.full(len(coords), -1, dtype=int)
+        label_counter = 0
+        
+        for (gx, gy), grid_group in low_df.groupby(["grid_x", "grid_y"]):
+            if len(grid_group) < MIN_SAMPLES:
+                continue
+            
+            grid_coords = grid_group[["x", "y"]].to_numpy()
+            grid_labels = cluster_low_soc_points(grid_coords, eps=EPS_METERS, min_samples=MIN_SAMPLES)
+            
+            # Map grid labels to global labels
+            for local_label in set(grid_labels):
+                if local_label == -1:
+                    continue
+                all_labels[grid_group.index[grid_labels == local_label]] = label_counter
+                label_counter += 1
+        
+        labels = all_labels
+        print(f"Grid pre-clustering complete: {label_counter} clusters found")
+    else:
+        # Original DBSCAN clustering on all points
+        labels = cluster_low_soc_points(coords, eps=EPS_METERS, min_samples=MIN_SAMPLES)
+    
+    low_df["cluster"] = labels
+    
+    # Clean up temporary grid columns if they exist
+    if "grid_x" in low_df.columns:
+        low_df = low_df.drop(columns=["grid_x", "grid_y"])
     def split_large_cluster_grid(subset_df, max_size=MAX_CLUSTER_SIZE):
         """Split oversized cluster into spatial grid cells"""
         if len(subset_df) <= max_size:

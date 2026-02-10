@@ -840,6 +840,12 @@ class Handler(BaseHTTPRequestHandler):
                     tree = ET.parse(combined_add_path)
                     root = tree.getroot()
                     
+                    # Remove private_wallboxes.xml include (not used in normal pipeline)
+                    for include in root.findall('include'):
+                        if include.get('href') == 'private_wallboxes.xml':
+                            root.remove(include)
+                            print(f"[INFO] Removed private_wallboxes.xml from combined_additional.xml")
+                    
                     # Replace osm.chargingstations.xml with public_chargingstations.xml
                     for include in root.findall('include'):
                         if include.get('href') == 'osm.chargingstations.xml':
@@ -891,7 +897,8 @@ class Handler(BaseHTTPRequestHandler):
                     os.path.join(scen_dir, "suggested_charging_stations.add.xml"),
                     net_file,  # Pass network file for coordinate conversion
                     heatmap_json_file,  # Output heatmap data for gradient visualization
-                    power_grid_manager=grid_manager if grid_build_success else None  # Grid-aware placement
+                    power_grid_manager=grid_manager if grid_build_success else None,  # Grid-aware placement
+                    fast_mode=True  # OPTIMIZED: spatial grid pre-clustering, sampling, larger EPS/MIN_SAMPLES
                 )
 
                 heatmap_geojson_file = os.path.join(scen_dir, "no_station_areas.geojson")
@@ -1363,7 +1370,8 @@ class Handler(BaseHTTPRequestHandler):
                         os.path.join(scen_dir, "suggested_charging_stations.add.xml"),
                         net_file,
                         heatmap_json_file,
-                        power_grid_manager=grid_manager if grid_build_success else None  # Grid-aware placement
+                        power_grid_manager=grid_manager if grid_build_success else None,  # Grid-aware placement
+                        fast_mode=True  # OPTIMIZED: spatial grid pre-clustering, sampling, larger EPS/MIN_SAMPLES
                     )
                     print("[INFO] Charging demand heatmap generated successfully.")
                 except Exception as e:
