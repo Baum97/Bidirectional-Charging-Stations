@@ -127,6 +127,19 @@ const layerData = {
   pois: null  // Store all POI categories together
 };
 
+// Track layer visibility state (updated by checkboxes)
+const layerVisibility = {
+  chargingStations: true,
+  circles: true,
+  trafficHeatmap: true,
+  socHeatmap: true,
+  powerGrid: true,
+  poiOffices: true,
+  poiResidential: true,
+  poiOthers: true,
+  wallboxHomes: true
+};
+
 /**
  * Calculate icon size based on current zoom level.
  * Returns a scale factor that increases with zoom.
@@ -154,18 +167,18 @@ function getZoomBasedSize(baseSize) {
 
 // Add zoom event listener to redraw markers at new sizes
 map.on('zoomend', function() {
-  // Redraw charging stations if they exist (skip fitBounds to avoid zoom fight)
-  if (layerData.chargingStations) {
+  // Redraw charging stations if they exist AND are visible
+  if (layerData.chargingStations && layerVisibility.chargingStations) {
     showChargingStations(layerData.chargingStations, true);
   }
   
-  // Redraw wallbox homes if they exist
-  if (layerData.wallboxHomes) {
+  // Redraw wallbox homes if they exist AND are visible
+  if (layerData.wallboxHomes && layerVisibility.wallboxHomes) {
     showWallboxHomes(layerData.wallboxHomes);
   }
   
-  // Redraw POIs if they exist
-  if (layerData.pois) {
+  // Redraw POIs if they exist AND are visible
+  if (layerData.pois && (layerVisibility.poiOffices || layerVisibility.poiResidential || layerVisibility.poiOthers)) {
     showPOIs(layerData.pois);
   }
 });
@@ -609,7 +622,10 @@ function showChargingStations(geojson, skipFitBounds = false) {
     },
   });
 
-  chargingStationLayer.addTo(map);
+  // Only add to map if visibility is enabled
+  if (layerVisibility.chargingStations) {
+    chargingStationLayer.addTo(map);
+  }
   layers.chargingStations = chargingStationLayer;
 }
 
@@ -818,10 +834,12 @@ function showPOIs(poiGeoJSON) {
       }
     });
 
-    // Add the layer to the map
-    poiLayer.addTo(map);
+    // Add the layer to the map only if visibility is enabled
+    if (layerVisibility[layerKey]) {
+      poiLayer.addTo(map);
+      console.log(`Added ${category} POI layer to map with ${geojson.features.length} points`);
+    }
     layers[layerKey] = poiLayer;
-    console.log(`Added ${category} POI layer to map with ${geojson.features.length} points`);
   }
 }
 
@@ -931,10 +949,12 @@ function showWallboxHomes(wallboxHomesGeoJSON) {
     }
   });
 
-  // Add the layer to the map
-  wallboxLayer.addTo(map);
+  // Add the layer to the map only if visibility is enabled
+  if (layerVisibility.wallboxHomes) {
+    wallboxLayer.addTo(map);
+    console.log(`Added wallbox homes layer to map with ${wallboxHomesGeoJSON.features.length} homes`);
+  }
   layers.wallboxHomes = wallboxLayer;
-  console.log(`Added wallbox homes layer to map with ${wallboxHomesGeoJSON.features.length} homes`);
 }
 
 function formatBbox(bounds) {
@@ -1377,6 +1397,9 @@ if (generateTripsBtn) {
 function toggleLayer(layerName, show) {
   const layer = layers[layerName];
   console.log(`Toggle ${layerName}: ${show ? 'show' : 'hide'}`, layer);
+  
+  // Update visibility state
+  layerVisibility[layerName] = show;
   
   if (!layer) {
     console.log(`Layer ${layerName} not available yet`);
