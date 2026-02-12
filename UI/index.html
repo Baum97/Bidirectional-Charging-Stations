@@ -95,6 +95,10 @@
         <span>Real Charging Stations</span>
       </label>
       <label class="layer-checkbox">
+        <input type="checkbox" id="toggleGeneratedChargingStations" checked>
+        <span>Generated Charging Stations</span>
+      </label>
+      <label class="layer-checkbox">
         <input type="checkbox" id="toggleCircles" checked>
         <span>Suggested Zones (Circles)</span>
       </label>
@@ -288,12 +292,27 @@
           </div>
           <div id="commands">
             <button id="downloadOSMData">Generate Scenario</button>
+            <button id="rerunSimulation" title="Re-run simulation on an existing scenario">Re-run Simulation</button>
           </div>
           <div id="devKitContainer"></div>
           
           <div id="buildStatus"></div>
         </div>
 
+      </div>
+    </div>
+
+    <!-- Scenario Picker Modal -->
+    <div id="scenarioPickerOverlay" style="display:none;">
+      <div id="scenarioPickerModal">
+        <h4 style="margin:0 0 12px 0;">Select Scenario to Re-run</h4>
+        <div id="scenarioListContainer">
+          <div id="scenarioListLoading" style="color:#888; font-style:italic;">Loading scenarios...</div>
+          <ul id="scenarioList"></ul>
+        </div>
+        <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:12px;">
+          <button id="scenarioPickerCancel" style="background:#666; background-image:none;">Cancel</button>
+        </div>
       </div>
     </div>
 

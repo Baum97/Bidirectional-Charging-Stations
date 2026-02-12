@@ -110,6 +110,7 @@ const selectionCanvas = document.getElementById('selectionCanvas');
 // Layer storage for toggling
 const layers = {
   chargingStations: null,
+  generatedChargingStations: null,
   circles: null,
   trafficHeatmap: null,
   socHeatmap: null,
@@ -123,6 +124,7 @@ const layers = {
 // Data storage for zoom-responsive redrawing
 const layerData = {
   chargingStations: null,
+  generatedChargingStations: null,
   wallboxHomes: null,
   pois: null  // Store all POI categories together
 };
@@ -130,6 +132,7 @@ const layerData = {
 // Track layer visibility state (updated by checkboxes)
 const layerVisibility = {
   chargingStations: true,
+  generatedChargingStations: true,
   circles: true,
   trafficHeatmap: true,
   socHeatmap: true,
@@ -170,6 +173,11 @@ map.on('zoomend', function() {
   // Redraw charging stations if they exist AND are visible
   if (layerData.chargingStations && layerVisibility.chargingStations) {
     showChargingStations(layerData.chargingStations, true);
+  }
+
+  // Redraw generated charging stations if they exist AND are visible
+  if (layerData.generatedChargingStations && layerVisibility.generatedChargingStations) {
+    showGeneratedChargingStations(layerData.generatedChargingStations, true);
   }
   
   // Redraw wallbox homes if they exist AND are visible
@@ -627,6 +635,71 @@ function showChargingStations(geojson, skipFitBounds = false) {
     chargingStationLayer.addTo(map);
   }
   layers.chargingStations = chargingStationLayer;
+}
+
+// Function to display generated (suggested) charging stations with blue icons
+function showGeneratedChargingStations(geojson, skipFitBounds = false) {
+  if (!geojson || !geojson.features || !geojson.features.length) {
+    console.log("No generated charging station data available.");
+    return;
+  }
+
+  layerData.generatedChargingStations = geojson;
+
+  console.log(`Displaying ${geojson.features.length} generated charging stations on the map.`);
+
+  const size = getZoomBasedSize(32);
+  const anchor = size / 2;
+
+  // Blue charging station icon
+  const generatedIcon = L.divIcon({
+    className: 'charging-station-icon generated-cs-icon',
+    html: `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="6" y="2" width="12" height="20" rx="2" fill="#2196F3" stroke="#1565C0" stroke-width="1.5"/>
+      <path d="M9 6 L12 10 L10.5 10 L13 14" stroke="#FFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <circle cx="9" cy="18" r="1" fill="#FFF"/>
+      <circle cx="15" cy="18" r="1" fill="#FFF"/>
+      <path d="M18 8 L20 6 M20 6 L20 12 M20 6 L22 8" stroke="#1565C0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`,
+    iconSize: [size, size],
+    iconAnchor: [anchor, size],
+    popupAnchor: [0, -size]
+  });
+
+  if (layers.generatedChargingStations) {
+    map.removeLayer(layers.generatedChargingStations);
+  }
+
+  const genLayer = L.geoJSON(geojson, {
+    pointToLayer: function (feature, latlng) {
+      return L.marker(latlng, { icon: generatedIcon });
+    },
+    onEachFeature: function (feature, layer) {
+      const props = feature.properties || {};
+      const name = props.name || "Generated Station";
+      const stationId = props.id || props.station_id || "N/A";
+      const estChargers = props.estimated_chargers ?? 'N/A';
+      const powerKw = props.power_kw ?? 50;
+      const clusterId = props.cluster_id ?? 'N/A';
+
+      const popupContent = `<div style="min-width:220px;">
+        <strong style="color:#1565C0;">${name}</strong><br>
+        <div style="margin-top:8px; padding:8px; background:#e3f2fd; border-radius:4px;">
+          <div style="margin-bottom:4px;"><strong>Station ID:</strong> ${stationId}</div>
+          <div style="margin-bottom:4px;"><strong>Cluster:</strong> ${clusterId}</div>
+          <div style="margin-bottom:4px;"><strong>Est. Chargers (Zone):</strong> ${estChargers}</div>
+          <div style="margin-bottom:4px;"><strong>Power:</strong> ${powerKw} kW</div>
+          <div style="margin-top:4px; color:#1565C0; font-style:italic;">Generated from demand analysis</div>
+        </div>
+      </div>`;
+      layer.bindPopup(popupContent);
+    },
+  });
+
+  if (layerVisibility.generatedChargingStations) {
+    genLayer.addTo(map);
+  }
+  layers.generatedChargingStations = genLayer;
 }
 
 // Function to display GeoJSON areas on the map
@@ -1125,6 +1198,12 @@ async function downloadOSMData(bounds, scenario) {
       console.error("No realChargingStations data in the response.");
     }
 
+    // Visualize generated (suggested) charging stations
+    if (j.generatedChargingStations) {
+      console.log("Calling showGeneratedChargingStations with data:", j.generatedChargingStations);
+      showGeneratedChargingStations(j.generatedChargingStations);
+    }
+
     // Visualize heatmap GeoJSON areas (clusters where charging is needed)
     if (j.heatmapGeoJSON) {
       console.log("Calling showGeoJsonAreas with data:", j.heatmapGeoJSON);
@@ -1258,6 +1337,109 @@ downloadOSMDataBtn?.addEventListener('click', async () => {
   }
   await downloadOSMData(b, defaultScenarioName());
 });
+
+// Re-run Simulation button — opens scenario picker
+const rerunSimBtn = document.getElementById('rerunSimulation');
+rerunSimBtn?.addEventListener('click', async () => {
+  const overlay = document.getElementById('scenarioPickerOverlay');
+  const listEl = document.getElementById('scenarioList');
+  const loadingEl = document.getElementById('scenarioListLoading');
+  if (!overlay || !listEl) return;
+
+  // Show modal
+  overlay.style.display = 'flex';
+  listEl.innerHTML = '';
+  loadingEl.style.display = 'block';
+
+  try {
+    const res = await fetch('http://127.0.0.1:8787/list-scenarios');
+    const data = await res.json();
+    loadingEl.style.display = 'none';
+
+    if (!data.ok || !data.scenarios || !data.scenarios.length) {
+      listEl.innerHTML = '<li style="color:#999;cursor:default;">No scenarios found.</li>';
+      return;
+    }
+
+    for (const sc of data.scenarios) {
+      const li = document.createElement('li');
+      const badge = sc.hasTraci
+        ? '<span class="scenario-badge badge-traci">TraCI</span>'
+        : '<span class="scenario-badge badge-standard">Standard</span>';
+      const dur = sc.duration ? `${Math.round(sc.duration / 60)}min` : '?';
+      const persons = sc.numPersons || '?';
+      li.innerHTML = `<div>${sc.name}${badge}</div>
+        <div class="scenario-meta">${persons} vehicles &middot; ${dur} &middot; ${sc.path}</div>`;
+      li.dataset.path = sc.path;
+      li.dataset.hasTraci = sc.hasTraci ? '1' : '0';
+
+      // Highlight last used scenario
+      if (lastScenarioDir && sc.path === lastScenarioDir) {
+        li.classList.add('selected');
+      }
+
+      li.addEventListener('click', () => {
+        overlay.style.display = 'none';
+        runRerunSimulation(sc.path);
+      });
+      listEl.appendChild(li);
+    }
+  } catch (err) {
+    loadingEl.style.display = 'none';
+    listEl.innerHTML = `<li style="color:#c00;cursor:default;">Failed to load scenarios: ${err}</li>`;
+  }
+});
+
+// Cancel button
+document.getElementById('scenarioPickerCancel')?.addEventListener('click', () => {
+  document.getElementById('scenarioPickerOverlay').style.display = 'none';
+});
+// Close on overlay click
+document.getElementById('scenarioPickerOverlay')?.addEventListener('click', (e) => {
+  if (e.target.id === 'scenarioPickerOverlay') {
+    e.target.style.display = 'none';
+  }
+});
+
+async function runRerunSimulation(scenarioDir) {
+  const buildMode = document.getElementById('buildMode')?.value || 'build';
+  const mode = buildMode === 'buildWithTraci' ? 'TraCI (V2G)' : 'Standard';
+  statusEl2.textContent = `Re-running ${mode} simulation for ${scenarioDir} ...`;
+  try {
+    const res = await fetch('http://127.0.0.1:8787/rerun', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ scenarioDir, buildMode }),
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const j = await res.json();
+    if (!j.ok) throw new Error(j.error || 'Unknown error');
+    statusEl2.textContent = `Re-run complete: ${j.message || ''}`;
+    lastScenarioDir = j.scenarioDir;
+
+    // Visualize all results (same as downloadOSMData)
+    if (j.powerGridNetwork) showPowerGrid(j.powerGridNetwork);
+    if (j.powerGridStats) showPowerGridStats(j.powerGridStats);
+    if (j.realChargingStations) showChargingStations(j.realChargingStations);
+    if (j.generatedChargingStations) showGeneratedChargingStations(j.generatedChargingStations);
+    if (j.heatmapGeoJSON) showGeoJsonAreas(j.heatmapGeoJSON);
+    if (j.heatmapData) showHeatmap(j.heatmapData);
+    if (j.trafficHeatmap) showTrafficHeatmap(j.trafficHeatmap);
+    if (j.poiGeoJSON) showPOIs(j.poiGeoJSON);
+    if (j.wallboxHomes) showWallboxHomes(j.wallboxHomes);
+    if (j.v2gStats) showV2GStats(j.v2gStats);
+    if (j.chartsData) {
+      showChartsButton(j.chartsData);
+      initializeCharts(j.chartsData);
+    }
+    if (j.traciSimulation && j.traciSimulation.logs_available) {
+      statusEl2.textContent += ` | TraCI logs: ${j.traciSimulation.logs_dir}`;
+    }
+  } catch (err) {
+    statusEl2.textContent = 'Re-run failed: ' + err;
+    console.error(err);
+  }
+}
 
 copyBashBtn?.addEventListener('click', async () => {
   const b = currentBboxBounds();
@@ -1425,6 +1607,7 @@ console.log('Setting up layer control event listeners...');
 const setupLayerControls = () => {
   const controls = {
     'toggleChargingStations': 'chargingStations',
+    'toggleGeneratedChargingStations': 'generatedChargingStations',
     'toggleCircles': 'circles',
     'toggleTrafficHeatmap': 'trafficHeatmap',
     'toggleSocHeatmap': 'socHeatmap',

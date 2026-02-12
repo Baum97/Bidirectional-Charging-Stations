@@ -881,6 +881,166 @@ def create_osm_chargingstations_file(real_charging_stations, scen_dir, net_file)
     return output_file
 
 
+def generate_cs_from_polygons(geojson_file, scen_dir, net_file):
+    """
+    Generate one charging station per polygon (+ 1 per additional 50 estimated chargers)
+    from the no_station_areas.geojson and write them to generated_cs.add.xml.
+
+    Args:
+        geojson_file (str): Path to no_station_areas.geojson
+        scen_dir (str): Scenario directory
+        net_file (str): Path to SUMO network file
+
+    Returns:
+        tuple: (path to generated_cs.add.xml, GeoJSON FeatureCollection) or (None, None)
+    """
+    import sumolib
+
+    output_file = os.path.join(scen_dir, "generated_cs.add.xml")
+
+    if not os.path.exists(geojson_file):
+        print(f"[WARN] GeoJSON file not found: {geojson_file}")
+        return None, None
+
+    with open(geojson_file, 'r', encoding='utf-8') as f:
+        geojson = json.load(f)
+
+    features = geojson.get('features', [])
+    if not features:
+        print("[WARN] No polygon features found in GeoJSON")
+        return None, None
+
+    try:
+        net = sumolib.net.readNet(net_file)
+    except Exception as e:
+        print(f"[ERROR] Could not load SUMO network for CS generation: {e}")
+        return None, None
+
+    root = ET.Element("additional")
+    total_stations = 0
+    geojson_features = []  # GeoJSON features for frontend visualization
+
+    for feature in features:
+        props = feature.get('properties', {})
+        cluster_id = props.get('cluster_id', total_stations)
+        est_chargers = props.get('estimated_chargers', 1)
+
+        # 1 station base + 1 per 50 additional chargers
+        num_stations = 1 + max(0, (est_chargers - 1)) // 50
+
+        # Get polygon centroid (average of coordinates)
+        coords = feature['geometry']['coordinates']
+        # coords is [[ring]] for a Polygon
+        ring = coords[0] if coords else []
+        if not ring:
+            continue
+
+        # Compute centroid in lon/lat
+        lons = [p[0] for p in ring]
+        lats = [p[1] for p in ring]
+        center_lon = sum(lons) / len(lons)
+        center_lat = sum(lats) / len(lats)
+
+        # Convert centroid to SUMO x/y
+        cx, cy = net.convertLonLat2XY(center_lon, center_lat)
+
+        # Place stations spread along different nearby edges
+        placed = 0
+        search_radius = 200  # meters
+        edges = net.getNeighboringEdges(cx, cy, r=search_radius)
+        if not edges:
+            search_radius = 500
+            edges = net.getNeighboringEdges(cx, cy, r=search_radius)
+
+        if not edges:
+            print(f"  [WARN] No edges found near cluster {cluster_id} – skipping")
+            continue
+
+        # Sort by distance
+        edges_sorted = sorted(edges, key=lambda e: e[1])
+
+        # Use unique edges for each station
+        used_lanes = set()
+        for edge, dist in edges_sorted:
+            if placed >= num_stations:
+                break
+            lane = edge.getLane(0)
+            lane_id = lane.getID()
+            if lane_id in used_lanes:
+                continue
+            lane_length = lane.getLength()
+            if lane_length < 6:
+                continue
+
+            start_pos = max(0, lane_length / 2 - 2.5)
+            end_pos = min(start_pos + 5, lane_length - 0.1)
+            if start_pos >= end_pos:
+                continue
+
+            cs_id = f"gen_cs_{cluster_id}_{placed}"
+            ET.SubElement(
+                root, "chargingStation",
+                id=cs_id,
+                lane=lane_id,
+                startPos=str(round(start_pos, 2)),
+                endPos=str(round(end_pos, 2)),
+                power="50000",
+                chargeInTransit="0",
+                chargeDelay="200.0"
+            )
+
+            # Convert lane midpoint back to lon/lat for GeoJSON
+            mid_pos = (start_pos + end_pos) / 2.0
+            shape = lane.getShape()
+            sx, sy = shape[0] if shape else (cx, cy)
+            # interpolate along shape
+            cumulative = 0.0
+            for idx in range(len(shape) - 1):
+                p1, p2 = shape[idx], shape[idx + 1]
+                seg_len = ((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2) ** 0.5
+                if cumulative + seg_len >= mid_pos and seg_len > 0:
+                    t = (mid_pos - cumulative) / seg_len
+                    sx = p1[0] + t * (p2[0] - p1[0])
+                    sy = p1[1] + t * (p2[1] - p1[1])
+                    break
+                cumulative += seg_len
+            try:
+                slon, slat = net.convertXY2LonLat(sx, sy)
+            except Exception:
+                slon, slat = center_lon, center_lat
+
+            geojson_features.append({
+                "type": "Feature",
+                "geometry": {"type": "Point", "coordinates": [slon, slat]},
+                "properties": {
+                    "station_id": cs_id,
+                    "id": cs_id,
+                    "name": f"Generated Station (Cluster {cluster_id})",
+                    "cluster_id": cluster_id,
+                    "estimated_chargers": est_chargers,
+                    "power_kw": 50,
+                    "lane": lane_id
+                }
+            })
+
+            used_lanes.add(lane_id)
+            placed += 1
+            total_stations += 1
+
+        if placed < num_stations:
+            print(f"  [WARN] Cluster {cluster_id}: could only place {placed}/{num_stations} stations (not enough edges)")
+
+    tree = ET.ElementTree(root)
+    tree.write(output_file, encoding='utf-8', xml_declaration=True)
+    print(f"[INFO] Generated {total_stations} charging stations from {len(features)} polygons -> {output_file}")
+
+    generated_geojson = {
+        "type": "FeatureCollection",
+        "features": geojson_features
+    }
+    return output_file, generated_geojson
+
+
 def extract_real_charging_stations(osm_file):
     """
     Extract real charging stations from an OSM file.
@@ -940,13 +1100,62 @@ class Handler(BaseHTTPRequestHandler):
     def _set_cors(self):
         self.send_header("Access-Control-Allow-Origin", "http://localhost:8080")
         self.send_header("Vary", "Origin")
-        self.send_header("Access-Control-Allow-Methods", "POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
 
     def do_OPTIONS(self):
         self.send_response(204)
         self._set_cors()
         self.end_headers()
+
+    def do_GET(self):
+        parsed = urlparse(self.path)
+        if parsed.path == "/list-scenarios":
+            try:
+                scenarios_dir = os.path.abspath(os.path.join("..", "data", "scenarios"))
+                scenarios = []
+                if os.path.isdir(scenarios_dir):
+                    for name in sorted(os.listdir(scenarios_dir), reverse=True):
+                        full_path = os.path.join(scenarios_dir, name)
+                        if os.path.isdir(full_path):
+                            # Check if it contains a sim.sumocfg (i.e. a valid scenario)
+                            has_cfg = os.path.exists(os.path.join(full_path, "sim.sumocfg"))
+                            has_traci = os.path.isdir(os.path.join(full_path, "traci_logs"))
+                            sim_params = {}
+                            sp_file = os.path.join(full_path, "sim_params.json")
+                            if os.path.exists(sp_file):
+                                try:
+                                    with open(sp_file, 'r') as f:
+                                        sim_params = json.load(f)
+                                except Exception:
+                                    pass
+                            if has_cfg:
+                                scenarios.append({
+                                    "name": name,
+                                    "path": full_path,
+                                    "hasTraci": has_traci,
+                                    "duration": sim_params.get("duration", 0),
+                                    "numPersons": sim_params.get("num_persons", 0),
+                                })
+                payload = json.dumps({"ok": True, "scenarios": scenarios}).encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self._set_cors()
+                self.send_header("Content-Length", str(len(payload)))
+                self.end_headers()
+                self.wfile.write(payload)
+            except Exception as e:
+                msg = {"ok": False, "error": str(e)}
+                payload = json.dumps(msg).encode("utf-8")
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json")
+                self._set_cors()
+                self.send_header("Content-Length", str(len(payload)))
+                self.end_headers()
+                self.wfile.write(payload)
+        else:
+            self.send_response(404)
+            self.end_headers()
 
     def do_POST(self):
         parsed = urlparse(self.path)
@@ -1122,6 +1331,26 @@ class Handler(BaseHTTPRequestHandler):
 
                 heatmap_geojson_file = os.path.join(scen_dir, "no_station_areas.geojson")
                 
+                # Step 12b: Generate charging stations from polygons -> generated_cs.add.xml
+                generated_cs_file, generated_cs_geojson = generate_cs_from_polygons(
+                    heatmap_geojson_file, scen_dir, net_file
+                )
+                if generated_cs_file and os.path.exists(generated_cs_file):
+                    # Register generated_cs.add.xml in combined_additional.xml
+                    combined_add_path = os.path.join(scen_dir, "combined_additional.xml")
+                    if os.path.exists(combined_add_path):
+                        tree = ET.parse(combined_add_path)
+                        root = tree.getroot()
+                        # Only add if not already present
+                        already_included = any(
+                            inc.get('href') == 'generated_cs.add.xml'
+                            for inc in root.findall('include')
+                        )
+                        if not already_included:
+                            ET.SubElement(root, 'include', href='generated_cs.add.xml')
+                            tree.write(combined_add_path, encoding='utf-8', xml_declaration=True)
+                            log_result("Registered generated_cs.add.xml in combined_additional.xml")
+
                 # Read the actual GeoJSON content (cluster polygons)
                 heatmap_geojson = None
                 if os.path.exists(heatmap_geojson_file):
@@ -1161,6 +1390,7 @@ class Handler(BaseHTTPRequestHandler):
                     "powerGridNetwork": power_grid_network,
                     "powerGridStats": power_grid_network.get('properties') if power_grid_network else None,
                     "realChargingStations": real_charging_stations,
+                    "generatedChargingStations": generated_cs_geojson,
                     "heatmapGeoJSON": heatmap_geojson,
                     "heatmapData": heatmap_data,
                     "trafficHeatmap": traffic_heatmap_data
@@ -1497,7 +1727,26 @@ class Handler(BaseHTTPRequestHandler):
 
                 # Read heatmap data files
                 heatmap_geojson_file = os.path.join(scen_dir, "no_station_areas.geojson")
-                
+
+                # Step 13b: Generate charging stations from polygons -> generated_cs.add.xml
+                generated_cs_file, generated_cs_geojson = generate_cs_from_polygons(
+                    heatmap_geojson_file, scen_dir, net_file
+                )
+                if generated_cs_file and os.path.exists(generated_cs_file):
+                    # Register generated_cs.add.xml in combined_additional.xml
+                    combined_add_path = os.path.join(scen_dir, "combined_additional.xml")
+                    if os.path.exists(combined_add_path):
+                        tree = ET.parse(combined_add_path)
+                        root = tree.getroot()
+                        already_included = any(
+                            inc.get('href') == 'generated_cs.add.xml'
+                            for inc in root.findall('include')
+                        )
+                        if not already_included:
+                            ET.SubElement(root, 'include', href='generated_cs.add.xml')
+                            tree.write(combined_add_path, encoding='utf-8', xml_declaration=True)
+                            log_result("Registered generated_cs.add.xml in combined_additional.xml")
+
                 heatmap_geojson = None
                 if os.path.exists(heatmap_geojson_file):
                     with open(heatmap_geojson_file, "r", encoding="utf-8") as f:
@@ -1606,6 +1855,7 @@ class Handler(BaseHTTPRequestHandler):
                     "powerGridNetwork": power_grid_network,
                     "powerGridStats": power_grid_network.get('properties') if power_grid_network else None,
                     "realChargingStations": real_charging_stations,
+                    "generatedChargingStations": generated_cs_geojson,
                     "heatmapGeoJSON": heatmap_geojson,
                     "heatmapData": heatmap_data,
                     "trafficHeatmap": traffic_heatmap_data,
@@ -1616,6 +1866,259 @@ class Handler(BaseHTTPRequestHandler):
                     "note": "TraCI simulation with V2G + dynamic home charging + private wallboxes (50% of EV owners) - heatmaps show effects of smart charging control"
                 }
                 json.dumps(resp, indent=2)
+                payload = json.dumps(resp).encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self._set_cors()
+                self.send_header("Content-Length", str(len(payload)))
+                self.end_headers()
+                self.wfile.write(payload)
+            except Exception as e:
+                log_error(str(e))
+                import traceback
+                traceback.print_exc()
+                msg = {"ok": False, "error": str(e)}
+                payload = json.dumps(msg).encode("utf-8")
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json")
+                self._set_cors()
+                self.send_header("Content-Length", str(len(payload)))
+                self.end_headers()
+                self.wfile.write(payload)
+
+
+        elif parsed.path == "/rerun":
+            try:
+                length = int(self.headers.get("Content-Length", "0"))
+                raw = self.rfile.read(length) if length else b"{}"
+                data = json.loads(raw.decode("utf-8") or "{}")
+                scen_dir = data.get("scenarioDir")
+                build_mode = data.get("buildMode", "build")
+
+                if not scen_dir or not os.path.isdir(scen_dir):
+                    raise ValueError(f"Invalid or missing scenarioDir: {scen_dir}")
+
+                print("\n" + "="*60)
+                log_status(f"Re-running simulation for: {scen_dir}")
+                print(f"  Mode: {'TraCI (V2G)' if build_mode == 'buildWithTraci' else 'Standard'}")
+                print("="*60 + "\n")
+
+                scenario = os.path.basename(scen_dir)
+
+                # Detect existing files
+                net_file = None
+                for f in os.listdir(scen_dir):
+                    if f.endswith(".net.xml") or f.endswith(".net.xml.gz"):
+                        net_file = os.path.join(scen_dir, f)
+                        break
+                if not net_file:
+                    raise FileNotFoundError("No .net.xml(.gz) file found in scenario directory")
+
+                trips_file = os.path.join(scen_dir, "osm.passenger.trips.xml")
+                if not os.path.exists(trips_file):
+                    raise FileNotFoundError("No osm.passenger.trips.xml found in scenario directory")
+
+                # Load sim_params
+                sim_params = {}
+                sim_params_file = os.path.join(scen_dir, "sim_params.json")
+                if os.path.exists(sim_params_file):
+                    with open(sim_params_file, 'r', encoding='utf-8') as f:
+                        sim_params = json.load(f)
+
+                # Extract real charging stations from OSM
+                osm_file = None
+                for f in os.listdir(scen_dir):
+                    if f.endswith(".osm.xml") or f.endswith(".osm.gz"):
+                        osm_file = os.path.join(scen_dir, f)
+                        break
+                real_charging_stations = extract_real_charging_stations(osm_file) if osm_file else {"type": "FeatureCollection", "features": []}
+
+                # Load power grid if available
+                grid_manager = None
+                grid_build_success = False
+                grid_file = os.path.join(scen_dir, "power_grid.pkl")
+                if os.path.exists(grid_file):
+                    try:
+                        grid_manager = PowerGridManager.load(grid_file)
+                        grid_build_success = True
+                        log_result("Loaded existing power grid model")
+                    except Exception:
+                        pass
+
+                # Read POI files for response
+                poi_files = [os.path.join(scen_dir, f) for f in os.listdir(scen_dir)
+                             if f.startswith("poi_") and f.endswith(".csv") and "_edges" not in f]
+                poi_geojson = read_poi_files(poi_files)
+
+                sim_duration = sim_params.get('duration', 0)
+                trips_tree = ET.parse(trips_file)
+                num_vehicles = len(trips_tree.getroot().findall('vehicle'))
+
+                wallbox_homes_geojson = None
+                v2g_stats = None
+                charts_data = None
+                traci_summary = None
+
+                if build_mode == 'buildWithTraci':
+                    # ---- TraCI simulation ----
+                    log_status(f"Running TraCI simulation ({num_vehicles} vehicles, {format_time(sim_duration)})...")
+                    est_time = estimate_sumo_time(sim_duration, num_vehicles) * 1.5
+                    print(f"  Estimated runtime: {format_time(est_time)} (with V2G + home charging)")
+
+                    traci_script = os.path.join(os.path.dirname(__file__), "performativeMainSim2.py")
+                    traci_command = [sys.executable, traci_script, scen_dir]
+                    start_time = time.time()
+                    try:
+                        result = subprocess.run(traci_command, check=True, capture_output=True, text=True)
+                        actual_time = time.time() - start_time
+                        if "ERROR" in result.stdout or "WARNING" in result.stdout:
+                            print(result.stdout)
+                        log_result(f"TraCI simulation completed in {format_time(actual_time)}")
+                    except subprocess.CalledProcessError as e:
+                        log_error(f"TraCI simulation failed: {e.stderr}")
+                        raise Exception(f"TraCI simulation failed: {e.stderr}")
+
+                    # Read TraCI outputs
+                    traci_logs_dir = os.path.join(scen_dir, "traci_logs")
+                    traci_model_log = os.path.join(traci_logs_dir, "model_log_data.csv")
+                    traci_charging_sessions = os.path.join(traci_logs_dir, "charging_sessions.csv")
+                    traci_summary = {
+                        "logs_available": os.path.exists(traci_model_log),
+                        "model_log": os.path.basename(traci_model_log) if os.path.exists(traci_model_log) else None,
+                        "charging_sessions": os.path.basename(traci_charging_sessions) if os.path.exists(traci_charging_sessions) else None,
+                        "logs_dir": "traci_logs"
+                    }
+                    v2g_summary_file = os.path.join(traci_logs_dir, "v2g_summary.json")
+                    if os.path.exists(v2g_summary_file):
+                        with open(v2g_summary_file, 'r', encoding='utf-8') as f:
+                            v2g_stats = json.load(f)
+                    charts_file = os.path.join(traci_logs_dir, "charts_data.json")
+                    if os.path.exists(charts_file):
+                        with open(charts_file, 'r', encoding='utf-8') as f:
+                            charts_data = json.load(f)
+
+                    # Read wallbox homes
+                    wallbox_homes_path = os.path.join(scen_dir, "wallbox_homes.geojson")
+                    if os.path.exists(wallbox_homes_path):
+                        with open(wallbox_homes_path, 'r', encoding='utf-8') as f:
+                            wallbox_homes_geojson = json.load(f)
+                else:
+                    # ---- Standard SUMO simulation ----
+                    log_status(f"Running SUMO simulation ({num_vehicles} vehicles, {format_time(sim_duration)})...")
+                    est_time = estimate_sumo_time(sim_duration, num_vehicles)
+                    print(f"  Estimated runtime: {format_time(est_time)}")
+
+                    sumo_command = ["sumo", "-c", "sim.sumocfg"]
+                    start_time = time.time()
+                    try:
+                        subprocess.run(sumo_command, check=True, cwd=scen_dir, capture_output=True)
+                        actual_time = time.time() - start_time
+                        log_result(f"Simulation completed in {format_time(actual_time)}")
+                    except subprocess.CalledProcessError as e:
+                        raise RuntimeError(f"SUMO simulation failed: {e}")
+
+                # Post-simulation: convert logs, generate heatmaps, generate CS
+                log_status("Processing simulation logs...")
+                convert_logs_to_csv(
+                    os.path.join(scen_dir, "fcd_output.xml.gz"),
+                    os.path.join(scen_dir, "battery_output.xml.gz"),
+                    os.path.join(scen_dir, "combined_additional.xml"),
+                    os.path.join(scen_dir, "sumo_merged_output.csv")
+                )
+                log_result("Logs converted: sumo_merged_output.csv")
+
+                log_status("Generating heatmaps...")
+                traffic_heatmap_file = os.path.join(scen_dir, "traffic_heatmap.json")
+                try:
+                    generate_traffic_heatmap(
+                        os.path.join(scen_dir, "sumo_merged_output.csv"),
+                        net_file,
+                        traffic_heatmap_file,
+                        sample_rate=0.05
+                    )
+                except Exception:
+                    pass
+
+                heatmap_json_file = os.path.join(scen_dir, "no_station_heatmap.json")
+                try:
+                    train_from_sumo_log_no_stations(
+                        os.path.join(scen_dir, "sumo_merged_output.csv"),
+                        os.path.join(scen_dir, "no_station_charging_suggestions.csv"),
+                        os.path.join(scen_dir, "no_station_areas.geojson"),
+                        os.path.join(scen_dir, "suggested_charging_stations.add.xml"),
+                        net_file,
+                        heatmap_json_file,
+                        power_grid_manager=grid_manager if grid_build_success else None,
+                        fast_mode=True,
+                        existing_stations_file=os.path.join(scen_dir, "osm.chargingstations.xml")
+                    )
+                except Exception:
+                    pass
+                log_result("Analysis complete")
+
+                heatmap_geojson_file = os.path.join(scen_dir, "no_station_areas.geojson")
+
+                # Generate CS from polygons
+                generated_cs_file, generated_cs_geojson = generate_cs_from_polygons(
+                    heatmap_geojson_file, scen_dir, net_file
+                )
+                if generated_cs_file and os.path.exists(generated_cs_file):
+                    combined_add_path = os.path.join(scen_dir, "combined_additional.xml")
+                    if os.path.exists(combined_add_path):
+                        tree = ET.parse(combined_add_path)
+                        root = tree.getroot()
+                        already_included = any(
+                            inc.get('href') == 'generated_cs.add.xml'
+                            for inc in root.findall('include')
+                        )
+                        if not already_included:
+                            ET.SubElement(root, 'include', href='generated_cs.add.xml')
+                            tree.write(combined_add_path, encoding='utf-8', xml_declaration=True)
+
+                # Read result files
+                heatmap_geojson = None
+                if os.path.exists(heatmap_geojson_file):
+                    with open(heatmap_geojson_file, 'r', encoding='utf-8') as f:
+                        heatmap_geojson = json.load(f)
+
+                heatmap_data = None
+                if os.path.exists(heatmap_json_file):
+                    with open(heatmap_json_file, 'r', encoding='utf-8') as f:
+                        heatmap_data = json.load(f)
+
+                traffic_heatmap_data = None
+                if os.path.exists(traffic_heatmap_file):
+                    with open(traffic_heatmap_file, 'r', encoding='utf-8') as f:
+                        traffic_heatmap_data = json.load(f)
+
+                power_grid_network = None
+                if grid_build_success and grid_manager:
+                    try:
+                        power_grid_network = grid_manager.to_geojson()
+                    except Exception:
+                        pass
+
+                log_status("Re-run completed successfully!")
+                print(f"  Scenario: {scen_dir}")
+                resp = {
+                    "ok": True,
+                    "message": f"Simulation re-run completed ({build_mode})",
+                    "scenarioDir": scen_dir,
+                    "networkFile": net_file,
+                    "poiFiles": poi_files,
+                    "poiGeoJSON": poi_geojson,
+                    "powerGridNetwork": power_grid_network,
+                    "powerGridStats": power_grid_network.get('properties') if power_grid_network else None,
+                    "realChargingStations": real_charging_stations,
+                    "generatedChargingStations": generated_cs_geojson,
+                    "heatmapGeoJSON": heatmap_geojson,
+                    "heatmapData": heatmap_data,
+                    "trafficHeatmap": traffic_heatmap_data,
+                    "wallboxHomes": wallbox_homes_geojson,
+                    "traciSimulation": traci_summary,
+                    "v2gStats": v2g_stats,
+                    "chartsData": charts_data,
+                }
                 payload = json.dumps(resp).encode("utf-8")
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json")
