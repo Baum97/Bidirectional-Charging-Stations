@@ -27,7 +27,7 @@ import time
 import xml.etree.ElementTree as ET
 import re
 from http.server import HTTPServer, BaseHTTPRequestHandler
-from urllib.parse import urlparse
+from urllib.parse import urlparse, parse_qs
 from urllib.request import urlopen, Request
 from urllib.error import URLError, HTTPError
 import gzip
@@ -1038,6 +1038,12 @@ def generate_cs_from_polygons(geojson_file, scen_dir, net_file):
         "type": "FeatureCollection",
         "features": geojson_features
     }
+
+    # Save GeoJSON to disk for later loading
+    geojson_output_file = os.path.join(scen_dir, "generated_cs.geojson")
+    with open(geojson_output_file, 'w', encoding='utf-8') as f:
+        json.dump(generated_geojson, f, indent=2)
+
     return output_file, generated_geojson
 
 
@@ -1130,10 +1136,19 @@ class Handler(BaseHTTPRequestHandler):
                                 except Exception:
                                     pass
                             if has_cfg:
+                                # Check if V2G data exists
+                                has_v2g_data = False
+                                has_charts_data = False
+                                if has_traci:
+                                    traci_dir = os.path.join(full_path, "traci_logs")
+                                    has_v2g_data = os.path.exists(os.path.join(traci_dir, "v2g_summary.json"))
+                                    has_charts_data = os.path.exists(os.path.join(traci_dir, "charts_data.json"))
                                 scenarios.append({
                                     "name": name,
                                     "path": full_path,
                                     "hasTraci": has_traci,
+                                    "hasV2GData": has_v2g_data,
+                                    "hasChartsData": has_charts_data,
                                     "duration": sim_params.get("duration", 0),
                                     "numPersons": sim_params.get("num_persons", 0),
                                 })
@@ -1145,6 +1160,196 @@ class Handler(BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(payload)
             except Exception as e:
+                msg = {"ok": False, "error": str(e)}
+                payload = json.dumps(msg).encode("utf-8")
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json")
+                self._set_cors()
+                self.send_header("Content-Length", str(len(payload)))
+                self.end_headers()
+                self.wfile.write(payload)
+        elif parsed.path == "/load-scenario":
+            # Load scenario data without re-running the simulation
+            try:
+                qs = parse_qs(parsed.query)
+                scen_dir = qs.get("path", [None])[0]
+                if not scen_dir or not os.path.isdir(scen_dir):
+                    raise ValueError(f"Invalid or missing scenario path: {scen_dir}")
+
+                log_status(f"Loading scenario data from: {scen_dir}")
+
+                # Load sim_params
+                sim_params = {}
+                sim_params_file = os.path.join(scen_dir, "sim_params.json")
+                if os.path.exists(sim_params_file):
+                    with open(sim_params_file, 'r', encoding='utf-8') as f:
+                        sim_params = json.load(f)
+
+                # Find network file
+                net_file = None
+                for f in os.listdir(scen_dir):
+                    if f.endswith(".net.xml") or f.endswith(".net.xml.gz"):
+                        net_file = os.path.join(scen_dir, f)
+                        break
+
+                # Extract real charging stations — prefer enriched (with sim data) if available
+                enriched_cs_path = os.path.join(scen_dir, "real_charging_stations_enriched.geojson")
+                if os.path.exists(enriched_cs_path):
+                    with open(enriched_cs_path, 'r', encoding='utf-8') as f:
+                        real_charging_stations = json.load(f)
+                else:
+                    osm_file = None
+                    for f in os.listdir(scen_dir):
+                        if f.endswith(".osm.xml") or f.endswith(".osm.gz"):
+                            osm_file = os.path.join(scen_dir, f)
+                            break
+                    real_charging_stations = extract_real_charging_stations(osm_file) if osm_file else {"type": "FeatureCollection", "features": []}
+
+                # Load power grid if available
+                power_grid_network = None
+                grid_file = os.path.join(scen_dir, "power_grid.pkl")
+                if os.path.exists(grid_file):
+                    try:
+                        grid_manager = PowerGridManager.load(grid_file)
+                        power_grid_network = grid_manager.to_geojson()
+                    except Exception:
+                        pass
+
+                # Read POI files
+                poi_files = [os.path.join(scen_dir, f) for f in os.listdir(scen_dir)
+                             if f.startswith("poi_") and f.endswith(".csv") and "_edges" not in f]
+                poi_geojson = read_poi_files(poi_files)
+
+                # Read wallbox homes — prefer enriched (with sim data) if available
+                wallbox_homes_geojson = None
+                enriched_wb_path = os.path.join(scen_dir, "wallbox_homes_enriched.geojson")
+                wallbox_homes_path = os.path.join(scen_dir, "wallbox_homes.geojson")
+                if os.path.exists(enriched_wb_path):
+                    with open(enriched_wb_path, 'r', encoding='utf-8') as f:
+                        wallbox_homes_geojson = json.load(f)
+                elif os.path.exists(wallbox_homes_path):
+                    with open(wallbox_homes_path, 'r', encoding='utf-8') as f:
+                        wallbox_homes_geojson = json.load(f)
+
+                # Read TraCI / V2G data
+                v2g_stats = None
+                charts_data = None
+                traci_summary = None
+                traci_logs_dir = os.path.join(scen_dir, "traci_logs")
+                if os.path.isdir(traci_logs_dir):
+                    traci_model_log = os.path.join(traci_logs_dir, "model_log_data.csv")
+                    traci_charging_sessions = os.path.join(traci_logs_dir, "charging_sessions.csv")
+                    traci_summary = {
+                        "logs_available": os.path.exists(traci_model_log),
+                        "model_log": os.path.basename(traci_model_log) if os.path.exists(traci_model_log) else None,
+                        "charging_sessions": os.path.basename(traci_charging_sessions) if os.path.exists(traci_charging_sessions) else None,
+                        "logs_dir": "traci_logs"
+                    }
+                    v2g_summary_file = os.path.join(traci_logs_dir, "v2g_summary.json")
+                    if os.path.exists(v2g_summary_file):
+                        with open(v2g_summary_file, 'r', encoding='utf-8') as f:
+                            v2g_stats = json.load(f)
+                    charts_file = os.path.join(traci_logs_dir, "charts_data.json")
+                    if os.path.exists(charts_file):
+                        with open(charts_file, 'r', encoding='utf-8') as f:
+                            charts_data = json.load(f)
+
+                    # Enrich stations with simulation data (fallback if no enriched files)
+                    enriched_cs_used = os.path.exists(os.path.join(scen_dir, "real_charging_stations_enriched.geojson"))
+                    enriched_wb_used = os.path.exists(os.path.join(scen_dir, "wallbox_homes_enriched.geojson"))
+                    station_stats_file = os.path.join(traci_logs_dir, "station_statistics.json")
+                    station_stats = None
+                    if (not enriched_cs_used or not enriched_wb_used) and os.path.exists(station_stats_file):
+                        with open(station_stats_file, 'r', encoding='utf-8') as f:
+                            station_stats = json.load(f)
+
+                    if station_stats:
+                        # Enrich public charging stations
+                        if not enriched_cs_used and real_charging_stations and 'features' in real_charging_stations:
+                            for feature in real_charging_stations['features']:
+                                props = feature.get('properties', {})
+                                station_id = props.get('id') or props.get('station_id')
+                                if station_id and station_id in station_stats:
+                                    stats = station_stats[station_id]
+                                    props['charging_sessions'] = stats.get('charging_sessions', 0)
+                                    props['unique_vehicles'] = stats.get('unique_vehicles', 0)
+                                    props['total_energy_charged_kwh'] = stats.get('total_energy_charged_kwh', 0)
+                                    props['max_power_kw'] = stats.get('max_power_kw', 50)
+
+                        # Enrich wallbox homes
+                        if not enriched_wb_used and wallbox_homes_geojson and 'features' in wallbox_homes_geojson:
+                            for feature in wallbox_homes_geojson['features']:
+                                props = feature.get('properties', {})
+                                person_id = props.get('person_id')
+                                if person_id:
+                                    wallbox_station_id = f"wallbox_{person_id}"
+                                    if wallbox_station_id in station_stats:
+                                        stats = station_stats[wallbox_station_id]
+                                        props['station_id'] = wallbox_station_id
+                                        props['charging_sessions'] = stats.get('charging_sessions', 0)
+                                        props['unique_vehicles'] = stats.get('unique_vehicles', 0)
+                                        props['total_energy_charged_kwh'] = stats.get('total_energy_charged_kwh', 0)
+                                        props['total_energy_discharged_kwh'] = stats.get('total_energy_discharged_kwh', 0)
+                                        props['net_energy_kwh'] = stats.get('net_energy_kwh', 0)
+                                        props['max_power_kw'] = stats.get('max_power_kw', 11)
+
+                # Read heatmap/analysis files
+                heatmap_geojson = None
+                heatmap_geojson_file = os.path.join(scen_dir, "no_station_areas.geojson")
+                if os.path.exists(heatmap_geojson_file):
+                    with open(heatmap_geojson_file, 'r', encoding='utf-8') as f:
+                        heatmap_geojson = json.load(f)
+
+                heatmap_data = None
+                heatmap_json_file = os.path.join(scen_dir, "no_station_heatmap.json")
+                if os.path.exists(heatmap_json_file):
+                    with open(heatmap_json_file, 'r', encoding='utf-8') as f:
+                        heatmap_data = json.load(f)
+
+                traffic_heatmap_data = None
+                traffic_heatmap_file = os.path.join(scen_dir, "traffic_heatmap.json")
+                if os.path.exists(traffic_heatmap_file):
+                    with open(traffic_heatmap_file, 'r', encoding='utf-8') as f:
+                        traffic_heatmap_data = json.load(f)
+
+                # Read generated charging stations GeoJSON
+                generated_cs_geojson = None
+                generated_cs_file = os.path.join(scen_dir, "generated_cs.geojson")
+                if os.path.exists(generated_cs_file):
+                    with open(generated_cs_file, 'r', encoding='utf-8') as f:
+                        generated_cs_geojson = json.load(f)
+
+                log_status("Scenario loaded successfully (no simulation re-run)")
+                resp = {
+                    "ok": True,
+                    "message": "Scenario loaded from saved data (no simulation re-run)",
+                    "scenarioDir": scen_dir,
+                    "networkFile": net_file,
+                    "poiFiles": poi_files,
+                    "poiGeoJSON": poi_geojson,
+                    "powerGridNetwork": power_grid_network,
+                    "powerGridStats": power_grid_network.get('properties') if power_grid_network else None,
+                    "realChargingStations": real_charging_stations,
+                    "generatedChargingStations": generated_cs_geojson,
+                    "heatmapGeoJSON": heatmap_geojson,
+                    "heatmapData": heatmap_data,
+                    "trafficHeatmap": traffic_heatmap_data,
+                    "wallboxHomes": wallbox_homes_geojson,
+                    "traciSimulation": traci_summary,
+                    "v2gStats": v2g_stats,
+                    "chartsData": charts_data,
+                }
+                payload = json.dumps(resp).encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self._set_cors()
+                self.send_header("Content-Length", str(len(payload)))
+                self.end_headers()
+                self.wfile.write(payload)
+            except Exception as e:
+                log_error(str(e))
+                import traceback
+                traceback.print_exc()
                 msg = {"ok": False, "error": str(e)}
                 payload = json.dumps(msg).encode("utf-8")
                 self.send_response(500)
@@ -1841,6 +2046,16 @@ class Handler(BaseHTTPRequestHandler):
                                     props['max_power_kw'] = stats.get('max_power_kw', 11)  # Default to 11 kW if not found
                                     enriched_count += 1
                         print(f"[INFO] Enriched {enriched_count}/{len(wallbox_homes_geojson['features'])} wallbox homes with simulation data")
+
+                    # Persist enriched data for future loading
+                    if real_charging_stations:
+                        enriched_cs_path = os.path.join(scen_dir, "real_charging_stations_enriched.geojson")
+                        with open(enriched_cs_path, 'w', encoding='utf-8') as f:
+                            json.dump(real_charging_stations, f, indent=2)
+                    if wallbox_homes_geojson:
+                        enriched_wb_path = os.path.join(scen_dir, "wallbox_homes_enriched.geojson")
+                        with open(enriched_wb_path, 'w', encoding='utf-8') as f:
+                            json.dump(wallbox_homes_geojson, f, indent=2)
 
                 # Respond with success
                 log_status("Pipeline completed successfully!")

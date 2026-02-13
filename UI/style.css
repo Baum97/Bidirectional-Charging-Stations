@@ -154,6 +154,14 @@ button:hover { background-image: linear-gradient(-180deg,#34D058,#28A745 40%); }
   background-image: linear-gradient(-180deg, #42A5F5, #1976D2 40%);
 }
 
+#loadScenario {
+  background-color: #388E3C;
+  background-image: linear-gradient(-180deg, #66BB6A, #2E7D32 90%);
+}
+#loadScenario:hover {
+  background-image: linear-gradient(-180deg, #66BB6A, #388E3C 40%);
+}
+
 /* Scenario Picker Modal */
 #scenarioPickerOverlay {
   position: fixed;
@@ -218,6 +226,14 @@ button:hover { background-image: linear-gradient(-180deg,#34D058,#28A745 40%); }
 #scenarioList .badge-standard {
   background: #e8f5e9;
   color: #2E7D32;
+}
+#scenarioList .badge-v2g {
+  background: #fce4ec;
+  color: #c62828;
+}
+#scenarioList .badge-charts {
+  background: #fff3e0;
+  color: #e65100;
 }
 
 .container h4 { margin: 0; text-align: center; font-size: 1.25em; display: inline; }

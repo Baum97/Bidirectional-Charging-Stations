@@ -1338,15 +1338,18 @@ downloadOSMDataBtn?.addEventListener('click', async () => {
   await downloadOSMData(b, defaultScenarioName());
 });
 
-// Re-run Simulation button — opens scenario picker
-const rerunSimBtn = document.getElementById('rerunSimulation');
-rerunSimBtn?.addEventListener('click', async () => {
+// --- Shared scenario picker logic ---
+let scenarioPickerMode = 'load'; // 'load' or 'rerun'
+
+async function openScenarioPicker(mode) {
+  scenarioPickerMode = mode;
   const overlay = document.getElementById('scenarioPickerOverlay');
   const listEl = document.getElementById('scenarioList');
   const loadingEl = document.getElementById('scenarioListLoading');
+  const titleEl = document.getElementById('scenarioPickerTitle');
   if (!overlay || !listEl) return;
 
-  // Show modal
+  titleEl.textContent = mode === 'load' ? 'Select Scenario to Load' : 'Select Scenario to Re-run';
   overlay.style.display = 'flex';
   listEl.innerHTML = '';
   loadingEl.style.display = 'block';
@@ -1363,12 +1366,18 @@ rerunSimBtn?.addEventListener('click', async () => {
 
     for (const sc of data.scenarios) {
       const li = document.createElement('li');
-      const badge = sc.hasTraci
+      const traciBadge = sc.hasTraci
         ? '<span class="scenario-badge badge-traci">TraCI</span>'
         : '<span class="scenario-badge badge-standard">Standard</span>';
+      const v2gBadge = sc.hasV2GData
+        ? '<span class="scenario-badge badge-v2g">V2G Data</span>'
+        : '';
+      const chartsBadge = sc.hasChartsData
+        ? '<span class="scenario-badge badge-charts">Charts</span>'
+        : '';
       const dur = sc.duration ? `${Math.round(sc.duration / 60)}min` : '?';
       const persons = sc.numPersons || '?';
-      li.innerHTML = `<div>${sc.name}${badge}</div>
+      li.innerHTML = `<div>${sc.name}${traciBadge}${v2gBadge}${chartsBadge}</div>
         <div class="scenario-meta">${persons} vehicles &middot; ${dur} &middot; ${sc.path}</div>`;
       li.dataset.path = sc.path;
       li.dataset.hasTraci = sc.hasTraci ? '1' : '0';
@@ -1380,7 +1389,11 @@ rerunSimBtn?.addEventListener('click', async () => {
 
       li.addEventListener('click', () => {
         overlay.style.display = 'none';
-        runRerunSimulation(sc.path);
+        if (scenarioPickerMode === 'load') {
+          loadScenarioData(sc.path);
+        } else {
+          runRerunSimulation(sc.path);
+        }
       });
       listEl.appendChild(li);
     }
@@ -1388,6 +1401,20 @@ rerunSimBtn?.addEventListener('click', async () => {
     loadingEl.style.display = 'none';
     listEl.innerHTML = `<li style="color:#c00;cursor:default;">Failed to load scenarios: ${err}</li>`;
   }
+}
+
+// Load Scenario button — opens scenario picker in load mode
+const loadScenarioBtn = document.getElementById('loadScenario');
+loadScenarioBtn?.addEventListener('click', () => openScenarioPicker('load'));
+
+// Re-run Simulation button — re-runs on the last used scenario directly
+const rerunSimBtn = document.getElementById('rerunSimulation');
+rerunSimBtn?.addEventListener('click', () => {
+  if (!lastScenarioDir) {
+    alert('No scenario available. Please generate or load a scenario first.');
+    return;
+  }
+  runRerunSimulation(lastScenarioDir);
 });
 
 // Cancel button
@@ -1400,6 +1427,45 @@ document.getElementById('scenarioPickerOverlay')?.addEventListener('click', (e) 
     e.target.style.display = 'none';
   }
 });
+
+// Helper to visualize all results from a server response
+function visualizeScenarioResponse(j) {
+  if (j.powerGridNetwork) showPowerGrid(j.powerGridNetwork);
+  if (j.powerGridStats) showPowerGridStats(j.powerGridStats);
+  if (j.realChargingStations) showChargingStations(j.realChargingStations);
+  if (j.generatedChargingStations) showGeneratedChargingStations(j.generatedChargingStations);
+  if (j.heatmapGeoJSON) showGeoJsonAreas(j.heatmapGeoJSON);
+  if (j.heatmapData) showHeatmap(j.heatmapData);
+  if (j.trafficHeatmap) showTrafficHeatmap(j.trafficHeatmap);
+  if (j.poiGeoJSON) showPOIs(j.poiGeoJSON);
+  if (j.wallboxHomes) showWallboxHomes(j.wallboxHomes);
+  if (j.v2gStats) showV2GStats(j.v2gStats);
+  if (j.chartsData) {
+    showChartsButton(j.chartsData);
+    initializeCharts(j.chartsData);
+  }
+  if (j.traciSimulation && j.traciSimulation.logs_available) {
+    statusEl2.textContent += ` | TraCI logs: ${j.traciSimulation.logs_dir}`;
+  }
+}
+
+// Load scenario data without re-running (reads persisted V2G & charging data)
+async function loadScenarioData(scenarioDir) {
+  statusEl2.textContent = `Loading scenario data from ${scenarioDir} ...`;
+  try {
+    const res = await fetch(`http://127.0.0.1:8787/load-scenario?path=${encodeURIComponent(scenarioDir)}`);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const j = await res.json();
+    if (!j.ok) throw new Error(j.error || 'Unknown error');
+    statusEl2.textContent = `Scenario loaded: ${j.message || ''}`;
+    lastScenarioDir = j.scenarioDir;
+
+    visualizeScenarioResponse(j);
+  } catch (err) {
+    statusEl2.textContent = 'Failed to load scenario: ' + err;
+    console.error(err);
+  }
+}
 
 async function runRerunSimulation(scenarioDir) {
   const buildMode = document.getElementById('buildMode')?.value || 'build';
@@ -1417,24 +1483,8 @@ async function runRerunSimulation(scenarioDir) {
     statusEl2.textContent = `Re-run complete: ${j.message || ''}`;
     lastScenarioDir = j.scenarioDir;
 
-    // Visualize all results (same as downloadOSMData)
-    if (j.powerGridNetwork) showPowerGrid(j.powerGridNetwork);
-    if (j.powerGridStats) showPowerGridStats(j.powerGridStats);
-    if (j.realChargingStations) showChargingStations(j.realChargingStations);
-    if (j.generatedChargingStations) showGeneratedChargingStations(j.generatedChargingStations);
-    if (j.heatmapGeoJSON) showGeoJsonAreas(j.heatmapGeoJSON);
-    if (j.heatmapData) showHeatmap(j.heatmapData);
-    if (j.trafficHeatmap) showTrafficHeatmap(j.trafficHeatmap);
-    if (j.poiGeoJSON) showPOIs(j.poiGeoJSON);
-    if (j.wallboxHomes) showWallboxHomes(j.wallboxHomes);
-    if (j.v2gStats) showV2GStats(j.v2gStats);
-    if (j.chartsData) {
-      showChartsButton(j.chartsData);
-      initializeCharts(j.chartsData);
-    }
-    if (j.traciSimulation && j.traciSimulation.logs_available) {
-      statusEl2.textContent += ` | TraCI logs: ${j.traciSimulation.logs_dir}`;
-    }
+    // Visualize all results
+    visualizeScenarioResponse(j);
   } catch (err) {
     statusEl2.textContent = 'Re-run failed: ' + err;
     console.error(err);

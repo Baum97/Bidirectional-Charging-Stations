@@ -292,6 +292,7 @@
           </div>
           <div id="commands">
             <button id="downloadOSMData">Generate Scenario</button>
+            <button id="loadScenario" title="Load a previously saved scenario with its V2G data">Load Scenario</button>
             <button id="rerunSimulation" title="Re-run simulation on an existing scenario">Re-run Simulation</button>
           </div>
           <div id="devKitContainer"></div>
@@ -305,7 +306,7 @@
     <!-- Scenario Picker Modal -->
     <div id="scenarioPickerOverlay" style="display:none;">
       <div id="scenarioPickerModal">
-        <h4 style="margin:0 0 12px 0;">Select Scenario to Re-run</h4>
+        <h4 id="scenarioPickerTitle" style="margin:0 0 12px 0;">Select Scenario</h4>
         <div id="scenarioListContainer">
           <div id="scenarioListLoading" style="color:#888; font-style:italic;">Loading scenarios...</div>
           <ul id="scenarioList"></ul>
