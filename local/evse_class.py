@@ -1,3 +1,5 @@
+
+
 class EVSE_class():
     def __init__(self, efficiency, Prated_kW, evse_id, energy_pool=None, is_private=False, allowed_vehicle_id=None):
         self.efficiency = efficiency
@@ -20,8 +22,14 @@ class EVSE_class():
 
         self.server_setpoint = 0.0
         self.is_discharging = False    # V2G mode flag
+        self.charging_proces = None
 
-       
+    def getPrated_kw(self):
+        return self.Prated_kW
+
+    def getEfficiency(self):
+        return self.efficiency
+
     def receive_from_ev(self, Vbatt, Pbatt_kW, soc, plugged, ready):
         ### receive Vbatt, Pbatt, SOC, plugged via TCP or something if there needs a connection
         self.ev_voltage = Vbatt
@@ -45,16 +53,23 @@ class EVSE_class():
                 available_power = self.server_setpoint
                 if self.energy_pool:
                     available_power = self.energy_pool.get_available_power_for_station(self.evse_id, self.server_setpoint)
-                
-                Pmax = min(available_power, self.Prated_kW) * self.efficiency
+                    if available_power < self.server_setpoint:
+                        available_power *= self.efficiency  # apply efficiency to scaled power
+                Pmax = min(available_power* self.efficiency, self.curr_power)
             else:
                 # V2G mode: request discharge power
-                Pmax = -min(self.server_setpoint, self.Prated_kW) * self.efficiency  # negative = discharge
+                Pmax = -min(self.server_setpoint, self.curr_power)  # negative = discharge
         else:
             Pmax = 0.0
 
         ### send Pmax via TCP or something if there needs a connection
         return Pmax
+
+    def set_ChargingProcess(self, charging_process):
+        self.charging_process = charging_process
+
+    def reset_ChargingProcess(self):
+        self.charging_proces = None
 
 
     def receive_from_server(self, setpoint_kW):
@@ -75,6 +90,11 @@ class EVSE_class():
         soc      = self.ev_soc
         
         return [Vbatt, Pbatt_kW, soc]
+
+    def compute_power(self, curr_time):
+        power = self.charging_process.compute_power(curr_time)
+        self.curr_power = power
+        return power
 
 
 class EnergyPool:
@@ -127,6 +147,8 @@ class EnergyPool:
         available = requested_power_kw * scale_factor
         
         return available
+
+    #def get_current_current(self, simulation_time, ):
     
     def reset_requests(self):
         """

@@ -12,7 +12,8 @@ COPY package*.json ./
 RUN npm install --omit=dev --no-audit --no-fund
 
 COPY server.js ./
-COPY public ./public
+COPY UI ./UI
+COPY webWizard_example ./webWizard_example
 
 EXPOSE 8080
 
