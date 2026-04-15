@@ -121,7 +121,7 @@ def _sumo_paths():
 def _run(cmd, cwd=None, timeout=300, verbose=False):
     if verbose:
         print("  Running:", os.path.basename(cmd[0]))
-    result = subprocess.run(cmd, check=False, cwd=cwd, capture_output=True, text=True, timeout=timeout)
+    result = subprocess.run(cmd, check=False, cwd=cwd, capture_output=False, text=True, timeout=timeout)
     if result.returncode != 0:
         if result.stderr:
             print("[ERROR]", result.stderr)
@@ -1490,7 +1490,7 @@ class Handler(BaseHTTPRequestHandler):
                 sumo_command = ["sumo", "-c", "sim.sumocfg"]
                 start_time = time.time()
                 try:
-                    subprocess.run(sumo_command, check=True, cwd=scen_dir, capture_output=True)
+                    subprocess.run(sumo_command, check=True, cwd=scen_dir, capture_output=False)
                     actual_time = time.time() - start_time
                     log_result(f"Simulation completed in {format_time(actual_time)}")
                 except subprocess.CalledProcessError as e:
@@ -1878,7 +1878,7 @@ class Handler(BaseHTTPRequestHandler):
                 traci_command = [sys.executable, traci_script, scen_dir]
                 start_time = time.time()
                 try:
-                    result = subprocess.run(traci_command, check=True, capture_output=True, text=True)
+                    result = subprocess.run(traci_command, check=True, capture_output=False, text=True)
                     actual_time = time.time() - start_time
                     # Show TraCI output if it contains important info
                     if "ERROR" in result.stdout or "WARNING" in result.stdout:
@@ -2184,7 +2184,7 @@ class Handler(BaseHTTPRequestHandler):
                     traci_command = [sys.executable, traci_script, scen_dir]
                     start_time = time.time()
                     try:
-                        result = subprocess.run(traci_command, check=True, capture_output=True, text=True)
+                        result = subprocess.run(traci_command, check=True, capture_output=False, text=True)
                         actual_time = time.time() - start_time
                         if "ERROR" in result.stdout or "WARNING" in result.stdout:
                             print(result.stdout)
@@ -2226,7 +2226,7 @@ class Handler(BaseHTTPRequestHandler):
                     sumo_command = ["sumo", "-c", "sim.sumocfg"]
                     start_time = time.time()
                     try:
-                        subprocess.run(sumo_command, check=True, cwd=scen_dir, capture_output=True)
+                        subprocess.run(sumo_command, check=True, cwd=scen_dir, capture_output=False)
                         actual_time = time.time() - start_time
                         log_result(f"Simulation completed in {format_time(actual_time)}")
                     except subprocess.CalledProcessError as e:

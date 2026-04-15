@@ -54,8 +54,8 @@ class CHProcess:
         self.ru = None
         self.ramp_up_started = False
         self.stagnant_started = False
-        self.compute_ramp_up(self)
-        self.compute_stagnant(self)
+        self.compute_ramp_up()
+        self.compute_stagnant()
 
     def compute_ramp_up(self):
         sim_ru = sc.Simulation_RU()
@@ -82,7 +82,7 @@ class CHProcess:
             duration = self.departure_time - self.start_time - len(self.ru)
         else:
             duration = ((energy_to_charge - energy_ru) /
-                        (self.Pmax * self.crate * self.efficiency)) * 3600 * 1.2 + self.setup_time
+                        (self.Pmax * self.crate * self.efficiency)) * 3600 * 1.2
 
         stag = sim_sp2.generate_continuous_sample(
             duration_seconds=duration,

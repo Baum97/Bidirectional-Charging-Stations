@@ -22,7 +22,7 @@ class EVSE_class():
 
         self.server_setpoint = 0.0
         self.is_discharging = False    # V2G mode flag
-        self.charging_proces = None
+        self.charging_process = None
 
     def getPrated_kw(self):
         return self.Prated_kW
@@ -69,7 +69,7 @@ class EVSE_class():
         self.charging_process = charging_process
 
     def reset_ChargingProcess(self):
-        self.charging_proces = None
+        self.charging_process = None
 
 
     def receive_from_server(self, setpoint_kW):
@@ -92,7 +92,7 @@ class EVSE_class():
         return [Vbatt, Pbatt_kW, soc]
 
     def compute_power(self, curr_time):
-        power = self.charging_process.compute_power(curr_time)
+        power = self.charging_process.get_power_at_time(curr_time)
         self.curr_power = power
         return power
 
@@ -149,7 +149,7 @@ class EnergyPool:
         return available
 
     #def get_current_current(self, simulation_time, ):
-    
+
     def reset_requests(self):
         """
         Clear all station requests and actuals at the start of each time step.

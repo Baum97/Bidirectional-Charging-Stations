@@ -18,7 +18,7 @@ from ChargingProcess import *
 # Accept scenario directory as command line argument
 SCENARIO_DIR = sys.argv[1] if len(sys.argv) > 1 else "../data/scenarios/default"
 SUMO_CONFIG = os.path.join(SCENARIO_DIR, "sim.sumocfg")
-
+NO_V2G = True
 # Load UI-provided simulation parameters (written by biflex_local_runner)
 import json as _json_params
 _sim_params_file = os.path.join(SCENARIO_DIR, "sim_params.json")
@@ -637,7 +637,8 @@ def main():
                         
                         # Check if V2G should be activated (high SOC + grid needs support)
                         should_v2g = soc_val >= V2G_SOC_THRESHOLD and grid_usage_percent >= GRID_CAPACITY_WARNING_THRESHOLD * 100
-                        
+                        if NO_V2G:
+                            should_v2g = False
                         if should_v2g:
                             # Switch to V2G mode — session continues (no session end!)
                             # Reset ramp timer (will restart when switching back to charging)
@@ -677,7 +678,7 @@ def main():
                                 if step % 100 == 0 and energy_removed_wh > 0:
                                     print(f"[V2G] veh={vid} at_home={distance_to_home:.1f}m discharge={abs(v2g_power_allowed):.1f}kW soc={soc_val:.2f} grid={grid_usage_percent:.1f}%")
                         
-                        elif soc_val < 0.95:  # Normal charging at home
+                        elif soc_val < 1:  # Normal charging at home
                             print("WTF")
                             home_evse.set_discharge_mode(False)
                             
@@ -726,7 +727,7 @@ def main():
                                     print(f"[HOME_CHARGE] veh={vid} at_home={distance_to_home:.1f}m ramp={home_ramp_kw:.2f}kW power={home_charge_kw:.2f}kW soc={soc_val:.2f}")
                         
                         else:
-                            print("WTF2")
+
                             # SOC >= 0.95 and no V2G needed — idle at home (still plugged in, session continues)
                             charging_start_time.pop(vid, None)  # Stop ramp timer
                             home_evse.reset_ChargingProcess()

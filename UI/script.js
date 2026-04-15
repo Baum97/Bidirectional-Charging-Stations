@@ -1139,7 +1139,7 @@ async function sendToLocal(bounds, scenario) {
   const buildMode = document.getElementById('buildMode')?.value || 'build';
   const endpoint = buildMode === 'buildWithTraci' ? '/buildWithTraci' : '/build';
   const mode = buildMode === 'buildWithTraci' ? 'with TraCI simulation' : 'standard';
-  
+
   statusEl2.textContent = `Contacting local helper (${mode}) at http://127.0.0.1:8787 ...`;
   try {
     const res = await fetch(`http://127.0.0.1:8787${endpoint}`, {
@@ -1167,7 +1167,7 @@ async function downloadOSMData(bounds, scenario) {
   const buildMode = document.getElementById('buildMode')?.value || 'build';
   const endpoint = buildMode === 'buildWithTraci' ? '/buildWithTraci' : '/build';
   const mode = buildMode === 'buildWithTraci' ? 'with TraCI simulation' : 'standard';
-  
+
   statusEl2.textContent = `Downloading OSM data (${mode})...`;
   try {
     const res = await fetch(`http://127.0.0.1:8787${endpoint}`, {
@@ -1708,3 +1708,4 @@ if (layerControlEl) {
     layerControlH4.style.cursor = 'pointer';
   }
 }
+
