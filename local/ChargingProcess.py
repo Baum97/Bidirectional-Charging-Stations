@@ -1,4 +1,5 @@
 import simulation_charging_profile_current as sc
+import numpy as np
 
 def compute_current(one_phase=False, P=11):
     V = 250
@@ -38,9 +39,10 @@ def compute_energy(duration, power):
 
 class CHProcess:
     def __init__(self, start_time, one_phase = False, Pmax = 11, efficiency = 1.0, with_departure=False,
-                 departure_time=None, with_rd=False, ev_soc = 100, crate=1, packcap=100):
+                 departure_time=None, with_rd=False, ev_soc = 100, crate=1, packcap=100, debug = False,
+                 sim_ru = None, sim_sp = None):
         self.start_time = start_time
-
+        self.debug = False
         self.one_phase = one_phase
         self.Pmax = Pmax
         self.efficiency = efficiency
@@ -54,43 +56,61 @@ class CHProcess:
         self.ru = None
         self.ramp_up_started = False
         self.stagnant_started = False
+        self.sim_ru = sim_ru
+        self.sim_sp = sim_sp
         self.compute_ramp_up()
         self.compute_stagnant()
 
-    def compute_ramp_up(self):
-        sim_ru = sc.Simulation_RU()
-        curr = compute_current(self.one_phase, P=self.Pmax)
-        clusters_ru = sim_ru.compute_phase_clusters(self.one_phase)
 
-        self.ru = sim_ru.generate_simulated_ramp_up(
+    def compute_ramp_up(self):
+
+        curr = compute_current(self.one_phase, P=self.Pmax)
+        clusters_ru = self.sim_ru.compute_phase_clusters(self.one_phase)
+        energy_to_charge = self.packcap * (1 - self.ev_soc)
+        ru= self.sim_ru.generate_simulated_ramp_up(
             final_values=curr,
             n_samples=1,
             tol=1e-1,
             preferred_clusters=clusters_ru
         ).reshape(-1, 3)
+        energy_ru = compute_energy_int(ru, crate=self.crate, efficiency=self.efficiency)
+        print(ru)
+        if energy_to_charge < energy_ru or energy_to_charge == 0:
+            ru = [[0,0,0]]
+        self.ru = ru
 
     def compute_stagnant(self):
         #todo: evtl crate,... als parameter,nicht attribut
         energy_ru = compute_energy_int(self.ru, crate=self.crate, efficiency=self.efficiency)
         energy_to_charge = self.packcap * (1 - self.ev_soc)
+        print(f"st: energy_ru: {energy_ru}")
+        print(f"st: energy_to_charge: {energy_to_charge}")
         # -----------------------------------
         # Generate Stagnant Phase
         # -----------------------------------
-        sim_sp2 = sc.Simulation_SP2()
+
 
         if self.with_departure:
             duration = self.departure_time - self.start_time - len(self.ru)
         else:
-            duration = ((energy_to_charge - energy_ru) /
+            duration = (max(energy_to_charge - energy_ru,0) /
                         (self.Pmax * self.crate * self.efficiency)) * 3600 * 1.2
+        if duration>0:
+            stag = self.sim_sp.generate_continuous_sample(
+                duration_seconds=duration,
+                start_currents=self.ru[-1],
+                block_duration_seconds=None
+            )
+            stag = self.sim_sp.convert_sim_output_to_1s(stag, duration_seconds=duration)
 
-        stag = sim_sp2.generate_continuous_sample(
-            duration_seconds=duration,
-            start_currents=self.ru[-1],
-            block_duration_seconds=None
-        )
-        self.st = sim_sp2.convert_sim_output_to_1s(stag, duration_seconds=duration)
+        else:
+            stag = [[0, 0, 0]]
+            print("ACHTUNG")
+        self.st = stag
 
+        if energy_to_charge<energy_ru or energy_to_charge == 0:
+            print("WAS PASSIERT")
+            print(self.st)
     def get_power_at_time(self, t):
 
         # 1) Setup time
@@ -103,7 +123,8 @@ class CHProcess:
         # 2) Ramp-Up
         if dt_local < len(self.ru):
             if not self.ramp_up_started:
-                print("ramp_up begins")
+                if self.debug:
+                    print("ramp_up begins")
                 self.ramp_up_started = True
             return compute_power(self.ru[int(dt_local)], crate=self.crate)
 
@@ -112,7 +133,8 @@ class CHProcess:
         st_idx = int(dt_local - len(self.ru))
         if st_idx < len(self.st):
             if not self.stagnant_started:
-                print(f"stagnant phase begins at t={t}s")
+                if self.debug:
+                    print(f"stagnant phase begins at t={t}s")
                 self.stagnant_started = True
             return compute_power(self.st[st_idx], crate=self.crate)
 

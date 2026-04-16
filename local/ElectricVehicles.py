@@ -1,4 +1,3 @@
-
 import os
 import pandas as pd
 import numpy as np
@@ -110,10 +109,37 @@ class ElectricVehicles:
     def load_ev_file(self, **kwargs):
         # loads model paramaters either from a CSV file or defines default values
         if 'input_path' in kwargs:
-            ev_parameters_file = os.path.join(kwargs['input_path'], 'evtype', '{}_parameters.csv'.format(self.evtype))
+            ev_parameters_file = os.path.join(kwargs['input_path'],  '{}_parameters.csv'.format(self.evtype))
 
-            params = pd.read_csv(ev_parameters_file, index_col='Parameter Name')
-            params = params['Parameter Value'].astype(float).to_dict()
+            # Read parameter file as strings and convert values where appropriate
+            df = pd.read_csv(ev_parameters_file, index_col='Parameter Name', dtype={'Parameter Value': str})
+            raw = df['Parameter Value'].to_dict()
+
+            # parameters that should always be treated as strings (lower-case)
+            string_params = {'ev_batterychemistry', 'ev_chargingprotocol', 'manufacturer', 'model'}
+
+            def _convert(key_lower, v):
+                # keep NA as-is
+                if pd.isna(v):
+                    return v
+                s = str(v).strip()
+                # force certain keys to be strings
+                if key_lower in string_params:
+                    return s
+                # handle booleans
+                if s.lower() in ('true', 'false'):
+                    return s.lower() == 'true'
+                # try numeric conversion (float). If it fails, keep original string
+                try:
+                    return float(s)
+                except Exception:
+                    return s
+
+            # normalize parameter names to lower-case keys, ensure using str(k) for non-string indices
+            params = {}
+            for k, v in raw.items():
+                key_lower = str(k).lower()
+                params[key_lower] = _convert(key_lower, v)
         else:
             print('Warning: Cannot find EV parameter file. Using default values for fixed parameters')
             params = {'ev_crate': 1.0,  # 1/hr

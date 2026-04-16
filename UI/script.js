@@ -1135,12 +1135,31 @@ let lastScenarioDir = null;
 
 // Patch sendToLocal to remember the scenarioDir
 async function sendToLocal(bounds, scenario) {
-  const body = { bbox: getBboxArray(bounds), scenario, params: collectSimParams() };
   const buildMode = document.getElementById('buildMode')?.value || 'build';
-  const endpoint = buildMode === 'buildWithTraci' ? '/buildWithTraci' : '/build';
-  const mode = buildMode === 'buildWithTraci' ? 'with TraCI simulation' : 'standard';
 
-  statusEl2.textContent = `Contacting local helper (${mode}) at http://127.0.0.1:8787 ...`;
+  let endpoint = '/build';
+  let mode = 'standard';
+
+  if (buildMode === 'buildWithTraci') {
+    endpoint = '/buildWithTraci';
+    mode = 'with TraCI simulation';
+  } else if (buildMode === 'buildWithTraciDetailedChargingNoV2G') {
+    endpoint = '/buildWithTraciNoV2G';
+    mode = 'TraCI (Detailed Charging, No V2G)';
+  }
+
+  statusEl2.textContent =
+    `Contacting local helper (${mode}) at http://127.0.0.1:8787{endpoint} ...`;
+
+
+  console.log("SELECT VALUE:", document.getElementById('buildMode')?.value);
+  //const body = { bbox: getBboxArray(bounds), scenario, params: collectSimParams() };
+  //const buildMode = document.getElementById('buildMode')?.value || 'build';
+  //const cfg = (typeof getBuildConfig === 'function') ? getBuildConfig(buildMode) : null;
+  //let endpoint = (cfg && cfg.endpoint) ? "/build";//cfg.endpoint : '/build';
+  //let modeText = (cfg && cfg.mode) ? cfg.mode : 'standard';
+
+  //statusEl2.textContent = `Contacting local helper (${modeText}) at http://127.0.0.1:8787${endpoint} ...`;
   try {
     const res = await fetch(`http://127.0.0.1:8787${endpoint}`, {
       method: 'POST',
@@ -1151,7 +1170,7 @@ async function sendToLocal(bounds, scenario) {
     const j = await res.json();
     statusEl2.textContent = `Success: ${j.message || 'scenario created'} at ${j.scenarioDir || ''}`;
     lastScenarioDir = j.scenarioDir; // <-- store for simulation
-    
+
     // Show TraCI simulation info if available
     if (j.traciSimulation && j.traciSimulation.logs_available) {
       statusEl2.textContent += ` | TraCI logs: ${j.traciSimulation.logs_dir}`;
@@ -1164,11 +1183,33 @@ async function sendToLocal(bounds, scenario) {
 
 async function downloadOSMData(bounds, scenario) {
   const body = { bbox: getBboxArray(bounds), scenario, params: collectSimParams() };
-  const buildMode = document.getElementById('buildMode')?.value || 'build';
-  const endpoint = buildMode === 'buildWithTraci' ? '/buildWithTraci' : '/build';
-  const mode = buildMode === 'buildWithTraci' ? 'with TraCI simulation' : 'standard';
 
-  statusEl2.textContent = `Downloading OSM data (${mode})...`;
+  const buildMode = document.getElementById('buildMode')?.value || 'build';
+
+  let endpoint = '/build';
+  let mode = 'standard';
+
+  if (buildMode === 'buildWithTraci') {
+    endpoint = '/buildWithTraci';
+    mode = 'with TraCI simulation';
+  } else if (buildMode === 'buildWithTraciDetailedChargingNoV2G') {
+    endpoint = '/buildWithTraciNoV2G';
+    mode = 'TraCI (Detailed Charging, No V2G)';
+  }
+
+  statusEl2.textContent =
+    `Contacting local helper (${mode}) at http://127.0.0.1:8787{endpoint} ...`;
+
+
+  console.log("SELECT VALUE:", document.getElementById('buildMode')?.value);
+  //const body = { bbox: getBboxArray(bounds), scenario, params: collectSimParams() };
+  //const buildMode = document.getElementById('buildMode')?.value || 'build';
+  //const cfg = (typeof getBuildConfig === 'function') ? getBuildConfig(buildMode) : null;
+  //let endpoint = (cfg && cfg.endpoint) ? "/build";//cfg.endpoint : '/build';
+  //let modeText = (cfg && cfg.mode) ? cfg.mode : 'standard';
+
+  //statusEl2.textContent = `Contacting local helper (${modeText}) at http://127.0.0.1:8787${endpoint} ...`;
+
   try {
     const res = await fetch(`http://127.0.0.1:8787${endpoint}`, {
       method: 'POST',
@@ -1469,6 +1510,9 @@ async function loadScenarioData(scenarioDir) {
 
 async function runRerunSimulation(scenarioDir) {
   const buildMode = document.getElementById('buildMode')?.value || 'build';
+  //const cfg = (typeof getBuildConfig === 'function') ? getBuildConfig(buildMode) : null;
+  //const modeText = (cfg && cfg.mode) ? cfg.mode : ((buildMode === 'buildWithTraci') ? 'TraCI (V2G)' : 'Standard');
+  //statusEl2.textContent = `Re-running ${modeText} simulation for ${scenarioDir} ...`;
   const mode = buildMode === 'buildWithTraci' ? 'TraCI (V2G)' : 'Standard';
   statusEl2.textContent = `Re-running ${mode} simulation for ${scenarioDir} ...`;
   try {
@@ -1709,3 +1753,32 @@ if (layerControlEl) {
   }
 }
 
+// Helper function to get build configuration based on mode
+function getBuildConfig(buildMode) {
+  // Return an object with endpoint, mode (text) and an optional function to mutate sim params
+  const map = {
+    build: {
+      endpoint: '/build',
+      mode: 'standard',
+      addFlags: (p) => {}
+    },
+    buildWithTraci: {
+      endpoint: '/buildWithTraci',
+      mode: 'with TraCI simulation',
+      addFlags: (p) => {}
+    },
+
+    buildWithTraciDetailedChargingNoV2G: {
+      // Use same endpoint as buildWithTraci but add flags to params (legacy option)
+      endpoint: '/buildWithTraciNoV2G',
+      mode: 'TraCI (Detailed Charging, No V2G)',
+      addFlags: (p) => {
+        if (p && typeof p === 'object') {
+          p.no_v2g = true;
+          p.detailed_charging = true;
+        }
+      }
+    }
+  };
+  return map[buildMode] || map.build;
+}

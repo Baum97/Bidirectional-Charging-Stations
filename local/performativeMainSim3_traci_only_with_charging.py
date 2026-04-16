@@ -10,7 +10,7 @@ from evse_class import EVSE_class, EnergyPool
 from grid_controller import GridController
 from power_grid_manager import PowerGridManager
 from ChargingProcess import *
-
+import simulation_charging_profile_current as sc
 # ----------------------------------------------------
 # CONFIGURATION
 # ----------------------------------------------------
@@ -324,7 +324,8 @@ def log_charging_session_end(veh_id, station_id, end_time, energy_kwh, soc_start
 # ----------------------------------------------------
 
 def main():
-    print("Hal")
+    sim_ru = sc.Simulation_RU()
+    sim_sp2 = sc.Simulation_SP2(debug=True)
     global energy_pool, grid_controller, peak_grid_usage_kw
     
     print("Starting SUMO with config:", SUMO_CONFIG)
@@ -374,7 +375,7 @@ def main():
 
         # Reset energy pool requests at the start of each step
         energy_pool.reset_requests()
-        print("hallo")
+
         # detect EVs
         if step % 10 == 0:
 
@@ -429,7 +430,7 @@ def main():
                         arrival_time=sim_time,
                         initial_soc=soc_val,
                         batterycapacity_kwh=100,
-
+                        input_path = ""
                     )
                     print(f"[INIT] New EV: {vid}")
                     
@@ -486,7 +487,7 @@ def main():
                         )
 
                     evse = evse_objects[station_id]
-                    print("hi")
+
 
                     # RAMP UP handling
                     if vid not in charging_start_time:
@@ -503,32 +504,12 @@ def main():
                                                        one_phase=False, Pmax = evse.getPrated_kw(),
                                                        efficiency=evse.getEfficiency(), with_departure=False,
                                                 departure_time=None, ev_soc=ev.soc, crate=ev.modelparameters['ev_crate'],
-                                                             packcap=ev.modelparameters['ev_packcapacity']))
+                                                             packcap=ev.modelparameters['ev_packcapacity'],
+                            sim_ru = sim_ru, sim_sp = sim_sp2))
 
 
 
                     ramp_kw = evse.compute_power(sim_time)
-                    print(ramp_kw)
-                    print(sim_time)
-                     # HIer folgendes: EVSE/EnergyPool berechnet ramp-up-phase (einmalig am Anfang) und dann stagnant (zuordnung zu vid)
-                    # resultierte Leistung wird von energy pool zeitabhängig zurückgegeben und falls deutlich weniger (Runterregelung) stagnante werte noch skaliert
-                    #Energy Pool bleibt wie er ist. Wenn reQuest gestellt wird, wird  der verfügbare Strom berechnet es wird die sim-time und die Star time abzüglich der Setup time übergeben.
-                    # Für eine Kombination aus einem  ev und dem Energy Pool gibt es eine zusätzliche Instanz die bei ersten request von dem Ev ein Ramp-up berechnet.
-                    # Bei zukünftigen requests wird immer geschaut ob die Ramp-up time schon vorbei ist und je nachdem der Strom berechnet. Energy Pool wird immer entsprechend dieses Stromes aktualisiert.
-                    # Falls wir nach der Rampe time sind, wird die stagnante Phase berechnet und auch wieder der Strom beim energy Pool entsprechend aktualisiert und an das IV gesendet.
-                    # Falls nun Regelungen beim Strom passieren nach unten oder nach oben vom energy Pool dann wird die stagnante Phase entsprechend skaliert und die Werte entsprechend aktualisiert an das EV gesend.
-                    # Ramp down passiert über die Batterie Modellierung.
-                    # Parameter: Stagnant kann optional auch einfach kosntant bleiben.
-                    # KlassenInstanzen als dict-Atribut in nergy-Pool (mit stationIDs), jeder Eintrag ist Klasseninstanz.
-
-
-                    # Frage: wei merken  EVSE/EnergyPool dass ramp-up phase schon berechnet wurde? bzw. wann wird ramp_up-phase gelöscht
-                        #--> einfach, wenn ramp-up phase vorbei ist, wird die zugehörige Instanz gelöscht.
-                        #--> bei stagnant?
-                        #wir brauchen reset von ramp_up und stagnant, wenn was_charging-Schleife erreicht wird
-                        # nachdem geladen wurde --> über station_id/is_charging/was charging (was_charging sagt ob vorher geladen wurd und is_charging ob aktuell)
-                        # im was_charging-Block EVSE/ EnergyPool informieren für reset
-                    # am besten über EVSE, da hier shcon Zuordnung zu auto und es geht ja auch um PredictiveMaintenance der Ladesäulen!
 
 
                     # Register this station's request with the energy pool
@@ -628,7 +609,7 @@ def main():
                                     one_phase=False, Pmax=home_evse.getPrated_kw(),
                                     efficiency=home_evse.getEfficiency(), with_departure=False,
                                     departure_time=None, ev_soc=ev.soc, crate=ev.modelparameters['ev_crate'],
-                                    packcap=ev.modelparameters['ev_packcapacity']))
+                                    packcap=ev.modelparameters['ev_packcapacity'], sim_ru = sim_ru, sim_sp = sim_sp2))
                             print("[CHARGING_STARTED]")
                             print(f"[HOME_SESSION_START] veh={vid} at ({home_pos_x:.1f}, {home_pos_y:.1f}) soc={soc_val:.2f}")
 
@@ -679,7 +660,7 @@ def main():
                                     print(f"[V2G] veh={vid} at_home={distance_to_home:.1f}m discharge={abs(v2g_power_allowed):.1f}kW soc={soc_val:.2f} grid={grid_usage_percent:.1f}%")
                         
                         elif soc_val < 1:  # Normal charging at home
-                            print("WTF")
+
                             home_evse.set_discharge_mode(False)
                             
                             if vid not in charging_start_time:
@@ -695,14 +676,15 @@ def main():
                                         one_phase=False, Pmax=home_evse.getPrated_kw(),
                                         efficiency=home_evse.getEfficiency(), with_departure=False,
                                         departure_time=None, ev_soc=ev.soc, crate=ev.modelparameters['ev_crate'],
-                                        packcap=ev.modelparameters['ev_packcapacity']))
+                                        packcap=ev.modelparameters['ev_packcapacity'],
+                                    sim_ru = sim_ru, sim_sp = sim_sp2))
                                 print("[CHARGING_STARTED]")
                                 home_pos_x, home_pos_y, _ = home_charging_cache[home_station_id]
                                 print(f"[HOME_CHARGE_START] veh={vid} at home position ({home_pos_x:.1f}, {home_pos_y:.1f})")
 
                             home_ramp_kw = home_evse.compute_power(sim_time)
-                            print(ramp_kw)
-                            print(sim_time)
+                            #print(ramp_kw)
+                            #print(sim_time)
                             energy_pool.register_station_request(home_station_id, home_ramp_kw)
                             
                             home_evse.receive_from_server(home_ramp_kw)

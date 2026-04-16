@@ -1364,6 +1364,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         parsed = urlparse(self.path)
+        print(parsed.path)
         if parsed.path == "/build":
             try:
                 length = int(self.headers.get("Content-Length", "0"))
@@ -1535,7 +1536,7 @@ class Handler(BaseHTTPRequestHandler):
                 log_result("Analysis complete: heatmaps and charging suggestions generated")
 
                 heatmap_geojson_file = os.path.join(scen_dir, "no_station_areas.geojson")
-                
+
                 # Step 12b: Generate charging stations from polygons -> generated_cs.add.xml
                 generated_cs_file, generated_cs_geojson = generate_cs_from_polygons(
                     heatmap_geojson_file, scen_dir, net_file
@@ -1619,7 +1620,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(payload)
         
-        elif parsed.path == "/buildWithTraci":
+        elif parsed.path == "/buildWithTraci" or "/buildWithTraciNoV2G":
             try:
                 length = int(self.headers.get("Content-Length", "0"))
                 raw = self.rfile.read(length) if length else b"{}"
@@ -1631,7 +1632,12 @@ class Handler(BaseHTTPRequestHandler):
                 # Show request summary
                 print("\n" + "="*60)
                 log_status(f"Building scenario: {scenario}")
-                print(f"  Mode: V2G + Home Charging + Private Wallboxes")
+                mode_label = "Home Charging + Private Wallboxes"
+                if parsed.path != "/buildWithTraciNoV2G":
+                    mode_label += " + V2G"
+
+                print(f"  Mode: {mode_label}")
+
                 if sim_params.get('duration'):
                     print(f"  Duration: {format_time(sim_params['duration'])}")
                 print("="*60 + "\n")
@@ -1658,7 +1664,7 @@ class Handler(BaseHTTPRequestHandler):
                 log_status("Extracting points of interest...")
                 poi_files = extract_pois(osm_file, scen_dir)
                 log_result(f"Extracted POIs: {len(poi_files)} categories")
-                
+
                 # Read POI files and convert to GeoJSON
                 poi_geojson = read_poi_files(poi_files)
 
@@ -1670,7 +1676,7 @@ class Handler(BaseHTTPRequestHandler):
                 # Step 5: Generate trips
                 log_status("Generating vehicle trips...")
                 edge_files_list = edge_files if isinstance(edge_files, list) else list(edge_files.values())
-                
+
                 _duration = int(sim_params.get('duration', 0))
                 if 0 < _duration < 36000:
                     trips_file = generate_trips_test(net_file, edge_files_list, scen_dir, sim_params=sim_params)
@@ -1682,17 +1688,17 @@ class Handler(BaseHTTPRequestHandler):
                 log_status("Building power grid model...")
                 grid_manager = PowerGridManager(osm_file=osm_file, scenario_name=scenario)
                 grid_build_success = grid_manager.build_grid()
-                
+
                 try:
                     import sumolib
                     net = sumolib.net.readNet(net_file)
                 except ImportError:
                     net = None
-                
+
                 if grid_build_success:
                     # Connect real charging stations to grid
                     real_stations_for_grid = []
-                    
+
                     for feature in real_charging_stations['features']:
                         props = feature['properties']
                         coords = feature['geometry']['coordinates']
@@ -1703,10 +1709,10 @@ class Handler(BaseHTTPRequestHandler):
                             'power_kw': 50.0,
                             'type': 'real'
                         })
-                    
+
                     if real_stations_for_grid:
                         grid_manager.assign_charging_stations_to_grid(real_stations_for_grid)
-                    
+
                     grid_file = os.path.join(scen_dir, "power_grid.pkl")
                     grid_manager.save(grid_file)
                     log_result("Power grid model built")
@@ -1722,29 +1728,29 @@ class Handler(BaseHTTPRequestHandler):
 
                 # Step 8: Generate private wallboxes (50% of EV owners)
                 log_status("Generating private wallboxes...")
-                
+
                 # Read the trips file to get persons data
                 trips_tree = ET.parse(trips_file)
                 trips_root = trips_tree.getroot()
-                
+
                 # Extract persons data from trips XML
                 persons_data = []
                 for vehicle in trips_root.findall('vehicle'):
                     veh_id = vehicle.get('id')
                     veh_type = vehicle.get('type')
-                    
+
                     # Get home edge from the route (first edge in the route)
                     route_elem = vehicle.find('route')
                     if route_elem is not None:
                         edges = route_elem.get('edges', '').split()
                         if edges:
                             home_edge = edges[0]  # First edge is home
-                            
+
                             # Determine if this is an EV based on vehicle type
                             # mainGenerateTrips.py creates "veh_ev" for EVs
                             # Wallbox owners will later get unique types "veh_ev_personXXX"
                             is_ev = veh_type.startswith("veh_ev")
-                            
+
                             person_data = {
                                 'id': veh_id,
                                 'home': home_edge,
@@ -1752,24 +1758,24 @@ class Handler(BaseHTTPRequestHandler):
                                 'has_ev': is_ev
                             }
                             persons_data.append(person_data)
-                
+
                 # Generate wallboxes at 50% of EV owner homes
                 try:
                     wallbox_file, wallbox_homes_geojson_path, vehicle_types_file = generate_private_wallboxes(
-                        net_file, 
-                        persons_data, 
+                        net_file,
+                        persons_data,
                         scen_dir,
                         trips_file=trips_file,
                         wallbox_share=0.50
                     )
                     log_result(f"Wallboxes generated: {os.path.basename(wallbox_file)}")
-                    
+
                     # Read wallbox homes GeoJSON for UI visualization
                     wallbox_homes_geojson = None
                     if os.path.exists(wallbox_homes_geojson_path):
                         with open(wallbox_homes_geojson_path, 'r', encoding='utf-8') as f:
                             wallbox_homes_geojson = json.load(f)
-                    
+
                     # If unique vehicle types were generated, use them instead of default
                     if vehicle_types_file and os.path.exists(vehicle_types_file):
                         # Update combined_additional.xml
@@ -1777,29 +1783,29 @@ class Handler(BaseHTTPRequestHandler):
                         if os.path.exists(combined_add_path):
                             tree = ET.parse(combined_add_path)
                             root = tree.getroot()
-                            
+
                             # Remove private_wallboxes.xml from SUMO
                             for include in root.findall('include'):
                                 if include.get('href') == 'private_wallboxes.xml':
                                     root.remove(include)
-                            
+
                             # Replace vehicle_types.add.xml with wallbox_vehicle_types.add.xml
                             for include in root.findall('include'):
                                 if include.get('href') == 'vehicle_types.add.xml':
                                     include.set('href', os.path.basename(vehicle_types_file))
                             tree.write(combined_add_path, encoding='utf-8', xml_declaration=True)
-                    
+
                     # Connect private wallboxes to grid
                     if grid_manager and grid_build_success and net and wallbox_file and os.path.exists(wallbox_file):
                         # Parse wallboxes XML to get locations
                         wb_tree = ET.parse(wallbox_file)
                         wb_root = wb_tree.getroot()
                         wallboxes_for_grid = []
-                        
+
                         for wb_elem in wb_root.findall('.//chargingStation'):
                             wb_id = wb_elem.get('id')
                             lane_id = wb_elem.get('lane')
-                            
+
                             # Get lane coordinates from SUMO network
                             try:
                                 edge_id = lane_id.rsplit('_', 1)[0]
@@ -1809,9 +1815,9 @@ class Handler(BaseHTTPRequestHandler):
                                 if lane_shape:
                                     mid_idx = len(lane_shape) // 2
                                     x, y = lane_shape[mid_idx]
-                                    
+
                                     lon, lat = net.convertXY2LonLat(x, y)
-                                    
+
                                     wallboxes_for_grid.append({
                                         'id': wb_id,
                                         'lon': lon,
@@ -1821,11 +1827,11 @@ class Handler(BaseHTTPRequestHandler):
                                     })
                             except Exception:
                                 pass
-                        
+
                         if wallboxes_for_grid:
                             grid_manager.assign_charging_stations_to_grid([], private_wallboxes=wallboxes_for_grid)
                             grid_manager.save(grid_file)
-                    
+
                 except Exception:
                     wallbox_homes_geojson = None
 
@@ -1869,20 +1875,24 @@ class Handler(BaseHTTPRequestHandler):
                 trips_tree = ET.parse(trips_file)
                 num_vehicles = len(trips_tree.getroot().findall('vehicle'))
                 sim_duration = sim_params.get('duration', 0)
-                
+
                 log_status(f"Running TraCI simulation ({num_vehicles} vehicles, {format_time(sim_duration)})...")
                 est_time = estimate_sumo_time(sim_duration, num_vehicles) * 1.5  # TraCI is ~50% slower
                 print(f"  Estimated runtime: {format_time(est_time)} (with V2G + home charging)")
-                
-                traci_script = os.path.join(os.path.dirname(__file__), "performativeMainSim2.py")
+                if parsed.path == "/buildWithTraciNoV2G":
+
+                    traci_script = os.path.join(os.path.dirname(__file__), "performativeMainSim3_traci_only_with_charging.py")
+                else:
+                    traci_script = os.path.join(os.path.dirname(__file__), "performativeMainSim2.py")
                 traci_command = [sys.executable, traci_script, scen_dir]
                 start_time = time.time()
                 try:
                     result = subprocess.run(traci_command, check=True, capture_output=False, text=True)
                     actual_time = time.time() - start_time
                     # Show TraCI output if it contains important info
-                    if "ERROR" in result.stdout or "WARNING" in result.stdout:
-                        print(result.stdout)
+
+                    if result.stdout and ("ERROR" in result.stdout or "WARNING" in result.stdout):
+                         print(result.stdout)
                     log_result(f"TraCI simulation completed in {format_time(actual_time)}")
                 except subprocess.CalledProcessError as e:
                     log_error(f"TraCI simulation failed: {e.stderr}")
@@ -1927,7 +1937,7 @@ class Handler(BaseHTTPRequestHandler):
                     )
                 except Exception:
                     pass
-                
+
                 log_result("Analysis complete: heatmaps and charging suggestions generated")
 
                 # Read heatmap data files
@@ -1979,7 +1989,7 @@ class Handler(BaseHTTPRequestHandler):
                 traci_logs_dir = os.path.join(scen_dir, "traci_logs")
                 traci_model_log = os.path.join(traci_logs_dir, "model_log_data.csv")
                 traci_charging_sessions = os.path.join(traci_logs_dir, "charging_sessions.csv")
-                
+
                 traci_summary = {
                     "logs_available": os.path.exists(traci_model_log),
                     "model_log": os.path.basename(traci_model_log) if os.path.exists(traci_model_log) else None,
@@ -2025,7 +2035,7 @@ class Handler(BaseHTTPRequestHandler):
                                 props['max_power_kw'] = stats.get('max_power_kw', 50)  # Default to 50 kW if not found
                                 enriched_count += 1
                         print(f"[INFO] Enriched {enriched_count}/{len(real_charging_stations['features'])} public charging stations with simulation data")
-                                
+
                     # Enrich wallbox homes
                     if wallbox_homes_geojson and 'features' in wallbox_homes_geojson:
                         enriched_count = 0
@@ -2368,3 +2378,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
