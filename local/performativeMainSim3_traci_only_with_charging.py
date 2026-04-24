@@ -562,7 +562,7 @@ def main():
                         pd.DataFrame(car_log).to_csv(OUTPUT_CHARGING_LOG, index=False)
                         print(f"EVSE log flushed ${len(car_log)} entries to disk.")
                         car_log.clear()
-
+                    # Todo: post_request  um daten zu sammeln, z.B. für die Visualisierung
                 else:
                     # Charging session ended
                     if was_charging and vid in charging_start_time:
