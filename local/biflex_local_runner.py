@@ -53,6 +53,9 @@ from generate_traffic_heatmap import generate_traffic_heatmap
 HOST = "127.0.0.1"
 PORT = 8787
 
+_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_DATA_DIR = os.path.join(_PROJECT_ROOT, "data")
+
 # Status logging helpers
 def log_status(message):
     """Print a status message for user."""
@@ -216,7 +219,7 @@ def download_osm_data(bbox, scenario, prefix="test_name", max_retries=3):
         raise ValueError("bbox must be [minLon, minLat, maxLon, maxLat]")
 
     paths = _sumo_paths()
-    base_dir = os.path.abspath(os.path.join("..", "data", "scenarios", scenario))
+    base_dir = os.path.join(_DATA_DIR, "scenarios", scenario)
     os.makedirs(base_dir, exist_ok=True)
 
     minLon, minLat, maxLon, maxLat = bbox
@@ -374,7 +377,7 @@ def build_sumo_network(osm_file, scenario):
         str: Path to the generated SUMO network file.
     """
     paths = _sumo_paths()
-    base_dir = os.path.abspath(os.path.join("..", "data", "scenarios", scenario))
+    base_dir = os.path.join(_DATA_DIR, "scenarios", scenario)
     os.makedirs(base_dir, exist_ok=True)
 
     osm_file = os.path.abspath(osm_file)
@@ -404,8 +407,8 @@ def copy_default_combined_additional(scenario):
     Args:
         scenario (str): Scenario name.
     """
-    base_dir = os.path.abspath(os.path.join("..", "data", "scenarios", scenario))
-    src_file = os.path.abspath(os.path.join("..", "data", "defaults", "default_combined_additional.xml"))
+    base_dir = os.path.join(_DATA_DIR, "scenarios", scenario)
+    src_file = os.path.join(_DATA_DIR, "defaults", "default_combined_additional.xml")
     dest_file = os.path.join(base_dir, "combined_additional.xml")
     with open(src_file, "r", encoding="utf-8") as src, open(dest_file, "w", encoding="utf-8") as dst:
         dst.write(src.read())
@@ -418,8 +421,8 @@ def copy_vehicle_types_additional(scenario):
     Args:
         scenario (str): Scenario name.
     """
-    base_dir = os.path.abspath(os.path.join("..", "data", "scenarios", scenario))
-    src_file = os.path.abspath(os.path.join("..", "data", "defaults", "default_vehicle_types.add.xml"))
+    base_dir = os.path.join(_DATA_DIR, "scenarios", scenario)
+    src_file = os.path.join(_DATA_DIR, "defaults", "default_vehicle_types.add.xml")
     dest_file = os.path.join(base_dir, "vehicle_types.add.xml")
     with open(src_file, "r", encoding="utf-8") as src, open(dest_file, "w", encoding="utf-8") as dst:
         dst.write(src.read())
@@ -1118,7 +1121,7 @@ class Handler(BaseHTTPRequestHandler):
         parsed = urlparse(self.path)
         if parsed.path == "/list-scenarios":
             try:
-                scenarios_dir = os.path.abspath(os.path.join("..", "data", "scenarios"))
+                scenarios_dir = os.path.join(_DATA_DIR, "scenarios")
                 scenarios = []
                 if os.path.isdir(scenarios_dir):
                     for name in sorted(os.listdir(scenarios_dir), reverse=True):
