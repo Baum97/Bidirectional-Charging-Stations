@@ -1,0 +1,24 @@
+\section{Experiments}
+\label{sec:experiments}
+We evaluate the proposed planning approach on representative urban scenarios with varying fleet sizes and charging behaviors. The experiments compare baseline siting heuristics against our integrated optimization strategy.
+
+\subsection{Experimental Setup}
+All experiments are executed on synchronized traffic and grid snapshots with 15-minute resolution. We run each scenario over multiple simulated days to account for temporal fluctuations in demand and network loading.
+
+\subsection{Datasets}
+The traffic dataset includes synthetic trip chains calibrated to observed commuting and leisure patterns. Grid data contains feeder topology, transformer ratings, and operational constraints provided at district level.
+
+\subsection{Evaluation Metrics}
+We report accessibility metrics (average detour time and queueing delay), utilization metrics (station occupancy and throughput), and grid metrics (peak loading and overload frequency). In addition, we compute a composite score to summarize planning trade-offs across objectives.
+
+\subsection{Results}
+The integrated method consistently improves accessibility while reducing critical grid stress events relative to single-domain baselines. Benefits are strongest during evening peaks, where coordinated siting shifts demand away from constrained feeders. Overall, results suggest that multi-domain optimization yields more robust infrastructure portfolios.
+
+% Example: Figure
+\begin{figure}[H]
+    \centering
+    % \includegraphics[width=\linewidth]{figures/result_plot.pdf}
+    \fbox{\rule{0pt}{3cm}\rule{\linewidth}{0pt}}  % Placeholder
+    \caption{Comparison of model accuracy on the test dataset.}
+    \label{fig:results}
+\end{figure}
