@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.4.18)  18 JUN 2026 22:13
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.4.18)  4 JUL 2026 16:40
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -628,29 +628,29 @@ LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 7.
  (C:\Users\Administrator\AppData\Local\Programs\MiKTeX\tex/latex/lm\ts1lmr.fd
 File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )) (chapters/05relatedwork.tex [2{C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-ts1.enc}]
-Underfull \hbox (badness 3386) in paragraph at lines 9--10
+Underfull \hbox (badness 3386) in paragraph at lines 10--11
 \T1/lmr/m/n/12 (+20) Grid-aware plan-ning ap-proaches pri-or-i-tize
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 11--11
+Underfull \hbox (badness 10000) in paragraph at lines 12--12
 |[]\T1/lmr/bx/n/12 (+20) Coupled and Bidi-rec-tional Ap-
  []
 
-) (chapters/06methodology.tex
+) (chapters/06methodology.tex [3]
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <12> on input line 13.
- [3{C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathsy.enc}{C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-rm.enc}{C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathit.enc}{C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathex.enc}]) (chapters/07experiments.tex
+) (chapters/07experiments.tex
 Overfull \hbox (6.79999pt too wide) in paragraph at lines 21--22
  [][] 
  []
 
-) (chapters/08discussion.tex) (chapters/09conclusion.tex
+) (chapters/08discussion.tex [4{C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathsy.enc}{C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-rm.enc}{C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathit.enc}{C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathex.enc}]) (chapters/09conclusion.tex
 Underfull \hbox (badness 2913) in paragraph at lines 3--4
 \T1/lmr/m/n/12 (+20) This pa-per pre-sented a simulation-driven
  []
 
-[4]) (chapters/10acknowledgments.tex) (chapters/11bibliography.tex
+) (chapters/10acknowledgments.tex) (chapters/11bibliography.tex
 Underfull \hbox (badness 2012) in paragraph at lines 8--12
 \T1/lmr/m/n/12 (+20) [On-line]. Avail-able: [][]$\T1/lmtt/m/n/12 https : / / www . iea .
  []
@@ -691,11 +691,46 @@ Underfull \hbox (badness 3333) in paragraph at lines 43--47
  []
 
 
+Underfull \hbox (badness 10000) in paragraph at lines 43--47
+\T1/lmr/m/n/12 (+20) Schnieder, ``Im-ple-men-ta-tion of an
+ []
+
+
+Underfull \hbox (badness 2512) in paragraph at lines 43--47
+\T1/lmr/m/n/12 (+20) en-ergy model and a charg-ing in-fras-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 43--47
+\T1/lmr/m/n/12 (+20) truc-ture in SUMO,'' in \T1/lmr/m/it/12 (+20) Sim-u-la-tion
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 43--47
+\T1/lmr/m/it/12 (+20) of Ur-ban Mo-bil-ity (SUMO)\T1/lmr/m/n/12 (+20) , [][]$\T1/lmtt/m/n/12 https :
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 43--47
+\T1/lmtt/m/n/12 / / www . researchgate . net / publication /
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 43--47
+\T1/lmtt/m/n/12 276063158 _ Implementation _ of _
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 43--47
+\T1/lmtt/m/n/12 an _ Energy _ Model _ and _ a _ Charging _
+ []
+
+
 Underfull \hbox (badness 10000) in paragraph at lines 56--59
 \T1/lmtt/m/n/12 / / www . sciencedirect . com / science /
  []
 
-
+[5]
 Underfull \hbox (badness 4608) in paragraph at lines 62--65
 \T1/lmr/m/n/12 (+20) dis-tri-bu-tion sys-tems: A uni-fied co-
  []
@@ -705,7 +740,49 @@ Underfull \hbox (badness 1062) in paragraph at lines 62--65
 \T1/lmr/m/n/12 (+20) simulation frame-work,'' \T1/lmr/m/it/12 (+20) arXiv preprint
  []
 
-) [5] (journal_en.aux)
+
+Underfull \hbox (badness 2486) in paragraph at lines 73--77
+[]\T1/lmr/m/n/12 (+20) F. Ah-mad, A. Iqbal, I. Ashraf, M.
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 73--77
+\T1/lmtt/m/n/12 / / www . sciencedirect . com / science /
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 80--83
+[]\T1/lmr/m/n/12 (+20) ``Large-scale op-ti-miza-tion of elec-tric
+ []
+
+
+Underfull \hbox (badness 3271) in paragraph at lines 80--83
+\T1/lmr/m/it/12 (+20) TIAL '24)\T1/lmr/m/n/12 (+20) , 2024. [On-line]. Avail-able:
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 80--83
+[][]$\T1/lmtt/m/n/12 https : / / dl . acm . org / doi / 10 . 1145 /
+ []
+
+
+Underfull \hbox (badness 1067) in paragraph at lines 85--89
+\T1/lmr/m/n/12 (+20) cle charg-ing sta-tion de-ploy-ment us-ing
+ []
+
+
+Underfull \hbox (badness 2547) in paragraph at lines 85--89
+\T1/lmr/m/n/12 (+20) ge-netic al-go-rithms,'' \T1/lmr/m/it/12 (+20) Ap-plied Sci-ences\T1/lmr/m/n/12 (+20) ,
+ []
+
+
+Underfull \hbox (badness 1112) in paragraph at lines 85--89
+\T1/lmr/m/n/12 (+20) vol. 13, no. 8, art. 4867, 2023. [On-
+ []
+
+) [6
+
+] (journal_en.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
@@ -714,17 +791,17 @@ Package rerunfilecheck Info: File `journal_en.out' has not changed.
 (rerunfilecheck)             Checksum: F1C611A19D4F9DB23C5FA3D65A26F017;2868.
  ) 
 Here is how much of TeX's memory you used:
- 18332 strings out of 467871
- 313130 string characters out of 5414504
- 768502 words of memory out of 5000000
- 46715 multiletter control sequences out of 15000+600000
- 704784 words of font info for 180 fonts, out of 8000000 for 9000
+ 18341 strings out of 467871
+ 313334 string characters out of 5414504
+ 768679 words of memory out of 5000000
+ 46719 multiletter control sequences out of 15000+600000
+ 704746 words of font info for 180 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,12n,79p,1172b,476s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,12n,79p,1162b,610s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx12.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmcsc10.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmex10.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmmi12.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmmi8.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr10.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr12.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr8.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmri10.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmri12.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy10.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy8.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt10.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt12.pfb>
-Output written on journal_en.pdf (5 pages, 311679 bytes).
+Output written on journal_en.pdf (6 pages, 321038 bytes).
 PDF statistics:
- 248 PDF objects out of 1000 (max. 8388607)
- 41 named destinations out of 1000 (max. 500000)
+ 274 PDF objects out of 1000 (max. 8388607)
+ 46 named destinations out of 1000 (max. 500000)
  42161 words of extra memory for PDF output out of 42996 (max. 10000000)
 

@@ -298,10 +298,6 @@ INPUT C:\Users\Administrator\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\l
 INPUT C:\Users\Administrator\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\lmsy10.tfm
 INPUT C:\Users\Administrator\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam10.tfm
 INPUT C:\Users\Administrator\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm10.tfm
-INPUT C:\Users\Administrator\AppData\Local\Programs\MiKTeX\fonts\enc\dvips\lm\lm-mathsy.enc
-INPUT C:\Users\Administrator\AppData\Local\Programs\MiKTeX\fonts\enc\dvips\lm\lm-rm.enc
-INPUT C:\Users\Administrator\AppData\Local\Programs\MiKTeX\fonts\enc\dvips\lm\lm-mathit.enc
-INPUT C:\Users\Administrator\AppData\Local\Programs\MiKTeX\fonts\enc\dvips\lm\lm-mathex.enc
 INPUT .\chapters\07experiments.tex
 INPUT .\chapters\07experiments.tex
 INPUT .\chapters\07experiments.tex
@@ -312,6 +308,10 @@ INPUT .\chapters\08discussion.tex
 INPUT .\chapters\08discussion.tex
 INPUT .\chapters\08discussion.tex
 INPUT chapters\08discussion.tex
+INPUT C:\Users\Administrator\AppData\Local\Programs\MiKTeX\fonts\enc\dvips\lm\lm-mathsy.enc
+INPUT C:\Users\Administrator\AppData\Local\Programs\MiKTeX\fonts\enc\dvips\lm\lm-rm.enc
+INPUT C:\Users\Administrator\AppData\Local\Programs\MiKTeX\fonts\enc\dvips\lm\lm-mathit.enc
+INPUT C:\Users\Administrator\AppData\Local\Programs\MiKTeX\fonts\enc\dvips\lm\lm-mathex.enc
 INPUT .\chapters\09conclusion.tex
 INPUT .\chapters\09conclusion.tex
 INPUT .\chapters\09conclusion.tex
