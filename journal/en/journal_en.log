@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.4.18)  4 JUL 2026 16:51
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.4.18)  5 JUL 2026 10:28
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -460,7 +460,8 @@ File: t1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 ) (C:\Users\Administrator\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdftex.def
 File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count321
-) (journal_en.aux)
+)
+No file journal_en.aux.
 \openout1 = `journal_en.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 84.
@@ -498,7 +499,7 @@ Package microtype Info: Patching command `\showhyphens'.
 Package microtype Info: No adjustment of tracking.
 Package microtype Info: No adjustment of interword spacing.
 Package microtype Info: No adjustment of character kerning.
- (C:\Users\Administrator\AppData\Local\Programs\MiKTeX\tex/latex/microtype\mt-cmr.cfg
+(C:\Users\Administrator\AppData\Local\Programs\MiKTeX\tex/latex/microtype\mt-cmr.cfg
 File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman (RS)
 ) (C:\Users\Administrator\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
@@ -520,7 +521,6 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 48
 File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 ))
 Package hyperref Info: Link coloring ON on input line 84.
- (journal_en.out) (journal_en.out)
 \@outlinefile=\write3
 \openout3 = `journal_en.out'.
 
@@ -615,6 +615,19 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
 ) (chapters/01introduction.tex
+
+LaTeX Warning: Citation `iea2023evoutlook' on page 1 undefined on input line 3.
+
+
+LaTeX Warning: Citation `kempton2005v2g' on page 1 undefined on input line 3.
+
+
+LaTeX Warning: Citation `clementnyns2010impact' on page 1 undefined on input line 5.
+
+
+LaTeX Warning: Citation `he2013siting' on page 1 undefined on input line 5.
+
+
 Underfull \vbox (badness 1924) has occurred while \output is active []
 
 
@@ -627,30 +640,160 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 7.
  (C:\Users\Administrator\AppData\Local\Programs\MiKTeX\tex/latex/lm\ts1lmr.fd
 File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
-)) (chapters/05relatedwork.tex [2{C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-ts1.enc}]
-Underfull \hbox (badness 3386) in paragraph at lines 10--11
+)) (chapters/05relatedwork.tex
+
+LaTeX Warning: Citation `review2025planning' on page 2 undefined on input line 3.
+
+
+LaTeX Warning: Citation `pagany2019review' on page 2 undefined on input line 3.
+
+
+LaTeX Warning: Citation `v2gplanning2023' on page 2 undefined on input line 3.
+
+[2{C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-ts1.enc}]
+
+LaTeX Warning: Citation `causal2025placement' on page 3 undefined on input line 7.
+
+
+LaTeX Warning: Citation `kurczveil2014sumo' on page 3 undefined on input line 7.
+
+
+LaTeX Warning: Citation `sumoassignment2023' on page 3 undefined on input line 7.
+
+
+LaTeX Warning: Citation `horni2016matsim' on page 3 undefined on input line 9.
+
+
+LaTeX Warning: Citation `sheppard2017beam' on page 3 undefined on input line 9.
+
+
+LaTeX Warning: Citation `review2025planning' on page 3 undefined on input line 12.
+
+
+LaTeX Warning: Citation `ahmad2022location' on page 3 undefined on input line 12.
+
+
+LaTeX Warning: Citation `largescale2024infrastructure' on page 3 undefined on input line 12.
+
+
+Underfull \hbox (badness 3386) in paragraph at lines 12--13
 \T1/lmr/m/n/12 (+20) Grid-aware plan-ning ap-proaches pri-or-i-tize
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 12--12
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 14--14
 |[]\T1/lmr/bx/n/12 (+20) Coupled and Bidi-rec-tional Ap-
  []
 
-) (chapters/06methodology.tex [3]
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <12> on input line 13.
-) (chapters/07experiments.tex
-Overfull \hbox (6.79999pt too wide) in paragraph at lines 21--22
- [][] 
- []
 
-) (chapters/08discussion.tex [4{C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathsy.enc}{C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-rm.enc}{C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathit.enc}{C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathex.enc}]) (chapters/09conclusion.tex
+LaTeX Warning: Citation `cosim2025grid' on page 3 undefined on input line 15.
+
+
+LaTeX Warning: Citation `v2gplanning2023' on page 3 undefined on input line 15.
+
+) (chapters/06methodology.tex
+chapters/06methodology.tex:3: Argument of \@cref@stack@top has an extra }.
+<inserted text> 
+                \par 
+l.3 Initially our approach invovled BEAM (\cref{}
+                                                 ) and MATSim (\cref{}) for ...
+I've run across a `}' that doesn't seem to match anything.
+For example, `\def\a#1{...}' and `\a}' would produce
+this error. If you simply proceed now, the `\par' that
+I've just inserted will cause me to report a runaway
+argument that might be the root of the problem. But if
+your `}' was spurious, just type `2' and it will go away.
+
+Runaway argument?
+\@nil 
+chapters/06methodology.tex:3: Paragraph ended before \@cref@stack@top was complete.
+<to be read again> 
+                   \par 
+l.3 Initially our approach invovled BEAM (\cref{}
+                                                 ) and MATSim (\cref{}) for ...
+I suspect you've forgotten a `}', causing me to apply this
+control sequence to too much text. How can we recover?
+My plan is to forget the whole thing and hope for the best.
+
+chapters/06methodology.tex:3: Argument of \@cref@stack@top has an extra }.
+<inserted text> 
+                \par 
+l.3 Initially our approach invovled BEAM (\cref{}
+                                                 ) and MATSim (\cref{}) for ...
+I've run across a `}' that doesn't seem to match anything.
+For example, `\def\a#1{...}' and `\a}' would produce
+this error. If you simply proceed now, the `\par' that
+I've just inserted will cause me to report a runaway
+argument that might be the root of the problem. But if
+your `}' was spurious, just type `2' and it will go away.
+
+Runaway argument?
+\@nil 
+chapters/06methodology.tex:3: Paragraph ended before \@cref@stack@top was complete.
+<to be read again> 
+                   \par 
+l.3 Initially our approach invovled BEAM (\cref{}
+                                                 ) and MATSim (\cref{}) for ...
+I suspect you've forgotten a `}', causing me to apply this
+control sequence to too much text. How can we recover?
+My plan is to forget the whole thing and hope for the best.
+
+Runaway argument?
+{
+chapters/06methodology.tex:3: Paragraph ended before \cref@stack@push was complete.
+<to be read again> 
+                   \par 
+l.3 Initially our approach invovled BEAM (\cref{}
+                                                 ) and MATSim (\cref{}) for ...
+I suspect you've forgotten a `}', causing me to apply this
+control sequence to too much text. How can we recover?
+My plan is to forget the whole thing and hope for the best.
+
+chapters/06methodology.tex:3: Extra }, or forgotten \endgroup.
+\cref@stack@sort ...push \expandafter {\@element }
+                                                  {\@sortstack }\cref@stack@...
+l.3 Initially our approach invovled BEAM (\cref{}
+                                                 ) and MATSim (\cref{}) for ...
+I've deleted a group-closing symbol because it seems to be
+spurious, as in `$x}$'. But perhaps the } is legitimate and
+you forgot something else, as in `\hbox{$x}'. In such cases
+the way to recover is to insert both the forgotten and the
+deleted material, e.g., by typing `I$}'.
+
+chapters/06methodology.tex:3: Undefined control sequence.
+\@sortstack ->\@nil 
+                    
+l.3 Initially our approach invovled BEAM (\cref{}
+                                                 ) and MATSim (\cref{}) for ...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+Runaway argument?
+ we found its lack of deterministic execution and the need for extens\ETC.
+chapters/06methodology.tex:4: Paragraph ended before \@cref@stack@pop was complete.
+<to be read again> 
+                   \par 
+l.4 
+    
+I suspect you've forgotten a `}', causing me to apply this
+control sequence to too much text. How can we recover?
+My plan is to forget the whole thing and hope for the best.
+
+[3.1]) (chapters/07experiments.tex) (chapters/08discussion.tex) (chapters/09conclusion.tex
 Underfull \hbox (badness 2913) in paragraph at lines 3--4
 \T1/lmr/m/n/12 (+20) This pa-per pre-sented a simulation-driven
  []
 
 ) (chapters/10acknowledgments.tex) (chapters/11bibliography.tex
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <12> on input line 11.
+
 Underfull \hbox (badness 2012) in paragraph at lines 8--12
 \T1/lmr/m/n/12 (+20) [On-line]. Avail-able: [][]$\T1/lmtt/m/n/12 https : / / www . iea .
  []
@@ -725,12 +868,12 @@ Underfull \hbox (badness 10000) in paragraph at lines 43--47
 \T1/lmtt/m/n/12 an _ Energy _ Model _ and _ a _ Charging _
  []
 
-
+[4.1]
 Underfull \hbox (badness 10000) in paragraph at lines 56--59
 \T1/lmtt/m/n/12 / / www . sciencedirect . com / science /
  []
 
-[5]
+
 Underfull \hbox (badness 4608) in paragraph at lines 62--65
 \T1/lmr/m/n/12 (+20) dis-tri-bu-tion sys-tems: A uni-fied co-
  []
@@ -741,67 +884,85 @@ Underfull \hbox (badness 1062) in paragraph at lines 62--65
  []
 
 
-Underfull \hbox (badness 2486) in paragraph at lines 73--77
+Underfull \hbox (badness 2486) in paragraph at lines 86--90
 []\T1/lmr/m/n/12 (+20) F. Ah-mad, A. Iqbal, I. Ashraf, M.
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 73--77
+Underfull \hbox (badness 10000) in paragraph at lines 86--90
 \T1/lmtt/m/n/12 / / www . sciencedirect . com / science /
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 80--83
+Underfull \hbox (badness 10000) in paragraph at lines 93--96
 []\T1/lmr/m/n/12 (+20) ``Large-scale op-ti-miza-tion of elec-tric
  []
 
 
-Underfull \hbox (badness 3271) in paragraph at lines 80--83
+Underfull \hbox (badness 3271) in paragraph at lines 93--96
 \T1/lmr/m/it/12 (+20) TIAL '24)\T1/lmr/m/n/12 (+20) , 2024. [On-line]. Avail-able:
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 80--83
+Underfull \hbox (badness 10000) in paragraph at lines 93--96
 [][]$\T1/lmtt/m/n/12 https : / / dl . acm . org / doi / 10 . 1145 /
  []
 
 
-Underfull \hbox (badness 1067) in paragraph at lines 85--89
+Underfull \hbox (badness 1067) in paragraph at lines 98--102
 \T1/lmr/m/n/12 (+20) cle charg-ing sta-tion de-ploy-ment us-ing
  []
 
 
-Underfull \hbox (badness 2547) in paragraph at lines 85--89
+Underfull \hbox (badness 2547) in paragraph at lines 98--102
 \T1/lmr/m/n/12 (+20) ge-netic al-go-rithms,'' \T1/lmr/m/it/12 (+20) Ap-plied Sci-ences\T1/lmr/m/n/12 (+20) ,
  []
 
 
-Underfull \hbox (badness 1112) in paragraph at lines 85--89
+Underfull \hbox (badness 1112) in paragraph at lines 98--102
 \T1/lmr/m/n/12 (+20) vol. 13, no. 8, art. 4867, 2023. [On-
  []
 
-) [6
-
-] (journal_en.aux)
+) [5.1] (journal_en.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
  ***********
-Package rerunfilecheck Info: File `journal_en.out' has not changed.
-(rerunfilecheck)             Checksum: F1C611A19D4F9DB23C5FA3D65A26F017;2868.
- ) 
+
+
+LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+
+Package rerunfilecheck Warning: File `journal_en.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+Package rerunfilecheck Info: Checksums for `journal_en.out':
+(rerunfilecheck)             Before: <no file>
+(rerunfilecheck)             After:  D1883B12CB0986861C8591F19EF1A2AD;2566.
+ )
+(\end occurred inside a group at level 2)
+
+### semi simple group (level 2) entered at line 3 (\begingroup)
+### semi simple group (level 1) entered at line 3 (\begingroup)
+### bottom level
+(\end occurred when \iftrue on line 3 was incomplete)
+(\end occurred when \iftrue on line 3 was incomplete) 
 Here is how much of TeX's memory you used:
- 18339 strings out of 467871
- 313312 string characters out of 5414504
- 768679 words of memory out of 5000000
- 46719 multiletter control sequences out of 15000+600000
- 704655 words of font info for 179 fonts, out of 8000000 for 9000
+ 18286 strings out of 467871
+ 312249 string characters out of 5414504
+ 767071 words of memory out of 5000000
+ 46672 multiletter control sequences out of 15000+600000
+ 705037 words of font info for 183 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,12n,79p,1162b,610s stack positions out of 10000i,1000n,20000p,200000b,200000s
-<C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx12.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmcsc10.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmex10.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmmi12.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmmi8.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr10.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr12.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr8.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmri10.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmri12.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy10.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy8.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt10.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt12.pfb>
-Output written on journal_en.pdf (6 pages, 321268 bytes).
+ 75i,12n,79p,1162b,775s stack positions out of 10000i,1000n,20000p,200000b,200000s
+<C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx12.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmcsc10.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr10.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr12.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr8.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmri10.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmri12.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt10.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt12.pfb>
+Output written on journal_en.pdf (5 pages, 281372 bytes).
 PDF statistics:
- 274 PDF objects out of 1000 (max. 8388607)
- 46 named destinations out of 1000 (max. 500000)
- 42161 words of extra memory for PDF output out of 42996 (max. 10000000)
+ 153 PDF objects out of 1000 (max. 8388607)
+ 42 named destinations out of 1000 (max. 500000)
+ 41985 words of extra memory for PDF output out of 42996 (max. 10000000)
 
