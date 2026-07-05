@@ -1,20 +1,14 @@
 \section{Methodology}
 \label{sec:methodology}
-\begin{figure*}[t]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/Bild_BEAM_SUMO.png}
-    \caption{Data Pipeline under BEAM and MATSim.}
-    \label{fig:beam}
-\end{figure*}
 
-Initially our approach invovled MATSim for its high degree of configurability and its ability to simulate large-scale traffic networks, and when researching for a way increase the realism of our simulation, we incorporated BEAM (\cref{fig:beam}) -- which is an extension of MATSim. The pipeline begins with fetching data from OpenStreeMap, which is then processed and converted into a MATSim-compatible format. BEAM, which allows for real-time manipulation, is then used to simulate traffic flows and charging behavior.
-However, we found its lack of deterministic execution, high error rates, and the need for extensive calibration to be a barrier to producitivty and reproducibility. We therefore switched to SUMO and TraCI completely, which provides a more stable and deterministic simulation environment, while still allowing for detailed and dynamic modeling of traffic flows and charging behavior. 
+Initially, we chose MATSim for its high configurability and its ability to simulate large-scale traffic networks. To increase the realism of the simulation, we then incorporated BEAM, an extension of MATSim. The pipeline begins by fetching data from OpenStreetMap, which we utilized to generate the simulation network, including population, traffic nodes with links and dynamic agent decisions. After the workflow in MATSim and BEAM is completed, \texttt{.xml} files are generated for usage in \ac{SUMO} and TraCI. With the \textit{netconvert} module, the \texttt{network.xml} is converted to a SUMO-compatible \texttt{network.net.xml} and the population file is handled by the duarouter module. Once the population file was generated, a script injected \acp{EV} into it. As a last step, the simulation is run and the results are analyzed and fed back to update the agents iteratively (\cref{fig:beam}). BEAM, which allows for a high grade of manipulation, is then used to generate files for traffic flow and charging behavior.
+However, its non-deterministic execution, high error rates, and extensive calibration requirements proved to be a barrier to productivity and reproducibility. We therefore switched completely to SUMO and TraCI, which provide a more stable and deterministic environment while still allowing detailed, dynamic modeling of traffic flow and charging behavior. 
 
-As of now, we are using SUMO as a microscopic traffic simulator and TraCI with a grid impact model and a statistical distribution for home-charging devices to evaluate the spatial distribution of bidirectional charging stations. Two algorithms are implemented to test different siting strategies: 
+We use SUMO as the microscopic traffic simulator and TraCI for real-time control, combined with a grid-impact model and a statistical distribution of home-charging devices, to evaluate the spatial distribution of bidirectional charging stations. Two algorithms are implemented to test different siting strategies: 
 
 \begin{itemize}
-    \item \textbf{Saturate-and-Prune}: A naive iterative approach where candidate locations cover all road segments, ensuring maximum accessibility. After each trial execution, charging stations with less than a 5\% utilization rate are removed, and the simulation is rerun until all remaining stations exceed this threshold.
-    \item \textbf{Clustering}: A heuristic that prioritizes locations with high traffic flow, potential traffic congestions and consideration for low state of charge. The flow of traffic determines the placement of charging stations, with the goal of maximizing accessibility in spots where vehicles are most likely to need charging and decreasing the likelihoof of detours.
+    \item \textbf{Saturate-and-Prune}: A naive iterative approach where candidate stations are placed on all viable road segments, ensuring maximum accessibility. After each trial execution, charging stations with less than a 5\% utilization rate are removed, and the simulation is rerun until all remaining stations exceed this threshold. A 5\% threshold was chosen to ensure that stations are neither underutilized nor overburdened, while also allowing for a sufficient number of stations to be placed. This approach is designed to maximize acessibility and coverage, but may result in a higher number of stations being placed than necessary, leading to potential underutilization of some stations.
+    \item \textbf{Clustering}: A heuristic that prioritizes locations with high traffic flow, potential traffic congestion, and consideration for vehicles that enter a state of low \ac{SoC}. Placement follows the traffic flow, aiming to maximize accessibility where vehicles are most likely to need charging while reducing detours.
 \end{itemize}
 
 \subsection{System Overview}

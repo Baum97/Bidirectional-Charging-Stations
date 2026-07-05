@@ -1,10 +1,10 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.2.21)  5 JUL 2026 18:42
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.4.18)  6 JUL 2026 00:23
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**c:/Projects/Bidirectional-Charging-Stations/journal/en/journal_en.tex
-(c:/Projects/Bidirectional-Charging-Stations/journal/en/journal_en.tex
+**d:/Projects/Bidirectional-Charging-Stations/journal/en/journal_en.tex
+(d:/Projects/Bidirectional-Charging-Stations/journal/en/journal_en.tex
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
 (C:\Users\Administrator\AppData\Local\Programs\MiKTeX\tex/latex/base\article.cls
@@ -334,6 +334,17 @@ Package: uniquecounter 2019/12/15 v1.4 Provide unlimited unique counter (HO)
 Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 284.
 )
 \Hy@SectionHShift=\skip55
+) (C:\Users\Administrator\AppData\Local\Programs\MiKTeX\tex/latex/acronym\acronym.sty
+Package: acronym 2025/01/17 v1.50 Support for acronyms (Tobias Oetiker)
+ (C:\Users\Administrator\AppData\Local\Programs\MiKTeX\tex/latex/bigfoot\suffix.sty
+Package: suffix 2006/07/15 1.5a Variant command support
+) (C:\Users\Administrator\AppData\Local\Programs\MiKTeX\tex/latex/xstring\xstring.sty (C:\Users\Administrator\AppData\Local\Programs\MiKTeX\tex/generic/xstring\xstring.tex
+\xs_counta=\count315
+\xs_countb=\count316
+)
+Package: xstring 2023/08/22 v1.86 String manipulations (CT)
+)
+\AC@clearlist=\toks27
 ) (C:\Users\Administrator\AppData\Local\Programs\MiKTeX\tex/latex/cleveref\cleveref.sty
 Package: cleveref 2018/03/27 v0.21.4 Intelligent cross-referencing
 Package cleveref Info: `hyperref' support loaded on input line 2370.
@@ -354,9 +365,9 @@ Package: geometry 2020/01/02 v5.9 Page Geometry
  (C:\Users\Administrator\AppData\Local\Programs\MiKTeX\tex/generic/iftex\ifvtex.sty
 Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
 )
-\Gm@cnth=\count315
-\Gm@cntv=\count316
-\c@Gm@tempcnt=\count317
+\Gm@cnth=\count317
+\Gm@cntv=\count318
+\c@Gm@tempcnt=\count319
 \Gm@bindingoffset=\dimen179
 \Gm@wd@mp=\dimen180
 \Gm@odd@mp=\dimen181
@@ -365,7 +376,7 @@ Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
 \Gm@layoutheight=\dimen184
 \Gm@layouthoffset=\dimen185
 \Gm@layoutvoffset=\dimen186
-\Gm@dimlist=\toks27
+\Gm@dimlist=\toks28
  (C:\Users\Administrator\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.cfg)) (C:\Users\Administrator\AppData\Local\Programs\MiKTeX\tex/latex/abstract\abstract.sty
 Package: abstract 2009/06/08 v1.2a configurable abstracts
 \abstitleskip=\skip56
@@ -380,7 +391,7 @@ Package: titlesec 2025/01/04 v2.17 Sectioning titles
 \aftertitleunit=\skip62
 \ttl@plus=\dimen187
 \ttl@minus=\dimen188
-\ttl@toksa=\toks28
+\ttl@toksa=\toks29
 \titlewidth=\dimen189
 \titlewidthlast=\dimen190
 \titlewidthfirst=\dimen191
@@ -400,7 +411,7 @@ Package: fancyhdr 2025/02/07 v5.2 Extensive control of page headers and footers
 \f@nch@widthL=\skip74
 \f@nch@widthC=\skip75
 \f@nch@widthR=\skip76
-\@temptokenb=\toks29
+\@temptokenb=\toks30
 ) (C:\Users\Administrator\AppData\Local\Programs\MiKTeX\tex/latex/caption\caption.sty
 Package: caption 2023/08/05 v3.6o Customizing captions (AR)
  (C:\Users\Administrator\AppData\Local\Programs\MiKTeX\tex/latex/caption\caption3.sty
@@ -415,15 +426,15 @@ Package: caption3 2023/07/31 v2.4d caption3 kernel (AR)
 \caption@hangindent=\dimen199
 Package caption Info: Standard document class detected.
 )
-\c@caption@flags=\count318
-\c@continuedfloat=\count319
+\c@caption@flags=\count320
+\c@continuedfloat=\count321
 Package caption Info: hyperref package is loaded.
 ) (C:\Users\Administrator\AppData\Local\Programs\MiKTeX\tex/latex/float\float.sty
 Package: float 2001/11/08 v1.3d Float enhancements (AL)
-\c@float@type=\count320
-\float@exts=\toks30
+\c@float@type=\count322
+\float@exts=\toks31
 \float@box=\box57
-\@float@everytoks=\toks31
+\@float@everytoks=\toks32
 \@floatcapt=\box58
 ) (C:\Users\Administrator\AppData\Local\Programs\MiKTeX\tex/latex/cite\cite.sty
 LaTeX Info: Redefining \cite on input line 302.
@@ -453,41 +464,41 @@ Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1370.
 Package xcolor Info: Model `Gray' substituted by `gray' on input line 1371.
 Package xcolor Info: Model `wave' substituted by `hsb' on input line 1372.
 )
-Package hyperref Info: Option `colorlinks' set `true' on input line 50.
-LaTeX Font Info:    Trying to load font information for T1+lmr on input line 84.
+Package hyperref Info: Option `colorlinks' set `true' on input line 51.
+LaTeX Font Info:    Trying to load font information for T1+lmr on input line 85.
  (C:\Users\Administrator\AppData\Local\Programs\MiKTeX\tex/latex/lm\t1lmr.fd
 File: t1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 ) (C:\Users\Administrator\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdftex.def
 File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count321
+\l__color_backend_stack_int=\count323
 ) (journal_en.aux)
 \openout1 = `journal_en.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 84.
-LaTeX Font Info:    ... okay on input line 84.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 84.
-LaTeX Font Info:    ... okay on input line 84.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 84.
-LaTeX Font Info:    ... okay on input line 84.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 84.
-LaTeX Font Info:    ... okay on input line 84.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 84.
-LaTeX Font Info:    ... okay on input line 84.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 84.
-LaTeX Font Info:    ... okay on input line 84.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 84.
-LaTeX Font Info:    ... okay on input line 84.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 84.
-LaTeX Font Info:    ... okay on input line 84.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 84.
-LaTeX Font Info:    ... okay on input line 84.
-LaTeX Info: Redefining \microtypecontext on input line 84.
-Package microtype Info: Applying patch `item' on input line 84.
-Package microtype Info: Applying patch `toc' on input line 84.
-Package microtype Info: Applying patch `eqnum' on input line 84.
-Package microtype Info: Applying patch `footnote' on input line 84.
-Package microtype Info: Applying patch `verbatim' on input line 84.
-LaTeX Info: Redefining \microtypesetup on input line 84.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 85.
+LaTeX Font Info:    ... okay on input line 85.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 85.
+LaTeX Font Info:    ... okay on input line 85.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 85.
+LaTeX Font Info:    ... okay on input line 85.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 85.
+LaTeX Font Info:    ... okay on input line 85.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 85.
+LaTeX Font Info:    ... okay on input line 85.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 85.
+LaTeX Font Info:    ... okay on input line 85.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 85.
+LaTeX Font Info:    ... okay on input line 85.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 85.
+LaTeX Font Info:    ... okay on input line 85.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 85.
+LaTeX Font Info:    ... okay on input line 85.
+LaTeX Info: Redefining \microtypecontext on input line 85.
+Package microtype Info: Applying patch `item' on input line 85.
+Package microtype Info: Applying patch `toc' on input line 85.
+Package microtype Info: Applying patch `eqnum' on input line 85.
+Package microtype Info: Applying patch `footnote' on input line 85.
+Package microtype Info: Applying patch `verbatim' on input line 85.
+LaTeX Info: Redefining \microtypesetup on input line 85.
 Package microtype Info: Generating PDF output.
 Package microtype Info: Character protrusion enabled (level 2).
 Package microtype Info: Using default protrusion set `alltext'.
@@ -502,24 +513,24 @@ Package microtype Info: No adjustment of character kerning.
 File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman (RS)
 ) (C:\Users\Administrator\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count322
+\scratchcounter=\count324
 \scratchdimen=\dimen256
 \scratchbox=\box59
-\nofMPsegments=\count323
-\nofMParguments=\count324
-\everyMPshowfont=\toks32
-\MPscratchCnt=\count325
+\nofMPsegments=\count325
+\nofMParguments=\count326
+\everyMPshowfont=\toks33
+\MPscratchCnt=\count327
 \MPscratchDim=\dimen257
-\MPnumerator=\count326
-\makeMPintoPDFobject=\count327
-\everyMPtoPDFconversion=\toks33
+\MPnumerator=\count328
+\makeMPintoPDFobject=\count329
+\everyMPtoPDFconversion=\toks34
 ) (C:\Users\Administrator\AppData\Local\Programs\MiKTeX\tex/latex/epstopdf-pkg\epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
  (C:\Users\Administrator\AppData\Local\Programs\MiKTeX\tex/latex/00miktex\epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 ))
-Package hyperref Info: Link coloring ON on input line 84.
+Package hyperref Info: Link coloring ON on input line 85.
  (journal_en.out) (journal_en.out)
 \@outlinefile=\write3
 \openout3 = `journal_en.out'.
@@ -614,58 +625,74 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `lmtt' (encoding: T1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
-) (chapters/01introduction.tex
+) (chapters/00nomenclature.tex) (chapters/01introduction.tex
+Package acronym Info: Label `acro:V2G' newly defined as it shall be overridden
+although it is yet undefined on input line 3.
+
 Underfull \vbox (badness 1924) has occurred while \output is active []
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [1{C:/Users/Administrator/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-ec.enc}
 
 
-]) (chapters/02motivation.tex) (chapters/03problemstatement.tex) (chapters/04contributions.tex
+]
+Package acronym Info: Label `acro:OSM' newly defined as it shall be overridden
+although it is yet undefined on input line 7.
+Package acronym Info: Label `acro:SUMO' newly defined as it shall be overridden
+although it is yet undefined on input line 7.
+Package acronym Info: Label `acro:TraCI' newly defined as it shall be overridden
+although it is yet undefined on input line 7.
+Package acronym Info: Label `acro:POI' newly defined as it shall be overridden
+although it is yet undefined on input line 7.
+
+Underfull \hbox (badness 2073) in paragraph at lines 7--8
+\T1/lmr/m/n/12 (+20) and land-use in-for-ma-tion are taken from
+ []
+
+) (chapters/02motivation.tex) (chapters/03problemstatement.tex) (chapters/04contributions.tex
 LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 7.
  (C:\Users\Administrator\AppData\Local\Programs\MiKTeX\tex/latex/lm\ts1lmr.fd
 File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
-)
+) [2{C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-ts1.enc}]
 Underfull \hbox (badness 5563) in paragraph at lines 12--13
 []\T1/lmr/m/n/12 (+20) A SUMO-inspired user in-ter-face for
  []
 
-) (chapters/05relatedwork.tex [2{C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-ts1.enc}]
+) (chapters/05relatedwork.tex
+Package acronym Info: Label `acro:EV' newly defined as it shall be overridden
+although it is yet undefined on input line 7.
+Package acronym Info: Label `acro:MATSim' newly defined as it shall be overridden
+although it is yet undefined on input line 9.
+Package acronym Info: Label `acro:BEAM' newly defined as it shall be overridden
+although it is yet undefined on input line 9.
+
 Underfull \hbox (badness 3386) in paragraph at lines 12--13
 \T1/lmr/m/n/12 (+20) Grid-aware plan-ning ap-proaches pri-or-i-tize
  []
 
+<images/Bild_BEAM_SUMO.png, id=182, 834.86906pt x 432.11438pt>
+File: images/Bild_BEAM_SUMO.png Graphic file (type png)
+<use images/Bild_BEAM_SUMO.png>
+Package pdftex.def Info: images/Bild_BEAM_SUMO.png  used on input line 16.
+(pdftex.def)             Requested size: 396.06374pt x 204.9993pt.
 
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 14--14
+Underfull \hbox (badness 10000) in paragraph at lines 21--21
 |[]\T1/lmr/bx/n/12 (+20) Coupled and Bidi-rec-tional Ap-
  []
 
-) (chapters/06methodology.tex
-<images/Bild_BEAM_SUMO.png, id=138, 834.86906pt x 432.11438pt>
-File: images/Bild_BEAM_SUMO.png Graphic file (type png)
-<use images/Bild_BEAM_SUMO.png>
-Package pdftex.def Info: images/Bild_BEAM_SUMO.png  used on input line 5.
-(pdftex.def)             Requested size: 396.06374pt x 204.9993pt.
- [3]
-<images/data_pipeline.png, id=157, 1166.10657pt x 700.11563pt>
+) (chapters/06methodology.tex [3] [4 <./images/Bild_BEAM_SUMO.png>]
+Package acronym Info: Label `acro:SoC' newly defined as it shall be overridden
+although it is yet undefined on input line 11.
+<images/data_pipeline.png, id=212, 1166.10657pt x 700.11563pt>
 File: images/data_pipeline.png Graphic file (type png)
 <use images/data_pipeline.png>
-Package pdftex.def Info: images/data_pipeline.png  used on input line 24.
+Package pdftex.def Info: images/data_pipeline.png  used on input line 18.
 (pdftex.def)             Requested size: 445.56699pt x 267.51025pt.
 ) (chapters/07experiments.tex) (chapters/08discussion.tex) (chapters/09conclusion.tex
 Underfull \hbox (badness 2913) in paragraph at lines 3--4
 \T1/lmr/m/n/12 (+20) This pa-per pre-sented a simulation-driven
  []
 
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [4 <./images/Bild_BEAM_SUMO.png>]) (chapters/10acknowledgments.tex) (chapters/11bibliography.tex
+) (chapters/10acknowledgments.tex) (chapters/11bibliography.tex
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <12> on input line 11.
 
@@ -673,7 +700,7 @@ Underfull \hbox (badness 2012) in paragraph at lines 8--12
 \T1/lmr/m/n/12 (+20) [On-line]. Avail-able: [][]$\T1/lmtt/m/n/12 https : / / www . iea .
  []
 
-[5 <./images/data_pipeline.png>]
+
 Underfull \hbox (badness 1509) in paragraph at lines 19--22
 []\T1/lmr/m/n/12 (+20) K. Clement-Nyns, E. Hae-sen, and J.
  []
@@ -703,7 +730,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 32--35
 \T1/lmtt/m/n/12 / / www . sciencedirect . com / science /
  []
 
-
+[5]
 Underfull \hbox (badness 3333) in paragraph at lines 43--47
 []\T1/lmr/m/n/12 (+20) T. Kur-czveil, P. Á. López, and E.
  []
@@ -758,7 +785,7 @@ Underfull \hbox (badness 1062) in paragraph at lines 62--65
 \T1/lmr/m/n/12 (+20) simulation frame-work,'' \T1/lmr/m/it/12 (+20) arXiv preprint
  []
 
-
+[6 <./images/data_pipeline.png>]
 Underfull \hbox (badness 2486) in paragraph at lines 86--90
 []\T1/lmr/m/n/12 (+20) F. Ah-mad, A. Iqbal, I. Ashraf, M.
  []
@@ -783,7 +810,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 93--96
 [][]$\T1/lmtt/m/n/12 https : / / dl . acm . org / doi / 10 . 1145 /
  []
 
-[6]
+
 Underfull \hbox (badness 1067) in paragraph at lines 98--102
 \T1/lmr/m/n/12 (+20) cle charg-ing sta-tion de-ploy-ment us-ing
  []
@@ -809,17 +836,17 @@ Package rerunfilecheck Info: File `journal_en.out' has not changed.
 (rerunfilecheck)             Checksum: 2CE4B34E7721A4651289FEC896B0DC82;3248.
  ) 
 Here is how much of TeX's memory you used:
- 18346 strings out of 467871
- 313604 string characters out of 5414504
- 770653 words of memory out of 5000000
- 46726 multiletter control sequences out of 15000+600000
- 704655 words of font info for 179 fonts, out of 8000000 for 9000
+ 19039 strings out of 467871
+ 323698 string characters out of 5414504
+ 783324 words of memory out of 5000000
+ 47388 multiletter control sequences out of 15000+600000
+ 704473 words of font info for 177 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,12n,79p,1162b,614s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,12n,79p,1176b,675s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx12.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmcsc10.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr10.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr12.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr8.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmri10.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmri12.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt10.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt12.pfb>
-Output written on journal_en.pdf (7 pages, 476125 bytes).
+Output written on journal_en.pdf (7 pages, 486880 bytes).
 PDF statistics:
- 267 PDF objects out of 1000 (max. 8388607)
- 50 named destinations out of 1000 (max. 500000)
+ 321 PDF objects out of 1000 (max. 8388607)
+ 68 named destinations out of 1000 (max. 500000)
  42187 words of extra memory for PDF output out of 42996 (max. 10000000)
 

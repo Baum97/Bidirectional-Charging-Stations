@@ -4,16 +4,45 @@
 \providecommand\hyper@newdestlabel[2]{}
 \providecommand\HyField@AuxAddToFields[1]{}
 \providecommand\HyField@AuxAddToCoFields[2]{}
+\AC@reset@newl@bel
 \citation{iea2023evoutlook}
 \citation{kempton2005v2g}
 \citation{clementnyns2010impact}
 \citation{he2013siting}
 \babel@aux{english}{}
+\newacro{BEAM}[\AC@hyperlink{BEAM}{BEAM}]{Behavior, Energy, Autonomy, and Mobility}
+\newacro{EV}[\AC@hyperlink{EV}{EV}]{Electric Vehicle}
+\newacro{MATSim}[\AC@hyperlink{MATSim}{MATSim}]{Multi-Agent Transport Simulation}
+\newacro{POI}[\AC@hyperlink{POI}{POI}]{Point of Interest}
+\newacro{SoC}[\AC@hyperlink{SoC}{SoC}]{State of Charge}
+\newacro{SUMO}[\AC@hyperlink{SUMO}{SUMO}]{Simulation of Urban Mobility}
+\newacro{TraCI}[\AC@hyperlink{TraCI}{TraCI}]{Traffic Control Interface}
+\newacro{V2G}[\AC@hyperlink{V2G}{V2G}]{Vehicle-to-Grid}
+\newacro{OSM}[\AC@hyperlink{OSM}{OSM}]{OpenStreetMap}
 \@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
 \newlabel{sec:introduction}{{1}{1}{Introduction}{section.1}{}}
 \newlabel{sec:introduction@cref}{{[section][1][]1}{[1][1][]1}{}{}{}}
-\citation{review2025planning,pagany2019review}
-\citation{v2gplanning2023}
+\AC@undonewlabel{acro:V2G}
+\newlabel{acro:V2G}{{1}{1}{Introduction}{section*.1}{}}
+\newlabel{acro:V2G@cref}{{[section][1][]1}{[1][1][]1}{}{}{}}
+\acronymused{V2G}
+\AC@undonewlabel{acro:OSM}
+\newlabel{acro:OSM}{{1}{2}{Introduction}{section*.2}{}}
+\newlabel{acro:OSM@cref}{{[section][1][]1}{[1][2][]2}{}{}{}}
+\acronymused{OSM}
+\AC@undonewlabel{acro:SUMO}
+\newlabel{acro:SUMO}{{1}{2}{Introduction}{section*.3}{}}
+\newlabel{acro:SUMO@cref}{{[section][1][]1}{[1][2][]2}{}{}{}}
+\acronymused{SUMO}
+\AC@undonewlabel{acro:TraCI}
+\newlabel{acro:TraCI}{{1}{2}{Introduction}{section*.4}{}}
+\newlabel{acro:TraCI@cref}{{[section][1][]1}{[1][2][]2}{}{}{}}
+\acronymused{TraCI}
+\AC@undonewlabel{acro:POI}
+\newlabel{acro:POI}{{1}{2}{Introduction}{section*.5}{}}
+\newlabel{acro:POI@cref}{{[section][1][]1}{[1][2][]2}{}{}{}}
+\acronymused{POI}
+\acronymused{SUMO}
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.1}Motivation}{2}{subsection.1.1}\protected@file@percent }
 \newlabel{subsec:motivation}{{1.1}{2}{Motivation}{subsection.1.1}{}}
 \newlabel{subsec:motivation@cref}{{[subsection][1][1]1.1}{[1][2][]2}{}{}{}}
@@ -23,6 +52,8 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.3}Contributions}{2}{subsection.1.3}\protected@file@percent }
 \newlabel{subsec:contributions}{{1.3}{2}{Contributions}{subsection.1.3}{}}
 \newlabel{subsec:contributions@cref}{{[subsection][3][1]1.3}{[1][2][]2}{}{}{}}
+\citation{review2025planning,pagany2019review}
+\citation{v2gplanning2023}
 \citation{causal2025placement}
 \citation{kurczveil2014sumo,sumoassignment2023}
 \citation{horni2016matsim,sheppard2017beam}
@@ -33,23 +64,41 @@
 \citation{v2gplanning2023}
 \@writefile{toc}{\contentsline {section}{\numberline {2}Related Work}{3}{section.2}\protected@file@percent }
 \newlabel{sec:related_work}{{2}{3}{Related Work}{section.2}{}}
-\newlabel{sec:related_work@cref}{{[section][2][]2}{[1][2][]3}{}{}{}}
+\newlabel{sec:related_work@cref}{{[section][2][]2}{[1][3][]3}{}{}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Traffic-Aware Siting}{3}{subsection.2.1}\protected@file@percent }
+\AC@undonewlabel{acro:EV}
+\newlabel{acro:EV}{{2.1}{3}{Traffic-Aware Siting}{section*.6}{}}
+\newlabel{acro:EV@cref}{{[subsection][1][2]2.1}{[1][3][]3}{}{}{}}
+\acronymused{EV}
+\AC@undonewlabel{acro:MATSim}
+\newlabel{acro:MATSim}{{2.1}{3}{Traffic-Aware Siting}{section*.7}{}}
+\newlabel{acro:MATSim@cref}{{[subsection][1][2]2.1}{[1][3][]3}{}{}{}}
+\acronymused{MATSim}
+\AC@undonewlabel{acro:BEAM}
+\newlabel{acro:BEAM}{{2.1}{3}{Traffic-Aware Siting}{section*.8}{}}
+\newlabel{acro:BEAM@cref}{{[subsection][1][2]2.1}{[1][3][]3}{}{}{}}
+\acronymused{BEAM}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Grid-Aware Siting}{3}{subsection.2.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Coupled and Bidirectional Approaches}{3}{subsection.2.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {3}Methodology}{3}{section.3}\protected@file@percent }
-\newlabel{sec:methodology}{{3}{3}{Methodology}{section.3}{}}
-\newlabel{sec:methodology@cref}{{[section][3][]3}{[1][3][]3}{}{}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Data Pipeline under BEAM and MATSim.}}{4}{figure.caption.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Data Pipeline under BEAM and MATSim.}}{4}{figure.caption.9}\protected@file@percent }
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
-\newlabel{fig:beam}{{1}{4}{Data Pipeline under BEAM and MATSim}{figure.caption.1}{}}
+\newlabel{fig:beam}{{1}{4}{Data Pipeline under BEAM and MATSim}{figure.caption.9}{}}
 \newlabel{fig:beam@cref}{{[figure][1][]1}{[1][3][]4}{}{}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Methodology}{4}{section.3}\protected@file@percent }
+\newlabel{sec:methodology}{{3}{4}{Methodology}{section.3}{}}
+\newlabel{sec:methodology@cref}{{[section][3][]3}{[1][4][]4}{}{}{}}
+\acronymused{SUMO}
+\acronymused{EV}
 \bibstyle{IEEEtran}
 \bibcite{iea2023evoutlook}{1}
 \bibcite{kempton2005v2g}{2}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Complete Data Pipeline}}{5}{figure.caption.2}\protected@file@percent }
-\newlabel{fig:data_pipeline}{{2}{5}{Complete Data Pipeline}{figure.caption.2}{}}
-\newlabel{fig:data_pipeline@cref}{{[figure][2][]2}{[1][4][]5}{}{}{}}
+\bibcite{clementnyns2010impact}{3}
+\bibcite{he2013siting}{4}
+\bibcite{review2025planning}{5}
+\AC@undonewlabel{acro:SoC}
+\newlabel{acro:SoC}{{3}{5}{Methodology}{section*.10}{}}
+\newlabel{acro:SoC@cref}{{[section][3][]3}{[1][5][]5}{}{}{}}
+\acronymused{SoC}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.1}System Overview}{5}{subsection.3.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Simulation Environment}{5}{subsection.3.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Charging Station Placement Algorithm}{5}{subsection.3.3}\protected@file@percent }
@@ -57,23 +106,20 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Limitations}{5}{subsection.3.5}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {4}Experiments}{5}{section.4}\protected@file@percent }
 \newlabel{sec:experiments}{{4}{5}{Experiments}{section.4}{}}
-\newlabel{sec:experiments@cref}{{[section][4][]4}{[1][4][]5}{}{}{}}
+\newlabel{sec:experiments@cref}{{[section][4][]4}{[1][5][]5}{}{}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Experimental Setup}{5}{subsection.4.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Datasets}{5}{subsection.4.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Evaluation Metrics}{5}{subsection.4.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Results}{5}{subsection.4.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {5}Discussion}{5}{section.5}\protected@file@percent }
 \newlabel{sec:discussion}{{5}{5}{Discussion}{section.5}{}}
-\newlabel{sec:discussion@cref}{{[section][5][]5}{[1][4][]5}{}{}{}}
+\newlabel{sec:discussion@cref}{{[section][5][]5}{[1][5][]5}{}{}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Interpretation of Results}{5}{subsection.5.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Limitations}{5}{subsection.5.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {6}Conclusion}{5}{section.6}\protected@file@percent }
 \newlabel{sec:conclusion}{{6}{5}{Conclusion}{section.6}{}}
-\newlabel{sec:conclusion@cref}{{[section][6][]6}{[1][4][]5}{}{}{}}
+\newlabel{sec:conclusion@cref}{{[section][6][]6}{[1][5][]5}{}{}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Future Work}{5}{subsection.6.1}\protected@file@percent }
-\bibcite{clementnyns2010impact}{3}
-\bibcite{he2013siting}{4}
-\bibcite{review2025planning}{5}
 \bibcite{causal2025placement}{6}
 \bibcite{kurczveil2014sumo}{7}
 \bibcite{sumoassignment2023}{8}
@@ -82,6 +128,9 @@
 \bibcite{horni2016matsim}{11}
 \bibcite{sheppard2017beam}{12}
 \bibcite{pagany2019review}{13}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Complete Data Pipeline}}{6}{figure.caption.11}\protected@file@percent }
+\newlabel{fig:data_pipeline}{{2}{6}{Complete Data Pipeline}{figure.caption.11}{}}
+\newlabel{fig:data_pipeline@cref}{{[figure][2][]2}{[1][5][]6}{}{}{}}
 \bibcite{ahmad2022location}{14}
 \bibcite{largescale2024infrastructure}{15}
 \bibcite{lazari2023multiobjective}{16}
