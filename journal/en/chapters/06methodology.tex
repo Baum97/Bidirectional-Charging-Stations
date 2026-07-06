@@ -20,11 +20,16 @@ We use SUMO as the microscopic traffic simulator and TraCI for real-time control
     \label{fig:data_pipeline}
 \end{figure*}
 
-\subsection{Simulation Environment}
+The \cref{fig:data_pipeline} illustrates the complete data pipeline, which begins in the same way as the BEAM pipeline, but diverges after the generation of the \texttt{.xml} files. The \texttt{chargingstation.xml} is utilized not only for the generation of the synthetic power grid, but also in assistance with the \ac{POI} file to generate trip chains. To finalize the preprocessing, user-set parameters are applied to the mechanisms of the trip chain, private wallbox, and power grid generation. 
+When preprocessing is complete, SUMO then uses the generated \texttt{trips.xml, wallboxes.xml} and \texttt{powergrid.pkl} files to simulate traffic flow and charging behavior. The simulation consists of three main components: TraCI, SUMO and PandaPower. The \texttt{powergrid.pkl} file is used with PandaPower for the grid-impact and the grid capacity determination, while the \texttt{wallboxes.xml} file is used to simulate the behavior of private wallboxes and the \texttt{trips.xml} file is utilized to run the individual agents with their trips. SUMO is the foundation that runs the simulation, while TraCI is used to retreive and manipulate values, routing of vehicles, detect charging stations and control wallbox charging. After a simulation run, the results are written to \texttt{.json} files and a \texttt{chargingsessions.csv} -- which will be used to analyze the occured events, like low-SoC events, charging sessions, charging demand, traffic patterns and visualization of the simulation (\cref{fig:generated_cs}). If the custom web interface is accessible, the simulation will either be visualized directly (\cref{fig:showcase_ui}) or the results can be accessed through the simulation results page.
 
 \subsection{Charging Station Placement Algorithm}
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{images/generated_cs.png}
+    \caption{Resulting charging stations generated for the example run.}
+    \label{fig:generated_cs}
+\end{figure}
+
 
 \subsection{Evaluation Metrics}
-
-\subsection{Limitations}
-

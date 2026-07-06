@@ -320,6 +320,13 @@ INPUT .\images\data_pipeline.png
 INPUT .\images\data_pipeline.png
 INPUT .\images\data_pipeline.png
 INPUT .\images\data_pipeline.png
+INPUT .\images\generated_cs.png
+INPUT .\images\generated_cs.png
+INPUT .\images\generated_cs.png
+INPUT .\images\generated_cs.png
+INPUT .\images\generated_cs.png
+INPUT .\images\generated_cs.png
+INPUT .\images\generated_cs.png
 INPUT .\chapters\07experiments.tex
 INPUT .\chapters\07experiments.tex
 INPUT .\chapters\07experiments.tex
@@ -330,6 +337,13 @@ INPUT .\chapters\08discussion.tex
 INPUT .\chapters\08discussion.tex
 INPUT .\chapters\08discussion.tex
 INPUT chapters\08discussion.tex
+INPUT .\images\showcase_ui_all_layers.png
+INPUT .\images\showcase_ui_all_layers.png
+INPUT .\images\showcase_ui_all_layers.png
+INPUT .\images\showcase_ui_all_layers.png
+INPUT .\images\showcase_ui_all_layers.png
+INPUT .\images\showcase_ui_all_layers.png
+INPUT .\images\showcase_ui_all_layers.png
 INPUT .\chapters\09conclusion.tex
 INPUT .\chapters\09conclusion.tex
 INPUT .\chapters\09conclusion.tex
