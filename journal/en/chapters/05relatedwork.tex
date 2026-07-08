@@ -11,12 +11,12 @@ A different approach than SUMO, is a mesoscopic traffic simulation model that us
 \subsection{Grid-Aware Siting}
 Grid-aware planning approaches prioritize feeder hosting capacity, voltage stability, and peak-load mitigation, frequently relying on metaheuristic optimization to jointly site and size stations under electrical constraints \cite{review2025planning}. While they improve technical feasibility, they can yield a poor user experience when travel behavior is not modeled in sufficient detail. The placement of charging stations is often motivated not only by charging demand and by economic advantages, but also by repercussions for the electrical network  \cite{ahmad2022location}. While a reasonable amount of studies have been conducted on the siting of charging stations, there are only few that consider working with large-scale eletric vehicle charging infrastructure \cite{largescale2024infrastructure}.
 
-\begin{figure*}[t]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/Bild_BEAM_SUMO.png}
-    \caption{Data Pipeline under BEAM and MATSim.}
-    \label{fig:beam}
-\end{figure*}
+%\begin{figure*}[t]
+%    \centering
+%    \includegraphics[width=0.8\textwidth]{images/Bild_BEAM_SUMO.png}
+%    \caption{Data Pipeline under BEAM and MATSim.}
+%    \label{fig:beam}
+%\end{figure*}%
 
 \subsection{Coupled and Bidirectional Approaches}
 A smaller but growing body of work couples transportation simulation with power-system analysis, for example through co-simulation frameworks that pass simulated charging loads to a distribution-grid model \cite{cosim2025grid}. For bidirectional charging, planning models increasingly distinguish public and private chargers and account for uncertainty in demand and renewable generation \cite{v2gplanning2023}. Integrated and openly reproducible frameworks that combine microscopic mobility simulation with bidirectional charging at the level of individual public stations and private home wallboxes, however, remain limited. This paper addresses that gap on the mobility-and-demand side, while leaving a detailed electrical model of the distribution grid to future work.
