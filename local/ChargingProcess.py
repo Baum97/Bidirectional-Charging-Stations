@@ -60,6 +60,8 @@ class CHProcess:
         self.sim_sp = sim_sp
         self.compute_ramp_up()
         self.compute_stagnant()
+        self.current_current = None
+        self.current_voltage = None
 
 
     def compute_ramp_up(self):
@@ -111,6 +113,7 @@ class CHProcess:
         if energy_to_charge<energy_ru or energy_to_charge == 0:
             print("WAS PASSIERT")
             print(self.st)
+
     def get_power_at_time(self, t):
 
         # 1) Setup time
@@ -136,7 +139,13 @@ class CHProcess:
                 if self.debug:
                     print(f"stagnant phase begins at t={t}s")
                 self.stagnant_started = True
+            self.current_current = self.st[st_idx]
+            self.current_voltage = 250
+            #Todo: voltage profil hinterlegen
             return compute_power(self.st[st_idx], crate=self.crate)
 
         # After stagnant: hold last value
+        self.current_current = self.st[-1]
+        self.current_voltage = 250
+        # Todo: voltage profil hinterlegen
         return compute_power(self.st[-1], crate=self.crate)

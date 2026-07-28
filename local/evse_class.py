@@ -19,6 +19,11 @@ class EVSE_class():
         self.ev_soc     = 0.0
         self.ev_plugged = False
         self.state      = 'A'
+        self.energy_ac = 0
+        self.energy_ac_import = 0
+        self.energy_ac_export = 0
+        self.power_ac_min = 1000
+
 
         self.server_setpoint = 0.0
         self.is_discharging = False    # V2G mode flag
@@ -26,6 +31,9 @@ class EVSE_class():
 
     def getPrated_kw(self):
         return self.Prated_kW
+
+    def getPower_min(self):
+        return self.power_ac_min
 
     def getEfficiency(self):
         return self.efficiency
@@ -64,6 +72,10 @@ class EVSE_class():
 
         ### send Pmax via TCP or something if there needs a connection
         return Pmax
+
+    def increment_energy(self, delta_energy):
+        self.energy_ac += delta_energy
+        self.energy_ac_export += delta_energy
 
     def set_ChargingProcess(self, charging_process):
         self.charging_process = charging_process

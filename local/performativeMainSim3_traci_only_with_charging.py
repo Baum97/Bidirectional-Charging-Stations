@@ -4,7 +4,7 @@ import sys
 import os
 import xml.etree.ElementTree as ET
 import pandas as pd
-
+from logger import *
 from ElectricVehicles import ElectricVehicles
 from evse_class import EVSE_class, EnergyPool
 from grid_controller import GridController
@@ -319,11 +319,24 @@ def log_charging_session_end(veh_id, station_id, end_time, energy_kwh, soc_start
     })
 
 
+
+
+
 # ----------------------------------------------------
 # MAIN LOOP
 # ----------------------------------------------------
 
-def main():
+def main(logging = True):
+    if logging:
+        logger_response = ChargingSessionResponse()
+        sample = SampleItem()
+
+    #logger.meta.hits = 2000
+    #logger.meta.totalHits = 10000
+
+
+
+
     sim_ru = sc.Simulation_RU()
     sim_sp2 = sc.Simulation_SP2(debug=True)
     global energy_pool, grid_controller, peak_grid_usage_kw
@@ -406,6 +419,7 @@ def main():
         active_ev_vehicles = ev_vehicles & active_vehicles  # Intersection of tracked EVs and active vehicles
         
         for vid in list(active_ev_vehicles):
+
             # ensure these are defined - for logging and safe calls
             ramp_kw = 0.0
             allowed_kw = 0.0
@@ -489,6 +503,8 @@ def main():
                     evse = evse_objects[station_id]
 
 
+
+
                     # RAMP UP handling
                     if vid not in charging_start_time:
                         charging_start_time[vid] = sim_time
@@ -530,6 +546,7 @@ def main():
                     # EVSE gives allowed power (kW)
                     allowed_kw = evse.send_to_ev()
 
+
                     # Update energy pool with actual usage
                     energy_pool.update_station_power_usage(station_id, allowed_kw)
 
@@ -544,6 +561,7 @@ def main():
                     # Accumulate energy during this session (kWh per step, step = 10 seconds)
                     energy_kwh_this_step = allowed_kw * SUMO_STEP_LENGTH / 3600.0
                     charging_session_energy[vid] = charging_session_energy.get(vid, 0.0) + energy_kwh_this_step
+                    evse.increment_energy(delta_energy=energy_kwh_this_step)
 
                     # Re-read updated SOC after charging
                     soc_val = ev.soc
@@ -562,11 +580,59 @@ def main():
                         pd.DataFrame(car_log).to_csv(OUTPUT_CHARGING_LOG, index=False)
                         print(f"EVSE log flushed ${len(car_log)} entries to disk.")
                         car_log.clear()
-                    # Todo: post_request  um daten zu sammeln, z.B. für die Visualisierung
+                    if logging:
+                        sample.cs_id = station_id
+
+
+                        sample.soc = soc_val
+                        sample.ev_connected = True
+                        sample.connected = True
+                        sample.timestamp = sim_time
+                        sample.energy_ac_export = charging_session_energy[vid]
+                        sample.power_ac = allowed_kw
+                        curr = evse.charging_process.current_current
+                        curr_total = sum(evse.charging_process.current_current)
+                        sample.current_ac = curr_total
+                        sample.current_ac_phase1 = curr[0]
+                        sample.current_ac_phase2 = curr[1]
+                        sample.current_ac_phase3 = curr[2]
+                        volt = evse.charging_process.current_voltage
+                        sample.voltage_ac_phase1 = volt
+                        sample.voltage_ac_phase2 = volt
+                        sample.voltage_ac_phase3 = volt
+                        sample.voltage_ac = np.mean(volt)
+                        sample.energy_ac = evse.energy_ac
+                        sample.energy_ac_import = evse.energy_ac_import
+                        sample.energy_ac_export = evse.energy_ac_export
+                        sample.energy_ac_import_session = 0
+                        sample.energy_ac_export_session = charging_session_energy[vid]
+                        sample.voltage_dc = 0
+                        sample.current_dc = 0
+                        sample.power_dc = 0
+                        sample.number_phases = 1 if evse.charging_process.one_phase else 3
+                        sample.power_ac_min = evse.getPower_min()
+                        sample.power_ac_max = evse.getPrated_kw()
+                        sample.power_factor = evse.getEfficiency()
+                        sample.charge_power_min = evse.getPower_min()
+                        sample.charge_power_max = evse.getPrated_kw()
+                        #sample.ev_packpower = ev.packpower
+                        #sample.ev_packcapacity = ev.modelparameters['ev_packcapacity']
+                        #sample.ev_packvoltage = ev.packvoltage
+                        #sample.ev_packcurrent = ev.packcurrent
+                        ChargingSessionResponse.add_sample(sample=sample)
+                        sample = SampleItem()
+
+
+
+
+
+
+
                 else:
                     # Charging session ended
                     if was_charging and vid in charging_start_time:
                         evse = evse_objects[prev_station] # todo: check, funktioniert das immer?
+
                         evse.reset_ChargingProcess()  # Reset EVSE state for next session
                         soc_start = session_start_soc.get(vid, last_soc.get(vid, 0.0))
                         soc_end = soc_val
@@ -707,7 +773,47 @@ def main():
                                 
                                 if step % 100 == 0:
                                     print(f"[HOME_CHARGE] veh={vid} at_home={distance_to_home:.1f}m ramp={home_ramp_kw:.2f}kW power={home_charge_kw:.2f}kW soc={soc_val:.2f}")
-                        
+
+                                if logging:
+                                    sample.cs_id = home_station_id
+
+                                    sample.soc = soc_val
+                                    sample.ev_connected = True
+                                    sample.connected = True
+                                    sample.timestamp = sim_time
+                                    sample.energy_ac_export = charging_session_energy[vid]
+                                    sample.power_ac = home_charge_kw
+                                    curr = home_evse.charging_process.current_current
+                                    curr_total = sum(home_evse.charging_process.current_current)
+                                    sample.current_ac = curr_total
+                                    sample.current_ac_phase1 = curr[0]
+                                    sample.current_ac_phase2 = curr[1]
+                                    sample.current_ac_phase3 = curr[2]
+                                    volt = home_evse.charging_process.current_voltage
+                                    sample.voltage_ac_phase1 = volt
+                                    sample.voltage_ac_phase2 = volt
+                                    sample.voltage_ac_phase3 = volt
+                                    sample.voltage_ac = np.mean(volt)
+                                    sample.energy_ac = home_evse.energy_ac
+                                    sample.energy_ac_import = home_evse.energy_ac_import
+                                    sample.energy_ac_export = home_evse.energy_ac_export
+                                    sample.energy_ac_import_session = 0
+                                    sample.energy_ac_export_session = charging_session_energy[vid]
+                                    sample.voltage_dc = 0
+                                    sample.current_dc = 0
+                                    sample.power_dc = 0
+                                    sample.number_phases = 1 if home_evse.charging_process.one_phase else 3
+                                    sample.power_ac_min = home_evse.getPower_min()
+                                    sample.power_ac_max = home_evse.getPrated_kw()
+                                    sample.power_factor = home_evse.getEfficiency()
+                                    sample.charge_power_min = home_evse.getPower_min()
+                                    sample.charge_power_max = home_evse.getPrated_kw()
+                                    # sample.ev_packpower = ev.packpower
+                                    # sample.ev_packcapacity = ev.modelparameters['ev_packcapacity']
+                                    # sample.ev_packvoltage = ev.packvoltage
+                                    # sample.ev_packcurrent = ev.packcurrent
+                                    ChargingSessionResponse.add_sample(sample=sample)
+                                    sample = SampleItem()
                         else:
 
                             # SOC >= 0.95 and no V2G needed — idle at home (still plugged in, session continues)
@@ -755,6 +861,19 @@ def main():
 
             except traci.TraCIException:
                 ev_vehicles.discard(vid)
+
+        if logging:
+            if len(ChargingSessionResponse.data)>=2000:
+                ChargingSessionResponse.hits = len(ChargingSessionResponse.data)
+                ChargingSessionResponse.totalHits = 10000
+                ChargingSessionResponse.nextCursor = "xyz"
+
+
+                # @Stefano: Todo: post_request  um CahrgingSessionResponse an Maintenance Dashboard zu schicken
+                # hier dann auch ChargingSessionResponse resetten
+                #überall wo logging steht, oder ChargingSessionResponse befüllt wird bzw. Sample_Item, werden Daten gesammelt.
+                # ~2000 aggregierte sample_items kannst du dann hier verschicken
+
         
         # Finalize power allocation for this step (enforces grid constraints)
         # Results are used by get_available_power_for_station() in the next step
