@@ -1,6 +1,8 @@
 \section{Methodology}
 \label{sec:methodology}
 
+
+
 %Initially, we chose MATSim for its high configurability and its ability to simulate large-scale traffic networks. To increase the realism of the simulation, we then incorporated BEAM, an extension of MATSim. The pipeline begins by fetching data from OpenStreetMap, which we utilized to generate the simulation network, including population, traffic nodes with links and dynamic agent decisions. After the workflow in MATSim and BEAM is completed, \texttt{.xml} files are generated for usage in \ac{SUMO} and TraCI. With the \textit{netconvert} module, the \texttt{network.xml} is converted to a SUMO-compatible \texttt{network.net.xml} and the population file is handled by the duarouter module. Once the population file was generated, a script injected \acp{EV} into it. As a last step, the simulation is run and the results are analyzed and fed back to update the agents iteratively (\cref{fig:beam}). BEAM, which allows for a high grade of manipulation, is then used to generate files for traffic flow and charging behavior.
 %However, its non-deterministic execution, high error rates, and extensive calibration requirements proved to be a barrier to productivity and reproducibility. We therefore switched completely to SUMO and TraCI, which provide a more stable and deterministic environment while still allowing detailed, dynamic modeling of traffic flow and charging behavior. %
 
@@ -13,15 +15,18 @@ We use SUMO as the microscopic traffic simulator and TraCI for real-time control
 
 \subsection{System Overview}
 
-\begin{figure*}[t]
-    \centering
-    \includegraphics[width=0.9\textwidth]{images/data_pipeline.png}
-    \caption{Complete Data Pipeline}
-    \label{fig:data_pipeline}
-\end{figure*}
+\Cref{fig:data_pipeline} illustrates the complete data pipeline, which begins in the same way as the BEAM pipeline, but diverges after the generation of the \texttt{.xml} files. The framework is organized into four consecutive stages: (i)~data acquisition, (ii)~preprocessing and scenario generation, (iii)~coupled traffic--grid simulation, and (iv)~analysis and visualization. Each stage produces intermediate artifacts that are consumed by the subsequent stage, so that the entire process is reproducible from a single set of user-defined parameters.
 
-The \cref{fig:data_pipeline} illustrates the complete data pipeline, which begins in the same way as the BEAM pipeline, but diverges after the generation of the \texttt{.xml} files. The \texttt{chargingstation.xml} is utilized not only for the generation of the synthetic power grid, but also in assistance with the \ac{POI} file to generate trip chains. To finalize the preprocessing, user-set parameters are applied to the mechanisms of the trip chain, private wallbox, and power grid generation. 
-When preprocessing is complete, SUMO then uses the generated \texttt{trips.xml, wallboxes.xml} and \texttt{powergrid.pkl} files to simulate traffic flow and charging behavior. The simulation consists of three main components: TraCI, SUMO and PandaPower. The \texttt{powergrid.pkl} file is used with PandaPower for the grid-impact and the grid capacity determination, while the \texttt{wallboxes.xml} file is used to simulate the behavior of private wallboxes and the \texttt{trips.xml} file is utilized to run the individual agents with their trips. SUMO is the foundation that runs the simulation, while TraCI is used to retreive and manipulate values, routing of vehicles, detect charging stations and control wallbox charging. After a simulation run, the results are written to \texttt{.json} files and a \texttt{chargingsessions.csv} -- which will be used to analyze the occured events, like low-SoC events, charging sessions, charging demand, traffic patterns and visualization of the simulation (\cref{fig:generated_cs}). If the custom web interface is accessible, the simulation will either be visualized directly (\cref{fig:showcase_ui}) or the results can be accessed through the simulation results page.
+\paragraph{Data acquisition.}
+The pipeline retrieves information like road network, electrical grid topology, and candidate points of interest (\texttt{POI}s) from OpenStreetMap (\texttt{OSM}). The road network is converted into a SUMO-compatible format using the \texttt{netconvert} tool, while grid features and POIs are persisted for later preprocessing. This ensures that the simulation has accurate and relevant data to work with, allowing for realistic modeling of traffic flow and charging behavior in the region of interest.
+
+\paragraph{Preprocessing and scenario generation.}
+The \texttt{chargingstation.xml} file contains both, existing and candidate stations produced by the placement algorithm, and is utilized not only for the generation of the synthetic power grid, but also in assistance with the \ac{POI} file to generate trip chains. Trip chains map individual agents to a sequence of activities and destinations, from which their charging demand and low-\ac{SoC} behavior emerge. In parallel, the private-wallbox generator assigns home-charging devices to a share of agents following a statistical distribution, and the power-grid generator couples the charging stations and wallboxes to their nearest buses to form the synthetic distribution grid. To finalize the preprocessing, user-set parameters -- such as the \ac{EV} penetration rate, wallbox share, battery capacities, and grid voltage levels -- are applied to the mechanisms of the trip chain, private wallbox, and power grid generation, yielding a fully specified, deterministic scenario.
+
+
+\paragraph{Coupled traffic--grid simulation.}
+
+\paragraph{Analysis and visualization.}
 
 \subsection{Charging Station Placement Algorithm}
 \begin{figure}[t]
@@ -33,3 +38,10 @@ When preprocessing is complete, SUMO then uses the generated \texttt{trips.xml, 
 
 
 \subsection{Evaluation Metrics}
+\label{subsec:eval_metrics}
+
+\paragraph{Mobility accessibility.}
+
+\paragraph{Grid impact.}
+
+\paragraph{Aggregation.}

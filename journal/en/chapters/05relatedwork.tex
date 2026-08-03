@@ -18,5 +18,13 @@ Grid-aware planning approaches prioritize feeder hosting capacity, voltage stabi
 %    \label{fig:beam}
 %\end{figure*}%
 
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/data_pipeline.png}
+    \caption{Complete Data Pipeline}
+    \label{fig:data_pipeline}
+\end{figure*}
+
+
 \subsection{Coupled and Bidirectional Approaches}
 A smaller but growing body of work couples transportation simulation with power-system analysis, for example through co-simulation frameworks that pass simulated charging loads to a distribution-grid model \cite{cosim2025grid}. For bidirectional charging, planning models increasingly distinguish public and private chargers and account for uncertainty in demand and renewable generation \cite{v2gplanning2023}. Integrated and openly reproducible frameworks that combine microscopic mobility simulation with bidirectional charging at the level of individual public stations and private home wallboxes, however, remain limited. This paper addresses that gap on the mobility-and-demand side, while leaving a detailed electrical model of the distribution grid to future work.
