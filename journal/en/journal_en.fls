@@ -1,6 +1,6 @@
-PWD D:\Projects\Bidirectional-Charging-Stations\journal\en
+PWD d:\Projects\Bidirectional-Charging-Stations\journal\en
 INPUT C:\Users\Administrator\AppData\Local\MiKTeX\miktex\data\le\pdftex\pdflatex.fmt
-INPUT journal_en.tex
+INPUT d:\Projects\Bidirectional-Charging-Stations\journal\en\journal_en.tex
 OUTPUT journal_en.log
 INPUT C:\Users\Administrator\AppData\Local\Programs\MiKTeX\tex\latex\base\article.cls
 INPUT C:\Users\Administrator\AppData\Local\Programs\MiKTeX\tex\latex\base\article.cls
@@ -320,6 +320,13 @@ INPUT .\images\generated_cs.png
 INPUT .\images\generated_cs.png
 INPUT .\images\generated_cs.png
 INPUT .\images\generated_cs.png
+INPUT .\images\showcase_ui_all_layers.png
+INPUT .\images\showcase_ui_all_layers.png
+INPUT .\images\showcase_ui_all_layers.png
+INPUT .\images\showcase_ui_all_layers.png
+INPUT .\images\showcase_ui_all_layers.png
+INPUT .\images\showcase_ui_all_layers.png
+INPUT .\images\showcase_ui_all_layers.png
 INPUT .\chapters\07experiments.tex
 INPUT .\chapters\07experiments.tex
 INPUT .\chapters\07experiments.tex
@@ -330,13 +337,6 @@ INPUT .\chapters\08discussion.tex
 INPUT .\chapters\08discussion.tex
 INPUT .\chapters\08discussion.tex
 INPUT chapters\08discussion.tex
-INPUT .\images\showcase_ui_all_layers.png
-INPUT .\images\showcase_ui_all_layers.png
-INPUT .\images\showcase_ui_all_layers.png
-INPUT .\images\showcase_ui_all_layers.png
-INPUT .\images\showcase_ui_all_layers.png
-INPUT .\images\showcase_ui_all_layers.png
-INPUT .\images\showcase_ui_all_layers.png
 INPUT .\chapters\09conclusion.tex
 INPUT .\chapters\09conclusion.tex
 INPUT .\chapters\09conclusion.tex

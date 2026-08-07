@@ -32,11 +32,21 @@ The \texttt{chargingstations.xml} file contains both, existing and candidate sta
     \caption{Resulting visualization with generated (blue) and extracted (green) CS for example run.}
     \label{fig:generated_cs}
 \end{figure}
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\textwidth]{images/showcase_ui_all_layers.png}
+    \caption{Example run of the workflow: the web interface with all data layers enabled.}
+    \label{fig:showcase_ui}
+\end{figure*}
+
 Two siting strategies are implemented to compare different placement policies:
 \begin{itemize}
     \item \textbf{Saturate-and-Prune}: A naive iterative approach where candidate stations are placed on all viable road segments, ensuring maximum coverage. After each trial execution, charging stations with less than a 5\% utilization rate are removed, and the simulation is rerun until all remaining stations exceed this threshold. A 5\% threshold was chosen to ensure that stations are neither underutilized nor overburdened, while also allowing for a sufficient number of stations to be placed. This approach is designed to maximize acessibility and coverage, but may result in a higher number of stations being placed than necessary, leading to potential underutilization of some stations.
     \item \textbf{Clustering}: A heuristic that prioritizes locations with high traffic flow, potential traffic congestion, and consideration for vehicles that enter a state of low \ac{SoC}. Placement follows the traffic flow, aiming to maximize accessibility where vehicles are most likely to need charging while reducing detours.
 \end{itemize}
+
+
 
 \subsection{Evaluation Metrics}
 \label{subsec:eval_metrics}
