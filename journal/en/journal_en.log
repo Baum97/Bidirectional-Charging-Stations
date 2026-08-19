@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.4.18)  6 AUG 2026 14:28
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.4.18)  19 AUG 2026 18:38
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -754,10 +754,7 @@ Underfull \hbox (badness 2913) in paragraph at lines 3--4
 \T1/lmr/m/n/12 (+20) This pa-per pre-sented a simulation-driven
  []
 
-) (chapters/10acknowledgments.tex
-Underfull \vbox (badness 1603) has occurred while \output is active []
-
-) (chapters/11bibliography.tex
+) (chapters/10acknowledgments.tex) (chapters/11bibliography.tex
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <12> on input line 11.
 
@@ -765,7 +762,7 @@ Underfull \hbox (badness 2012) in paragraph at lines 8--12
 \T1/lmr/m/n/12 (+20) [On-line]. Avail-able: [][]$\T1/lmtt/m/n/12 https : / / www . iea .
  []
 
-
+[7]
 Underfull \hbox (badness 1509) in paragraph at lines 19--22
 []\T1/lmr/m/n/12 (+20) K. Clement-Nyns, E. Hae-sen, and J.
  []
@@ -795,7 +792,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 32--35
 \T1/lmtt/m/n/12 / / www . sciencedirect . com / science /
  []
 
-[7]
+
 Underfull \hbox (badness 3333) in paragraph at lines 43--47
 []\T1/lmr/m/n/12 (+20) T. Kur-czveil, P. Á. López, and E.
  []
@@ -875,7 +872,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 93--96
 [][]$\T1/lmtt/m/n/12 https : / / dl . acm . org / doi / 10 . 1145 /
  []
 
-
+[8]
 Underfull \hbox (badness 1067) in paragraph at lines 98--102
 \T1/lmr/m/n/12 (+20) cle charg-ing sta-tion de-ploy-ment us-ing
  []
@@ -890,7 +887,9 @@ Underfull \hbox (badness 1112) in paragraph at lines 98--102
 \T1/lmr/m/n/12 (+20) vol. 13, no. 8, art. 4867, 2023. [On-
  []
 
-) [8] (journal_en.aux)
+) [9
+
+] (journal_en.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
@@ -903,17 +902,17 @@ Package rerunfilecheck Info: File `journal_en.out' has not changed.
 (rerunfilecheck)             Checksum: ABB035E4F5A80268FC93CA20F45CD97C;2959.
  ) 
 Here is how much of TeX's memory you used:
- 19065 strings out of 467871
- 324267 string characters out of 5414504
+ 19068 strings out of 467871
+ 324293 string characters out of 5414504
  784891 words of memory out of 5000000
  47405 multiletter control sequences out of 15000+600000
- 704881 words of font info for 181 fonts, out of 8000000 for 9000
+ 704972 words of font info for 182 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,12n,79p,1475b,671s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,12n,79p,1794b,671s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx12.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmcsc10.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr10.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr12.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr8.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmri10.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmri12.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt10.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt12.pfb>
-Output written on journal_en.pdf (8 pages, 2370811 bytes).
+Output written on journal_en.pdf (9 pages, 2373040 bytes).
 PDF statistics:
- 325 PDF objects out of 1000 (max. 8388607)
- 69 named destinations out of 1000 (max. 500000)
+ 330 PDF objects out of 1000 (max. 8388607)
+ 70 named destinations out of 1000 (max. 500000)
  42176 words of extra memory for PDF output out of 42996 (max. 10000000)
 
