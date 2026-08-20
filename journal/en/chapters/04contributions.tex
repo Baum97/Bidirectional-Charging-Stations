@@ -1,10 +1,10 @@
 \subsection{Contributions}
 \label{subsec:contributions}
-This paper contributes a practical and reproducible workflow for planning bidirectional charging infrastructure with coupled traffic and grid evaluation. This work contains a user interface for deterministic scenario-based traffic generation along with a thorough analysis of candidate station portfolios under varying demand and grid conditions. By integrating synthetic grid constraints with mobility-based accessibility metrics, we provide a holistic framework for siting decisions that can be adapted to different urban contexts and policy objectives. 
+This paper contributes a practical and reproducible workflow for planning bidirectional charging infrastructure from openly available data. This work contains a user interface for scenario-based traffic generation along with an evaluation of candidate station portfolios under varying demand conditions, which allows competing placement strategies to be compared on the same footing rather than described in isolation.
 
 The main contributions of this work are as follows:
 \begin{itemize}
-	\item A simulation-based siting pipeline that jointly evaluates mobility accessibility and distribution-grid impact.
-	\item A multi-criteria scoring framework for comparing candidate station portfolios under proto-realistic demand variability.
+	\item A simulation-based siting pipeline that derives charging demand from land-use data and evaluates candidate stations against the mobility patterns that produced it.
+	\item An empirical comparison of two placement strategies across repeated scenario instances, which quantifies how much of the accessibility gain is attributable to the number of stations rather than to where a heuristic places them.
 	\item A reference implementation in Python to support reproducible experiments and scenario-based sensitivity studies.
 \end{itemize}

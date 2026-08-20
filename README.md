@@ -84,3 +84,26 @@ npm run dev
 ---
 
 This is intentionally minimal to stay flexible while you add SUMO features.
+
+## Multi-Seed Placement Study
+
+The placement strategies are evaluated over five scenario seeds. All drivers live in
+`local/` and expect `SUMO_HOME` to be set and a built reference scenario in
+`data/scenarios/` (override with `BIFLEX_SRC_SCENARIO`).
+
+Run with a fixed interpreter hash seed — without it the coupled simulation is not
+reproducible, because the iteration order over the set of active vehicles decides
+which of them gets power first:
+
+```
+PYTHONHASHSEED=0 python local/run_multiseed_placement.py   # reference case + Clustering, 5 seeds
+PYTHONHASHSEED=0 python local/run_saturate_prune.py        # Saturate-and-Prune, 3 prune iterations
+PYTHONHASHSEED=0 python local/run_extend_prune.py          # 3 further iterations, for the curve
+python local/plot_placement_curve.py                       # writes journal/en/images/placement_curve.pdf
+```
+
+Results accumulate in `data/scenarios/multiseed_results.json` and
+`data/scenarios/saturate_prune_results.json`; both drivers skip seeds that are
+already present, so an interrupted study can be resumed by re-running them.
+`local/analyze_cluster_visits.py` derives the per-cluster visit and energy figures
+of the demand table from a finished run.

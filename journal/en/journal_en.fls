@@ -1,6 +1,6 @@
-PWD D:\Projects\Bidirectional-Charging-Stations\journal\en
+PWD d:\Projects\Bidirectional-Charging-Stations\journal\en
 INPUT C:\Users\Administrator\AppData\Local\MiKTeX\miktex\data\le\pdftex\pdflatex.fmt
-INPUT journal_en.tex
+INPUT d:\Projects\Bidirectional-Charging-Stations\journal\en\journal_en.tex
 OUTPUT journal_en.log
 INPUT C:\Users\Administrator\AppData\Local\Programs\MiKTeX\tex\latex\base\article.cls
 INPUT C:\Users\Administrator\AppData\Local\Programs\MiKTeX\tex\latex\base\article.cls
@@ -345,12 +345,17 @@ INPUT C:\Users\Administrator\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\l
 INPUT C:\Users\Administrator\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam5.tfm
 INPUT C:\Users\Administrator\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm5.tfm
 INPUT C:\Users\Administrator\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\ec-lmri10.tfm
+INPUT .\images\placement_curve.pdf
+INPUT .\images\placement_curve.pdf
+INPUT .\images\placement_curve.pdf
+INPUT .\images\placement_curve.pdf
+INPUT .\images\placement_curve.pdf
+INPUT .\images\placement_curve.pdf
 INPUT .\chapters\08discussion.tex
 INPUT .\chapters\08discussion.tex
 INPUT .\chapters\08discussion.tex
 INPUT .\chapters\08discussion.tex
 INPUT chapters\08discussion.tex
-INPUT C:\Users\Administrator\AppData\Local\Programs\MiKTeX\fonts\enc\dvips\lm\lm-mathit.enc
 INPUT .\chapters\09conclusion.tex
 INPUT .\chapters\09conclusion.tex
 INPUT .\chapters\09conclusion.tex
@@ -373,8 +378,6 @@ INPUT C:\Users\Administrator\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm
 INPUT C:\Users\Administrator\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmbx12.pfb
 INPUT C:\Users\Administrator\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmcsc10.pfb
 INPUT C:\Users\Administrator\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmcsc10.pfb
-INPUT C:\Users\Administrator\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmmi10.pfb
-INPUT C:\Users\Administrator\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmmi10.pfb
 INPUT C:\Users\Administrator\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmr10.pfb
 INPUT C:\Users\Administrator\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmr10.pfb
 INPUT C:\Users\Administrator\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmr12.pfb
