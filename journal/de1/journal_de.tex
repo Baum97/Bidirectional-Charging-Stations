@@ -1,0 +1,108 @@
+\documentclass[12pt, a4paper, twocolumn]{article}
+
+% =============================================
+% PAKETE
+% =============================================
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{lmodern}
+\usepackage{microtype}               % Bessere Typographie
+\usepackage{amsmath, amssymb}        % Mathematik
+\usepackage{graphicx}                % Bilder einbinden
+\usepackage{booktabs}                % Professionelle Tabellen
+\usepackage{hyperref}                % Klickbare Links & PDF-Metadaten
+\usepackage{cleveref}                % Intelligente Querverweise
+\usepackage{geometry}                % Seitenraender
+\usepackage{abstract}                % Abstract-Formatierung
+\usepackage{titlesec}                % Section-Formatierung
+\usepackage{fancyhdr}                % Kopf- und Fusszeilen
+\usepackage{caption}                 % Bildunterschriften
+\usepackage{float}                   % Gleitumgebungen
+\usepackage{cite}                    % Zitationen
+\usepackage{url}                     % URLs
+\usepackage{color}
+\usepackage{xcolor}
+
+% =============================================
+% SEITENGEOMETRIE
+% =============================================
+\geometry{
+    top=2.5cm,
+    bottom=2.5cm,
+    left=1.8cm,
+    right=1.8cm,
+    columnsep=0.6cm
+}
+
+% =============================================
+% HYPERREF / PDF METADATEN
+% =============================================
+\hypersetup{
+    colorlinks   = true,
+    linkcolor    = black,
+    citecolor    = black,
+    urlcolor     = blue,
+    pdftitle     = {Spatial Distribution of Bidirectional Charging Stations by Simulation and Evaluation of Traffic and Grid Data},
+    pdfauthor    = {Achim Baumgaertner, Erik Weigand, Gian Bruno Truoel, Mirko Sonntag},
+    pdfsubject   = {Smart Charging Infrastructure Planning},
+    pdfkeywords  = {Bidirectional charging, traffic simulation, grid impact, charging station siting}
+}
+
+% =============================================
+% KOPF- UND FUSSZEILE
+% =============================================
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textit{Spatial Distribution of Bidirectional Charging
+Stations by Simulation and Evaluation of Traffic
+and Grid Data, Vol. 0.1, No. 1, 2026}}
+\fancyhead[R]{\small\textit{Baumgaertner et al.}}
+\fancyfoot[C]{\thepage}
+\setlength{\headheight}{26pt}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% =============================================
+% SECTION-FORMATIERUNG
+% =============================================
+\titleformat{\section}
+    {\normalfont\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}
+    {\normalfont\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titleformat{\subsubsection}
+    {\normalfont\normalsize\itshape}{\thesubsubsection}{0.5em}{}
+
+% =============================================
+% ABSTRACT-FORMATIERUNG
+% =============================================
+\renewcommand{\abstractnamefont}{\normalfont\bfseries}
+\renewcommand{\abstracttextfont}{\normalfont\small}
+
+% =============================================
+% DOKUMENT BEGINNT
+% =============================================
+\begin{document}
+
+\input{chapters/00frontmatter}
+\input{chapters/01introduction}
+\input{chapters/02motivation}
+\input{chapters/03problemstatement}
+\input{chapters/04contributions}
+\input{chapters/05paperstructure}
+\input{chapters/06relatedwork}
+\input{chapters/07methodology}
+\input{chapters/08experiments}
+\input{chapters/09discussion}
+\input{chapters/10conclusion}
+\input{chapters/11acknowledgments}
+\input{chapters/12bibliography}
+
+\end{document}
+
+
+%% =============================================
+%% objective change to mainly: created framework to enable automatic placing of bidi chargers + actual use case for a city with explanation of the aims of the framework etc
+%% Charger finder in related works
+%% 2. grid behavior (demand, load, voltage)
+%% methodology: certain approaches and how done. results: ONLY final construct with validation and use case 
+%% =============================================

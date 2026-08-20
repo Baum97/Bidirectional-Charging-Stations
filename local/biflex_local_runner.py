@@ -850,17 +850,28 @@ def create_osm_chargingstations_file(real_charging_stations, scen_dir, net_file)
                 # Find nearest edge
                 edges = net.getNeighboringEdges(x, y, r=100)  # Search within 100m
                 if edges:
-                    # Get closest edge
-                    closest_edge, dist = min(edges, key=lambda e: e[1])
-                    lane = closest_edge.getLane(0)
+                    # Pick the nearest edge whose lane can actually hold the station.
+                    # Junction stubs are only centimetres long; placing a station there
+                    # yields a degenerate extent that SUMO rejects, and the rejection
+                    # aborts parsing of every station declared after it.
+                    CS_LENGTH = 5.0
+                    lane = None
+                    for candidate_edge, _dist in sorted(edges, key=lambda e: e[1]):
+                        candidate_lane = candidate_edge.getLane(0)
+                        if candidate_lane.getLength() >= CS_LENGTH + 0.2:
+                            lane = candidate_lane
+                            break
+                    if lane is None:
+                        continue
+
                     lane_id = lane.getID()
                     lane_length = lane.getLength()
-                    
-                    # Place at middle of lane
-                    start_pos = lane_length / 2
-                    end_pos = min(start_pos + 5, lane_length - 0.1)
-                    
-                    if start_pos < end_pos:
+
+                    # Centre the station on the lane
+                    start_pos = max(0.0, lane_length / 2 - CS_LENGTH / 2)
+                    end_pos = min(start_pos + CS_LENGTH, lane_length - 0.1)
+
+                    if end_pos - start_pos >= CS_LENGTH - 0.2:
                         cs_id = f"real_cs_{feature['properties'].get('osm_id', count)}"
                         ET.SubElement(
                             root, "chargingStation",
@@ -882,6 +893,78 @@ def create_osm_chargingstations_file(real_charging_stations, scen_dir, net_file)
     tree.write(output_file, encoding='utf-8', xml_declaration=True)
     
     return output_file
+
+
+def prune_underutilized_stations(scen_dir, station_file, threshold=0.05, protected=(),
+                                 max_fraction=0.5):
+    """
+    Remove charging stations whose utilisation stayed below `threshold` in the
+    preceding run. This is the prune step of the Saturate-and-Prune strategy.
+
+    Utilisation is the fraction of simulation steps during which the station was
+    occupied, taken from the `chargingSteps` attribute of SUMO's
+    chargingstations.xml output. This measure is independent of how many
+    stations are in the network, unlike a share of total delivered energy, which
+    cannot exceed 1/n on average and therefore rejects every candidate once the
+    network is large.
+
+    At most `max_fraction` of the remaining candidates is removed per call, the
+    least utilised ones first. Saturating the network dilutes utilisation: the
+    same demand spread over eight times as many stations leaves almost none of
+    them above any fixed threshold, so removing every station below the
+    threshold in one pass collapses the candidate set in the first iteration.
+    Pruning gradually lets demand re-concentrate on the surviving stations
+    between iterations, which is what makes the loop converge instead.
+
+    Station ids listed in `protected` are kept regardless of their utilisation,
+    which preserves pre-existing infrastructure that cannot be removed in
+    reality.
+
+    Args:
+        scen_dir (str): Scenario directory holding sim.sumocfg and the run output
+        station_file (str): Additional file whose chargingStation elements are pruned
+        threshold (float): Minimum fraction of simulation steps a station must be occupied
+        protected (iterable): Station ids that are never removed
+        max_fraction (float): Upper bound on the share of candidates removed per call
+
+    Returns:
+        tuple: (kept, removed) counts, or (None, 0) if no output was found
+    """
+    out_file = os.path.join(scen_dir, "chargingstations.xml")
+    cfg_file = os.path.join(scen_dir, "sim.sumocfg")
+    if not os.path.exists(out_file) or not os.path.exists(station_file):
+        return None, 0
+
+    cfg = ET.parse(cfg_file).getroot()
+    end = float(cfg.find("time/end").get("value"))
+    step = float(cfg.find("time/step-length").get("value"))
+    total_steps = max(1.0, end / step)
+
+    occupancy = {}
+    for cs in ET.parse(out_file).getroot().findall("chargingStation"):
+        occupancy[cs.get("id")] = float(cs.get("chargingSteps", 0)) / total_steps
+
+    protected = set(protected)
+    tree = ET.parse(station_file)
+    root = tree.getroot()
+    candidates = [cs for cs in root.findall("chargingStation") if cs.get("id") not in protected]
+
+    below = [cs for cs in candidates if occupancy.get(cs.get("id"), 0.0) < threshold]
+    below.sort(key=lambda cs: occupancy.get(cs.get("id"), 0.0))
+    limit = int(len(candidates) * max_fraction)
+    doomed = below[:limit]
+
+    for cs in doomed:
+        root.remove(cs)
+    tree.write(station_file, encoding='utf-8', xml_declaration=True)
+
+    kept = len(root.findall("chargingStation"))
+    used = sum(1 for v in occupancy.values() if v >= threshold)
+    print(f"[PRUNE] {os.path.basename(station_file)}: kept {kept}, removed {len(doomed)} "
+          f"({len(below)} of {len(candidates)} candidates below {threshold:.0%} of "
+          f"{total_steps:.0f} steps, capped at {limit}; "
+          f"{used} of {len(occupancy)} stations in net above threshold)")
+    return kept, len(doomed)
 
 
 def generate_cs_from_polygons(geojson_file, scen_dir, net_file):
