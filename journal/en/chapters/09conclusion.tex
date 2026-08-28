@@ -1,6 +1,12 @@
 \section{Conclusion}
 \label{sec:conclusion}
-This paper presented a simulation-driven method for distributing bidirectional charging stations under joint traffic and grid criteria. The evaluation over five scenario seeds shows that adding stations by either strategy raises the fleet's end-of-day state of charge by about three percentage points and reduces the share of undersupplied agents by six to eight points, and that the number of stations rather than the heuristic used to place them governs that gain.
+This paper presented a simulation-driven method for siting bidirectional charging stations from openly available data. Charging demand is derived from land use, resolved in space and time by microscopic traffic simulation, and turned into candidate sites by two competing placement strategies.
+
+Across five scenario instances both strategies lift the fleet's end-of-day state of charge by roughly three percentage points and cut the share of undersupplied agents by six to eight. Neither beats the other. What decides the outcome is how many stations are added, not the heuristic that picks them, and accessibility stops improving well before full coverage. For the area studied that ceiling sits near 75 stations. The practical value of the workflow is therefore less in ranking sites against each other than in locating the point where further construction stops paying off.
 
 \subsection{Future Work}
-Future work will include stochastic optimization under forecast uncertainty and integration of dynamic pricing signals. We also plan to validate the framework with larger real-world datasets and pilot deployments in mixed urban-suburban regions.
+Three directions follow from these results. Bidirectional operation stayed unused because discharge needs vehicles above 50\% \ac{SoC} while the vehicles at a station are there because they are low. Measuring what \ac{V2G} is worth requires a fleet segment parked at a high charge when demand peaks, which points at evening home charging rather than public stations.
+
+The sizing rule divides daily energy by the observation window and flattens the peaks a station has to serve. A rule built on the busiest hour would be more useful and needs no new simulation, only a different reading of the existing logs.
+
+Finally, the plateau found here belongs to one square kilometer and one fleet size. Whether its position scales with density, area or \ac{EV} share is the question that decides how far the method carries, and answering it means repeating the study across districts. While traffic is a key factor, direction of travel was not regarded in the placement heuristics. A more sophisticated algorithm could account for that characteristic of the traffic flow and increase the accuracy of the placement decisions.

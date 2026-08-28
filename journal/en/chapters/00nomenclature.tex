@@ -1,5 +1,13 @@
 \section*{Nomenclature}
+% Font and leading are set explicitly rather than via \small or \footnotesize,
+% so the size of this list can be dialled independently of the body text.
+% Body text is 12pt on roughly 14.5pt leading. The values below are 80 % of that.
+{\fontsize{8.0}{9.5}\selectfont
+\setlength{\parskip}{0pt}
 \begin{acronym}[MATSim]
+    \setlength{\itemsep}{0pt}
+    \setlength{\parsep}{0pt}
+    \setlength{\topsep}{0pt}
     \acro{BEAM}{Behavior, Energy, Autonomy, and Mobility}
     \acro{EV}{Electric Vehicle}
     \acro{MATSim}{Multi-Agent Transport Simulation}
@@ -9,5 +17,6 @@
     \acro{TraCI}{Traffic Control Interface}
     \acro{V2G}{Vehicle-to-Grid}
     \acro{OSM}{OpenStreetMap}
-    \acro{CS}{Charging Station}
+    \acro{AC}{Alternating Current}
 \end{acronym}
+}

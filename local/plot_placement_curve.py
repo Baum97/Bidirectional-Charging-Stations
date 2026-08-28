@@ -66,9 +66,9 @@ def main(out_path):
         ax.set_xlabel("Charging stations in network")
         ax.set_ylabel(ylabel)
         ax.grid(True, linewidth=0.4, alpha=0.5)
-        ax.set_xscale("log")
-        ax.set_xticks([26, 39, 51, 75, 124, 222])
-        ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+        ax.set_xlim(0, 240)
+        ax.set_xticks([0, 50, 100, 150, 200])
+        ax.margins(y=0.15)
 
     axes[0].legend(frameon=False, fontsize=8, loc="lower right")
     fig.tight_layout()
