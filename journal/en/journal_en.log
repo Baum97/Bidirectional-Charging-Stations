@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.4.18)  31 AUG 2026 11:10
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.4.18)  31 AUG 2026 12:36
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -816,16 +816,7 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
 )
-(chapters/00nomenclature.tex
-
-LaTeX Warning: Hyper reference `acro:DBSCAN' on page 1 undefined on input line 
-13.
-
-
-LaTeX Warning: Hyper reference `acro:DBSCAN' on page 1 undefined on input line 
-13.
-
-) (chapters/01introduction.tex
+(chapters/00nomenclature.tex) (chapters/01introduction.tex
 Package acronym Info: Label `acro:V2G' newly defined as it shall be overridden
 although it is yet undefined on input line 3.
 
@@ -875,7 +866,9 @@ although it is yet undefined on input line 9.
 Package acronym Info: Label `acro:BEAM' newly defined as it shall be overridden
 
 although it is yet undefined on input line 9.
-<images/data_pipeline.png, id=185, 1376.89406pt x 701.62125pt>
+Package acronym Info: Label `acro:SoC' newly defined as it shall be overridden
+although it is yet undefined on input line 9.
+<images/data_pipeline.png, id=195, 1376.89406pt x 701.62125pt>
 File: images/data_pipeline.png Graphic file (type png)
 <use images/data_pipeline.png>
 Package pdftex.def Info: images/data_pipeline.png  used on input line 22.
@@ -887,8 +880,6 @@ Underfull \hbox (badness 10000) in paragraph at lines 28--28
 
 ) (chapters/06methodology.tex [3]
 Package acronym Info: Label `acro:POI' overridden on input line 16.
-Package acronym Info: Label `acro:SoC' newly defined as it shall be overridden
-although it is yet undefined on input line 19.
 
 Underfull \hbox (badness 10000) in paragraph at lines 22--23
 [] []\T1/lmr/bx/n/12 (+20) Cou-pled traf-fic--grid sim-u-la-tion.[]
@@ -901,67 +892,59 @@ n/12 (+20) ,
  []
 
 [4 <./images/data_pipeline.png>]
-Underfull \hbox (badness 4765) in paragraph at lines 26--27
+Underfull \hbox (badness 4765) in paragraph at lines 24--25
 \T1/lmr/m/n/12 (+20) files, in-clud-ing \T1/lmtt/m/n/12 station_statistics.json
 \T1/lmr/m/n/12 (+20) ,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 26--27
+Underfull \hbox (badness 10000) in paragraph at lines 24--25
 \T1/lmtt/m/n/12 v2g_summary.json\T1/lmr/m/n/12 (+20) , \T1/lmtt/m/n/12 charts_d
 ata.json\T1/lmr/m/n/12 (+20) ,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 26--27
+Underfull \hbox (badness 10000) in paragraph at lines 24--25
 \T1/lmtt/m/n/12 charging_sessions.csv \T1/lmr/m/n/12 (+20) and \T1/lmtt/m/n/12 
 model_log\T1/lmr/m/n/12 (+20) -
  []
 
 
-Underfull \hbox (badness 1769) in paragraph at lines 26--27
+Underfull \hbox (badness 1769) in paragraph at lines 24--25
 \T1/lmtt/m/n/12 _data.csv\T1/lmr/m/n/12 (+20) . These per-sisted out-puts are
  []
 
 
-Underfull \hbox (badness 3907) in paragraph at lines 26--27
+Underfull \hbox (badness 3907) in paragraph at lines 24--25
 \T1/lmr/m/n/12 (+20) an-a-lyzed and vi-su-al-ized to eval-u-ate the
  []
 
 
-Underfull \hbox (badness 1270) in paragraph at lines 26--27
+Underfull \hbox (badness 1270) in paragraph at lines 24--25
 \T1/lmr/m/n/12 (+20) peak grid power, and in-di-vid-ual charg-ing
  []
 
-<images/generated_cs.png, id=221, 581.92406pt x 380.92313pt>
+<images/generated_cs.png, id=236, 581.92406pt x 380.92313pt>
 File: images/generated_cs.png Graphic file (type png)
 <use images/generated_cs.png>
-Package pdftex.def Info: images/generated_cs.png  used on input line 33.
+Package pdftex.def Info: images/generated_cs.png  used on input line 31.
 (pdftex.def)             Requested size: 239.00298pt x 156.44685pt.
-<images/showcase_ui_all_layers.png, id=222, 963.09285pt x 459.48505pt>
+<images/showcase_ui_all_layers.png, id=237, 963.09285pt x 459.48505pt>
 File: images/showcase_ui_all_layers.png Graphic file (type png)
 <use images/showcase_ui_all_layers.png>
 Package pdftex.def Info: images/showcase_ui_all_layers.png  used on input line 
-40.
+38.
 (pdftex.def)             Requested size: 495.07779pt x 236.19923pt.
 
-Underfull \hbox (badness 1394) in paragraph at lines 47--48
+Underfull \hbox (badness 1394) in paragraph at lines 45--46
 []\T1/lmr/bx/n/12 (+20) Saturate-and-Prune\T1/lmr/m/n/12 (+20) : A de-lib-er-at
 ely
  []
 
-[5
-
- <./images/generated_cs.png>]
+[5 <./images/generated_cs.png>]
 Package acronym Info: Label `acro:AC' newly defined as it shall be overridden
-although it is yet undefined on input line 58.
-) (chapters/07experiments.tex
-Underfull \vbox (badness 1845) has occurred while \output is active []
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [6 <./images/showcase_ui_all_layers.png>]
+although it is yet undefined on input line 56.
+) (chapters/07experiments.tex [6 <./images/showcase_ui_all_layers.png>]
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <12> on input line 12.
  [7{C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-
@@ -974,13 +957,19 @@ Overfull \hbox (7.38501pt too wide) in paragraph at lines 45--67
  [][] 
  []
 
+Package acronym Info: Label `acro:DBSCAN' newly defined as it shall be overridd
+en
+although it is yet undefined on input line 71.
 [8]
-<images/placement_curve.pdf, id=294, 642.82224pt x 237.67169pt>
+<images/placement_curve.pdf, id=310, 642.82224pt x 237.67169pt>
 File: images/placement_curve.pdf Graphic file (type pdf)
 <use images/placement_curve.pdf>
 Package pdftex.def Info: images/placement_curve.pdf  used on input line 115.
 (pdftex.def)             Requested size: 495.07779pt x 183.04764pt.
  [9]
+Underfull \vbox (badness 3612) has occurred while \output is active []
+
+
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [10{C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm
@@ -996,7 +985,11 @@ Underfull \hbox (badness 3657) in paragraph at lines 3--4
 \T1/lmr/m/n/12 (+20) This pa-per pre-sented the cre-ation of a
  []
 
-[12]) (chapters/10acknowledgments.tex) (chapters/11bibliography.tex
+
+Underfull \vbox (badness 1527) has occurred while \output is active []
+
+ [12])
+(chapters/10acknowledgments.tex) (chapters/11bibliography.tex
 Underfull \hbox (badness 2012) in paragraph at lines 8--12
 \T1/lmr/m/n/12 (+20) [On-line]. Avail-able: [][]$\T1/lmtt/m/n/12 https : / / ww
 w . iea .
@@ -1008,153 +1001,79 @@ Underfull \hbox (badness 1509) in paragraph at lines 19--22
  []
 
 
-Underfull \hbox (badness 3302) in paragraph at lines 32--35
-[]\T1/lmr/m/n/12 (+20) ``A re-view on elec-tric ve-hi-cle charg-
- []
-
-
-Underfull \hbox (badness 4832) in paragraph at lines 32--35
-\T1/lmr/m/n/12 (+20) ing sta-tion plan-ning: In-fras-truc-ture
- []
-
-
-Underfull \hbox (badness 2073) in paragraph at lines 32--35
-\T1/lmr/m/n/12 (+20) place-ment, siz-ing, up-grades, and un-
- []
-
-
-Underfull \hbox (badness 3250) in paragraph at lines 32--35
-\T1/lmr/m/n/12 (+20) cer-tain-ties,'' \T1/lmr/m/it/12 (+20) Jour-nal of En-ergy
- Stor-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 32--35
-\T1/lmtt/m/n/12 / / www . sciencedirect . com / science /
- []
-
-
-Underfull \hbox (badness 3333) in paragraph at lines 43--47
+Underfull \hbox (badness 3333) in paragraph at lines 43--48
 []\T1/lmr/m/n/12 (+20) T. Kur-czveil, P. Á. López, and E.
  []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 43--47
-\T1/lmr/m/n/12 (+20) Schnieder, ``Im-ple-men-ta-tion of an
- []
-
-
-Underfull \hbox (badness 2512) in paragraph at lines 43--47
-\T1/lmr/m/n/12 (+20) en-ergy model and a charg-ing in-fras-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 43--47
-\T1/lmr/m/n/12 (+20) truc-ture in SUMO,'' in \T1/lmr/m/it/12 (+20) Sim-u-la-tio
-n
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 43--47
-\T1/lmr/m/it/12 (+20) of Ur-ban Mo-bil-ity (SUMO)\T1/lmr/m/n/12 (+20) , [][]$\T
-1/lmtt/m/n/12 https :
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 43--47
-\T1/lmtt/m/n/12 / / www . researchgate . net / publication /
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 43--47
-\T1/lmtt/m/n/12 276063158 _ Implementation _ of _
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 43--47
-\T1/lmtt/m/n/12 an _ Energy _ Model _ and _ a _ Charging _
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 56--59
-\T1/lmtt/m/n/12 / / www . sciencedirect . com / science /
- []
-
-
-Underfull \hbox (badness 4608) in paragraph at lines 62--65
-\T1/lmr/m/n/12 (+20) dis-tri-bu-tion sys-tems: A uni-fied co-
- []
-
-
-Underfull \hbox (badness 1062) in paragraph at lines 62--65
-\T1/lmr/m/n/12 (+20) simulation frame-work,'' \T1/lmr/m/it/12 (+20) arXiv prepr
-int
- []
-
 [13]
-Underfull \hbox (badness 2486) in paragraph at lines 86--90
+Underfull \hbox (badness 2486) in paragraph at lines 87--91
 []\T1/lmr/m/n/12 (+20) F. Ah-mad, A. Iqbal, I. Ashraf, M.
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 86--90
+Underfull \hbox (badness 10000) in paragraph at lines 87--91
 \T1/lmtt/m/n/12 / / www . sciencedirect . com / science /
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 93--96
-[]\T1/lmr/m/n/12 (+20) ``Large-scale op-ti-miza-tion of elec-tric
+Underfull \hbox (badness 1248) in paragraph at lines 93--97
+\T1/lmr/m/n/12 (+20) Moungla, ``Large-scale op-ti-miza-tion of
  []
 
 
-Underfull \hbox (badness 3271) in paragraph at lines 93--96
-\T1/lmr/m/it/12 (+20) TIAL '24)\T1/lmr/m/n/12 (+20) , 2024. [On-line]. Avail-ab
-le:
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 93--96
-[][]$\T1/lmtt/m/n/12 https : / / dl . acm . org / doi / 10 . 1145 /
- []
-
-
-Underfull \hbox (badness 1067) in paragraph at lines 98--102
+Underfull \hbox (badness 1067) in paragraph at lines 99--103
 \T1/lmr/m/n/12 (+20) cle charg-ing sta-tion de-ploy-ment us-ing
  []
 
 
-Underfull \hbox (badness 2547) in paragraph at lines 98--102
+Underfull \hbox (badness 2547) in paragraph at lines 99--103
 \T1/lmr/m/n/12 (+20) ge-netic al-go-rithms,'' \T1/lmr/m/it/12 (+20) Ap-plied Sc
 i-ences\T1/lmr/m/n/12 (+20) ,
  []
 
 
-Underfull \hbox (badness 1112) in paragraph at lines 98--102
+Underfull \hbox (badness 1112) in paragraph at lines 99--103
 \T1/lmr/m/n/12 (+20) vol. 13, no. 8, art. 4867, 2023. [On-
  []
 
 
-Underfull \hbox (badness 5847) in paragraph at lines 104--108
+Underfull \hbox (badness 5847) in paragraph at lines 105--109
 []\T1/lmr/m/n/12 (+20) NOW GmbH -- Na-tionale Leit-stelle
  []
 
 
-Underfull \hbox (badness 5711) in paragraph at lines 104--108
+Underfull \hbox (badness 5711) in paragraph at lines 105--109
 \T1/lmr/m/n/12 (+20) Lade-in-fras-truk-tur, \T1/lmr/m/it/12 (+20) Ein-fach zu H
 ause
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 104--108
+Underfull \hbox (badness 10000) in paragraph at lines 105--109
 [][]$\T1/lmtt/m/n/12 https : / / nationale-[]leitstelle . de /
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 104--108
+Underfull \hbox (badness 10000) in paragraph at lines 105--109
 \T1/lmtt/m/n/12 wp-[]content / uploads / 2024 / 10 / Studie _
  []
 
-) [14
+
+Underfull \hbox (badness 2020) in paragraph at lines 111--115
+[]\T1/lmr/m/n/12 (+20) S. Deb, K. Tammi, K. Kalita, and
+ []
+
+
+Underfull \hbox (badness 1484) in paragraph at lines 111--115
+\T1/lmr/m/n/12 (+20) P. Ma-hanta, ``Charg-ing sta-tion place-
+ []
+
+
+Underfull \hbox (badness 2318) in paragraph at lines 111--115
+\T1/lmr/m/n/12 (+20) line]. Avail-able: [][]$\T1/lmtt/m/n/12 https : / / doi . 
+org / 10 .
+ []
+
+[14]) [15
 
 ] (journal_en.aux)
  ***********
@@ -1163,22 +1082,19 @@ L3 programming layer <2025-12-24>
  ***********
 
 
-LaTeX Warning: There were undefined references.
-
-
 LaTeX Warning: There were multiply-defined labels.
 
 Package rerunfilecheck Info: File `journal_en.out' has not changed.
 (rerunfilecheck)             Checksum: B1F7FD56D59B075BD26D8F72E459D34F;3539.
  ) 
 Here is how much of TeX's memory you used:
- 19180 strings out of 467871
- 325962 string characters out of 5414504
- 795954 words of memory out of 5000000
- 47464 multiletter control sequences out of 15000+600000
- 720648 words of font info for 205 fonts, out of 8000000 for 9000
+ 19199 strings out of 467871
+ 326255 string characters out of 5414504
+ 798157 words of memory out of 5000000
+ 47472 multiletter control sequences out of 15000+600000
+ 721035 words of font info for 208 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,12n,79p,1554b,671s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,12n,79p,1559b,671s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/l
 mbx12.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/pub
 lic/lm/lmbx8.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/ty
@@ -1195,9 +1111,9 @@ pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm
 /lmsy6.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/type1/pu
 blic/lm/lmtt10.pfb><C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/
 type1/public/lm/lmtt12.pfb>
-Output written on journal_en.pdf (14 pages, 2804328 bytes).
+Output written on journal_en.pdf (15 pages, 2809959 bytes).
 PDF statistics:
- 528 PDF objects out of 1000 (max. 8388607)
- 85 named destinations out of 1000 (max. 500000)
+ 548 PDF objects out of 1000 (max. 8388607)
+ 90 named destinations out of 1000 (max. 500000)
  50389 words of extra memory for PDF output out of 51595 (max. 10000000)
 

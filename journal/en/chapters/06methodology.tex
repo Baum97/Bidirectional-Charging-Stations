@@ -21,8 +21,6 @@ The \texttt{chargingstations.xml} file contains both existing charging stations 
 
 \paragraph{Coupled traffic-grid simulation.} SUMO reads \texttt{private\_wallboxes.xml}, \texttt{osm.passenger.trips.xml} and \texttt{power\_grid}- \texttt{.pkl} and simulates traffic and charging in time steps of fixed length. SUMO and PandaPower never exchange data directly. TraCI sits between them over a Python interface, passing charging loads to the grid model and returning the power each station may draw, which is what lets grid limits act on vehicle behaviour.
 
-\clearpage
-
 \paragraph{Postprocessing, analysis and visualization.} The simulation produces a variety of output files, including \texttt{station\_statistics.json}, \texttt{v2g\_summary.json}, \texttt{charts\_data.json}, \texttt{charging\_sessions.csv} and \texttt{model\_log}- \texttt{\_data.csv}. These persisted outputs are analyzed and visualized to evaluate the placement algorithm along metrics such as charging sessions, net energy flow over time, peak grid power, and individual charging station utilization (\cref{subsec:eval_metrics}). The results are rendered as plots and maps in the web interface, and inform future iterations of the placement algorithm. \Cref{fig:generated_cs} shows an example visualization with generated (blue) and extracted (green) charging stations for a single run. The heatmap and orange circles indicate approximate areas for charging station placement, while the blue and green dots represent the actual locations of the generated and extracted charging stations, respectively.
 
 
