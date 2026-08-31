@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1788166522.54479 "journal_en.tex" "journal_en.pdf" "journal_en" 1788166523.79311 0
+["pdflatex"] 1788167426.62331 "journal_en.tex" "journal_en.pdf" "journal_en" 1788167427.99056 0
   "C:/Users/Administrator/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1786485272.35723 566693 c81e9331fecf5fe142ac06ca08f4e99f ""
   "C:/Users/Administrator/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1776509242.04239 13337359 921c68d39a821f8fa9f0b4adad96ec6b ""
   "C:/Users/Administrator/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-ec.enc" 1256929440 2375 baa924870cfb487815765f9094cf3728 ""
@@ -156,7 +156,7 @@
   "chapters/05relatedwork.tex" 1787313763.02459 3474 04d37597b2f54713ac0ffa0c8ed54736 ""
   "chapters/06methodology.tex" 1787907267.58611 9586 fee8d78534ae0f40eefd56e99eae7613 ""
   "chapters/07experiments.tex" 1788165775.74 19595 69ba8142e085da7ec0242d251d7b3949 ""
-  "chapters/08discussion.tex" 1788165946.25071 4387 9a4e89ea3e9fb6f13681a1292c824a85 ""
+  "chapters/08discussion.tex" 1788167400.51689 5060 d5a9173cb8f93e0bf7bffad0a86f0b74 ""
   "chapters/09conclusion.tex" 1788164137.50147 2030 5bcf5139262cba91715e435d37188249 ""
   "chapters/10acknowledgments.tex" 1787314943.78414 126 5351326ad548110380a76e88aee840cd ""
   "chapters/11bibliography.tex" 1787921583.1383 5636 adf8869ce50fbbb0ef0074212f7bb1c9 ""
@@ -164,8 +164,8 @@
   "images/generated_cs.png" 1787216871.79355 562104 6841ef35231c574adf0ef1bfd70c5d51 ""
   "images/placement_curve.pdf" 1787924064.68929 20353 a5357612279c194ae21725f0b50d5869 ""
   "images/showcase_ui_all_layers.png" 1787216871.82355 1773342 ddeae0c868a191254687ff4806968c09 ""
-  "journal_en.aux" 1788166523.54176 17473 47cb5e9f2ec976cc76630c5f03f29e9d "pdflatex"
-  "journal_en.out" 1788166523.55059 3539 b1f7fd56d59b075bd26d8f72e459d34f "pdflatex"
+  "journal_en.aux" 1788167427.73532 17509 86f5258a527f411e9b52eb2cda89a648 "pdflatex"
+  "journal_en.out" 1788167427.74282 3539 b1f7fd56d59b075bd26d8f72e459d34f "pdflatex"
   "journal_en.tex" 1787922006.14019 3733 9d73cbaeb949fe1dda6f65c45e54024c ""
   (generated)
   "journal_en.aux"
