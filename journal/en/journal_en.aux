@@ -10,17 +10,17 @@
 \citation{clementnyns2010impact}
 \citation{he2013siting}
 \babel@aux{english}{}
+\newacro{AC}[\AC@hyperlink{AC}{AC}]{Alternating Current}
 \newacro{BEAM}[\AC@hyperlink{BEAM}{BEAM}]{Behavior, Energy, Autonomy, and Mobility}
 \newacro{DBSCAN}[\AC@hyperlink{DBSCAN}{DBSCAN}]{Density-Based Spatial Clustering of Applications with Noise}
 \newacro{EV}[\AC@hyperlink{EV}{EV}]{Electric Vehicle}
 \newacro{MATSim}[\AC@hyperlink{MATSim}{MATSim}]{Multi-Agent Transport Simulation}
+\newacro{OSM}[\AC@hyperlink{OSM}{OSM}]{OpenStreetMap}
 \newacro{POI}[\AC@hyperlink{POI}{POI}]{Point of Interest}
 \newacro{SoC}[\AC@hyperlink{SoC}{SoC}]{State of Charge}
 \newacro{SUMO}[\AC@hyperlink{SUMO}{SUMO}]{Simulation of Urban Mobility}
 \newacro{TraCI}[\AC@hyperlink{TraCI}{TraCI}]{Traffic Control Interface}
 \newacro{V2G}[\AC@hyperlink{V2G}{V2G}]{Vehicle-to-Grid}
-\newacro{OSM}[\AC@hyperlink{OSM}{OSM}]{OpenStreetMap}
-\newacro{AC}[\AC@hyperlink{AC}{AC}]{Alternating Current}
 \@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
 \newlabel{sec:introduction}{{1}{1}{Introduction}{section.1}{}}
 \newlabel{sec:introduction@cref}{{[section][1][]1}{[1][1][]1}{}{}{}}
@@ -146,16 +146,16 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Results}{7}{subsection.4.3}\protected@file@percent }
 \newlabel{subsec:results}{{4.3}{7}{Results}{subsection.4.3}{}}
 \newlabel{subsec:results@cref}{{[subsection][3][4]4.3}{[1][7][]7}{}{}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.1}The existing infrastructure}{7}{subsubsection.4.3.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Where the energy is drawn.}{7}{subsubsection.4.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.1}Scenario generation and simulation}{7}{subsubsection.4.3.1}\protected@file@percent }
+\acronymused{OSM}
+\acronymused{POI}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.2}The existing infrastructure}{8}{subsubsection.4.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Where the energy is drawn.}{8}{subsubsection.4.3.2}\protected@file@percent }
 \acronymused{SUMO}
-\@writefile{toc}{\contentsline {paragraph}{Accessibility.}{8}{subsubsection.4.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Accessibility.}{8}{subsubsection.4.3.2}\protected@file@percent }
 \acronymused{SoC}
 \acronymused{SoC}
-\@writefile{toc}{\contentsline {paragraph}{Stations are not the bottleneck.}{8}{subsubsection.4.3.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Bidirectional operation.}{8}{subsubsection.4.3.1}\protected@file@percent }
-\acronymused{V2G}
-\acronymused{SoC}
+\@writefile{toc}{\contentsline {paragraph}{Stations are not the bottleneck.}{8}{subsubsection.4.3.2}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Reference case on the existing \acs {OSM} infrastructure, mean $\pm $ standard deviation over five scenario seeds. 24 hours of simulated time, 10s time step, coupled through \acs {TraCI}.}}{8}{table.caption.15}\protected@file@percent }
 \acronymused{OSM}
 \acronymused{TraCI}
@@ -168,29 +168,32 @@
 \acronymused{SoC}
 \acronymused{OSM}
 \acronymused{V2G}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.2}Derived charging demand}{8}{subsubsection.4.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Bidirectional operation.}{8}{subsubsection.4.3.2}\protected@file@percent }
+\acronymused{V2G}
+\acronymused{SoC}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.3}Derived charging demand}{8}{subsubsection.4.3.3}\protected@file@percent }
 \acronymused{SoC}
 \acronymused{SoC}
+\acronymused{SoC}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.4}Comparison of the placement strategies}{9}{subsubsection.4.3.4}\protected@file@percent }
+\newlabel{subsec:comparison}{{4.3.4}{9}{Comparison of the placement strategies}{subsubsection.4.3.4}{}}
+\newlabel{subsec:comparison@cref}{{[subsubsection][4][4,3]4.3.4}{[1][9][]9}{}{}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Charging-demand clusters with highest energy demand for scenario seed 42. \emph  {Vis:} number of distinct vehicle visits, \emph  {Veh:} number of vehicles visiting the cluster, \emph  {kWh:} energy needed to reach 80\% \acs {SoC}, \emph  {CP:} resulting number of charge points and \emph  {Cap:} grid capacity at nearest connection point.}}{9}{table.caption.16}\protected@file@percent }
 \acronymused{SoC}
 \newlabel{tab:clusters}{{2}{9}{Charging-demand clusters with highest energy demand for scenario seed 42. \emph {Vis:} number of distinct vehicle visits, \emph {Veh:} number of vehicles visiting the cluster, \emph {kWh:} energy needed to reach 80\% \acs {SoC}, \emph {CP:} resulting number of charge points and \emph {Cap:} grid capacity at nearest connection point}{table.caption.16}{}}
 \newlabel{tab:clusters@cref}{{[table][2][]2}{[1][9][]9}{}{}{}}
 \acronymused{SoC}
-\acronymused{SoC}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.3}Comparison of the placement strategies}{9}{subsubsection.4.3.3}\protected@file@percent }
-\newlabel{subsec:comparison}{{4.3.3}{9}{Comparison of the placement strategies}{subsubsection.4.3.3}{}}
-\newlabel{subsec:comparison@cref}{{[subsubsection][3][4,3]4.3.3}{[1][9][]9}{}{}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces The four configurations at a comparable station count, mean $\pm $ standard deviation over five scenario seeds. Anti-clustering and random placement draw from the same pool of viable road segments as Saturate-and-Prune, so the three differ only in how the sites are chosen.}}{9}{table.caption.18}\protected@file@percent }
-\newlabel{tab:arms}{{3}{9}{The four configurations at a comparable station count, mean $\pm $ standard deviation over five scenario seeds. Anti-clustering and random placement draw from the same pool of viable road segments as Saturate-and-Prune, so the three differ only in how the sites are chosen}{table.caption.18}{}}
-\newlabel{tab:arms@cref}{{[table][3][]3}{[1][9][]9}{}{}{}}
 \@writefile{toc}{\contentsline {paragraph}{Count and placement of sites matter.}{9}{table.caption.18}\protected@file@percent }
-\acronymused{SoC}
 \acronymused{SoC}
 \@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Accessibility against number of charging stations, mean over five scenario seeds with standard deviation as error bars. Left: mean \acs {SoC} of the fleet at the end of a simulated day. Right: share of agents ending below 20\% \acs {SoC}. The line traces successive prune iterations of Saturate-and-Prune. Clustering produces its network in a single pass. Random placement and anti-clustering are control arms at the same station count, drawn from the same pool of viable road segments. All three arms at that count are nudged apart horizontally so their markers stay readable.}}{10}{figure.caption.17}\protected@file@percent }
 \acronymused{SoC}
 \acronymused{SoC}
 \newlabel{fig:placement_curve}{{4}{10}{Accessibility against number of charging stations, mean over five scenario seeds with standard deviation as error bars. Left: mean \acs {SoC} of the fleet at the end of a simulated day. Right: share of agents ending below 20\% \acs {SoC}. The line traces successive prune iterations of Saturate-and-Prune. Clustering produces its network in a single pass. Random placement and anti-clustering are control arms at the same station count, drawn from the same pool of viable road segments. All three arms at that count are nudged apart horizontally so their markers stay readable}{figure.caption.17}{}}
 \newlabel{fig:placement_curve@cref}{{[figure][4][]4}{[1][9][]10}{}{}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces The four configurations at a comparable station count, mean $\pm $ standard deviation over five scenario seeds. Anti-clustering and random placement draw from the same pool of viable road segments as Saturate-and-Prune, so the three differ only in how the sites are chosen.}}{10}{table.caption.18}\protected@file@percent }
+\newlabel{tab:arms}{{3}{10}{The four configurations at a comparable station count, mean $\pm $ standard deviation over five scenario seeds. Anti-clustering and random placement draw from the same pool of viable road segments as Saturate-and-Prune, so the three differ only in how the sites are chosen}{table.caption.18}{}}
+\newlabel{tab:arms@cref}{{[table][3][]3}{[1][9][]10}{}{}{}}
+\acronymused{SoC}
 \acronymused{SoC}
 \acronymused{SoC}
 \acronymused{SoC}
@@ -198,8 +201,8 @@
 \@writefile{toc}{\contentsline {paragraph}{Coverage saturates early.}{10}{table.caption.18}\protected@file@percent }
 \acronymused{SoC}
 \acronymused{SoC}
-\@writefile{toc}{\contentsline {paragraph}{Simulation effort.}{10}{table.caption.18}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Threshold alone is not a sufficient criterion.}{10}{table.caption.18}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Simulation effort.}{11}{table.caption.18}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Threshold alone is not a sufficient criterion.}{11}{table.caption.18}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {5}Discussion}{11}{section.5}\protected@file@percent }
 \newlabel{sec:discussion}{{5}{11}{Discussion}{section.5}{}}
 \newlabel{sec:discussion@cref}{{[section][5][]5}{[1][11][]11}{}{}{}}
@@ -214,12 +217,8 @@
 \acronymused{SUMO}
 \acronymused{SUMO}
 \@writefile{toc}{\contentsline {paragraph}{Resolution of the comparison.}{11}{subsection.5.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{One area, one fleet size.}{11}{subsection.5.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Charge-point sizing.}{11}{subsection.5.2}\protected@file@percent }
-\bibstyle{IEEEtran}
-\bibcite{iea2023evoutlook}{1}
-\bibcite{kempton2005v2g}{2}
-\bibcite{clementnyns2010impact}{3}
+\@writefile{toc}{\contentsline {paragraph}{One area, one fleet size.}{12}{subsection.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Charge-point sizing.}{12}{subsection.5.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Modelling detail.}{12}{subsection.5.2}\protected@file@percent }
 \acronymused{OSM}
 \@writefile{toc}{\contentsline {section}{\numberline {6}Conclusion}{12}{section.6}\protected@file@percent }
@@ -229,6 +228,10 @@
 \acronymused{SoC}
 \acronymused{V2G}
 \acronymused{EV}
+\bibstyle{IEEEtran}
+\bibcite{iea2023evoutlook}{1}
+\bibcite{kempton2005v2g}{2}
+\bibcite{clementnyns2010impact}{3}
 \bibcite{he2013siting}{4}
 \bibcite{review2025planning}{5}
 \bibcite{causal2025placement}{6}
